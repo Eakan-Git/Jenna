@@ -55,23 +55,25 @@ class Snipe(commands.Cog):
         self.bot = bot
         self.guilds = {}
     
-    @commands.group(hidden=True)
+    @commands.group(default_params=[1])
     @commands.guild_only()
-    async def snipe(self, context, index=None, subindex=None):
-        if index == 'edit':
+    async def snipe(self, context, i=None, _subindex=None):
+        if i == 'edit':
             await self.edit(context, subindex)
             return
-        elif index == 'editlog':
+        elif i == 'editlog':
             await self.send_edit_log(context, subindex)
             return
 
-        if index and not str(index).isdigit():
+        if i and not str(i).isdigit():
             return
         
-        await self.send_message_in_embed(context, DELETED, index)
+        await self.send_message_in_embed(context, DELETED, i)
     
-    async def edit(self, context, index=1):
-        await self.send_message_in_embed(context, EDITED, index)
+    @snipe.command()
+    @commands.guild_only()
+    async def edit(self, context, i=None):
+        await self.send_message_in_embed(context, EDITED, i)
 
     async def send_message_in_embed(self, context, state, index):
         if not index:
@@ -106,12 +108,12 @@ class Snipe(commands.Cog):
             if msg.attachments:
                 embed.set_image(url=msg.attachments[0].proxy_url)
     
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
     async def snipelog(self, context, channel:discord.TextChannel=None):
         await self.send_log_in_embed(context, channel, DELETED)
     
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
     async def editlog(self, context, channel:discord.TextChannel=None):
         await self.send_edit_log(context, channel)
@@ -144,7 +146,7 @@ class Snipe(commands.Cog):
                 message_time = m.edited_at if state == EDITED and m.edited_at else m.created_at
                 message_time = message_time.replace(tzinfo=timezone.utc).astimezone(ICT)
                 time = message_time.strftime(TIME_FORMAT) + message_time.strftime('%z')[:-2]
-                snipes += [f'*{time}* {m.author.mention} {m.content} {extra}']
+                snipes += [f'`{time}` {m.author.mention} {m.content} {extra}']
             
             if snipes:
                 embed.description = '\n'.join(snipes)

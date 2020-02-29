@@ -2,9 +2,6 @@ import discord
 
 from discord.ext import commands
 
-LIFEPATH_BRIEF = 'Get your life path number from a birthday.\nAsk S for further info'
-LIFEPATH_USAGE = '`dob`: 3 numbers separated by spaces or /'
-
 class S(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -13,7 +10,7 @@ class S(commands.Cog):
     async def life(self, context):
         pass
     
-    @life.command(brief=LIFEPATH_BRIEF, usage=LIFEPATH_USAGE)
+    @life.command()
     async def path(self, context, *dob):
         await self.reply_lifepath(context, *dob)
 

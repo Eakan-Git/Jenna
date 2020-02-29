@@ -23,7 +23,7 @@ class Misc(commands.Cog):
         if not context.invoked_subcommand:
             await context.send('`do meth` you mean?')
 
-    @do.command(aliases=['meth'], brief=MATH_BRIEF)
+    @do.command(aliases=['meth'])
     async def math(self, context, *expression):
         expr = expression
         if expr:
