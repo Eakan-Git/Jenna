@@ -1,11 +1,14 @@
 import discord
 import colors
 
-from datetime import timezone
+from datetime import timezone, timedelta
 from discord.ext import commands
 
 DELETED = 'deleted'
 EDITED = 'edited'
+
+ICT = timezone(timedelta(hours=7))
+TIME_FORMAT = '%d/%m %H:%M'
 
 class ChannelMessageLog:
     def __init__(self):
@@ -137,8 +140,10 @@ class Snipe(commands.Cog):
                     extra = f'[[Attachment]]({m.attachments[0].proxy_url})'
                 elif m.embeds:
                     extra = '[Embed]'
-
-                time = m.created_at.replace(tzinfo=timezone.utc).astimezone().strftime('%H:%M')
+                
+                message_time = m.edited_at if state == EDITED and m.edited_at else m.created_at
+                message_time = message_time.replace(tzinfo=timezone.utc).astimezone(ICT)
+                time = message_time.strftime(TIME_FORMAT) + message_time.strftime('%z')[:-2]
                 snipes += [f'*{time}* {m.author.mention} {m.content} {extra}']
             
             if snipes:
