@@ -151,16 +151,21 @@ class Snipe(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, msg):
-        guild = msg.channel.guild
-        guild = self.get_guild_log(msg.channel.guild)
+        guild = self.get_guild_log(msg.guild)
         guild.log_deleted(msg)
     
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if before.content == after.content: return
 
-        guild = self.get_guild_log(after.channel.guild)
+        guild = self.get_guild_log(after.guild)
         guild.log_edited(before)
+    
+    @commands.Cog.listener()
+    async def on_bulk_message_delete(self, msgs):
+        guild = self.get_guild_log(msgs[0].guild)
+        for m in msgs:
+            guild.log_deleted(m)
     
     def get_guild_log(self, guild):
         if guild.id not in self.guilds:
