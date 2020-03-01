@@ -3,12 +3,15 @@ from discord.ext import commands
 
 member_converter = commands.MemberConverter()
 
-async def to_user(context, member):
-    if member:
+async def to_user(context, member_name):
+    if member_name:
         try:
-            member = find_member(context, member)
+            member = await member_converter.convert(context, member_name)
         except:
-            await context.send(f"Who's **{member}**?")
+            member = find_member(context, member_name)
+            if member:
+                return member
+            await context.send(f"Who's **{member_name}**?")
             import traceback; traceback.print_exc()
             return
     else:
@@ -37,11 +40,9 @@ def find_member(context, member_name):
 
             total_score = similarity + role_score * .02
             
-            print(f'{name} = {similarity:.2f} + {role_score:.2f} => {total_score:.2f}')
             return total_score
 
         close_matches.sort(key=lambda name: score_member(name), reverse=True)
-        print()
 
         if close_matches:
             name = close_matches[0]
