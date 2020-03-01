@@ -11,7 +11,7 @@ briefs = {
     'life path': 'Get your life path number from a birthday. Ask S for further info.\n`dob`: separated by space or /',
     'avatar': 'Zoom in on someone\'s avatar before they yeet it',
     'do math': 'Compute big numbers for you',
-    'help': 'Show this message',
+    'whos': '*Who is this guy?* Show member info',
 }
 
 default_params = {

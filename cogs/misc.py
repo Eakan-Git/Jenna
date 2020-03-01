@@ -2,6 +2,7 @@ import discord
 import colors
 import const
 import convert
+import timezone
 
 from discord.ext import commands
 from math import *
@@ -42,16 +43,24 @@ class Misc(commands.Cog):
             import traceback
             traceback.print_exc()
     
-    @commands.command(hidden=True)
+    @commands.command()
     @commands.guild_only()
-    async def whos(self, context, member_name):
-        member = convert.find_member(context, member_name)
+    async def whos(self, context, name=None):
+        member = await convert.to_user(context, name)
 
+        embed = None
         if member:
             response = f'It\'s **{member.name}#{member.discriminator}**'
+            embed = discord.Embed(color=colors.random())
+            embed.description = member.mention
+            embed.set_thumbnail(url=member.avatar_url)
+            created_at = timezone.to_ict(member.created_at, timezone.DAYWEEK_DAY_IN_YEAR)
+            joined_at = timezone.to_ict(member.joined_at, timezone.DAYWEEK_DAY_IN_YEAR)
+            embed.add_field(name='On Discord since', value=created_at, inline=False)
+            embed.add_field(name='Joined on', value=joined_at)
         else:
             response = 'I dunno who! ' + const.SHRUG
-        await context.send(response)
+        await context.send(response, embed=embed)
     
 def setup(bot):
     bot.add_cog(Misc(bot))
