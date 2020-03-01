@@ -1,6 +1,8 @@
 import difflib
 from discord.ext import commands
 
+ROLE_SCORE_WEIGHT = 0.025
+
 member_converter = commands.MemberConverter()
 
 async def to_user(context, member_name):
@@ -38,7 +40,7 @@ def find_member(context, member_name):
             member = members_by_name[name]
             role_score = score_member_role(context.guild, member)
 
-            total_score = similarity + role_score * .02
+            total_score = similarity + role_score * ROLE_SCORE_WEIGHT
             
             return total_score
 
