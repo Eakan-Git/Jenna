@@ -11,8 +11,8 @@ class S(commands.Cog):
         pass
     
     @life.command()
-    async def path(self, context, *dob):
-        await self.reply_lifepath(context, *dob)
+    async def path(self, context, *DOB):
+        await self.reply_lifepath(context, *DOB)
 
     @commands.command(hidden=True)
     async def lifepath(self, context, *dob):

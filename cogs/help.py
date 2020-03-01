@@ -1,25 +1,18 @@
 import discord
 import colors
+import const
 
 from discord.ext import commands
 
-briefs = {
-    'snipe': 'Show the `i`th last deleted message',
-    'snipe edit': 'Show the `i`th last edited message',
-    'snipelog': 'Show all logged deleted messages in channel',
-    'editlog': 'Show all logged edited messages in channel',
-    'life path': 'Get your life path number from a birthday. Ask S for further info.\n`dob`: separated by space or /',
+BRIEFS = {
+    'snipe': 'Show the `i`th last deleted message in channel',
+    'snipe edit': 'Show the `i`th last edited message in channel',
+    'snipelog': 'Show all logged deleted messages in `channel`',
+    'editlog': 'Show all logged edited messages in `channel`',
+    'life path': 'Get life path number from `DOB`',
     'avatar': 'Zoom in on someone\'s avatar before they yeet it',
     'do math': 'Compute big numbers for you',
-    'whos': '*Who is this guy?* Show member info',
-}
-
-default_params = {
-    'snipe': [1],
-    'snipe edit': [1],
-    'avatar': ['you'],
-    'snipelog': ['current'],
-    'editlog': ['current'],
+    'whos': '*Who is this guy?*',
 }
 
 class Help(commands.Cog):
@@ -27,13 +20,15 @@ class Help(commands.Cog):
         self.bot = bot
         self.bot.remove_command('help')
     
-    @commands.command()
+    @commands.command(hidden=True)
     async def help(self, context):
         embed = discord.Embed(title=f'{self.bot.user.name} Command List', color=colors.random())
         embed.set_footer(text='Nag DJ for more features', icon_url=self.bot.user.avatar_url)
 
         done = []
-        for _, cog in self.bot.cogs.items():
+        cogs_to_fields = {}
+        for cog_name, cog in self.bot.cogs.items():
+            fields = []
             for command in cog.walk_commands():
                 if command.hidden: continue
                 name = command.qualified_name
@@ -49,16 +44,29 @@ class Help(commands.Cog):
                     params = []
                     for i, p in enumerate(command.clean_params):
                         if p.startswith('_'): continue
-                        defaults = default_params.get(name)
-                        if defaults:
-                            p += f'={defaults[i]}'
                         params += [p]
 
                     params = ', '.join(params)
                     name += f' [{params}]'
 
-                brief = briefs.get(command.qualified_name)
-                embed.add_field(name=name, value=brief or 'No description')
+                brief = BRIEFS.get(command.qualified_name)
+                fields += [(name, brief)]
+            
+            if fields:
+                cogs_to_fields[cog_name] = fields
+            
+        longest_name_len = max([len(name) for fields in cogs_to_fields.values() for name, _ in fields])
+        for cog_name, fields in cogs_to_fields.items():
+            lines = []
+            for name, brief in fields:
+                name = f'`{name}`'
+                pad_count = (longest_name_len - len(name)) * 2 + 4
+                pad = const.INVISBLE * pad_count
+                name = name + pad
+                lines += [f'{name} {brief}']
+            lines = '\n\n'.join(lines)
+
+            embed.add_field(name=cog_name, value=lines, inline=False)
 
         await context.send(embed=embed)
 

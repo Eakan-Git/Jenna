@@ -25,8 +25,7 @@ class Misc(commands.Cog):
             await context.send('`do meth` you mean?')
 
     @do.command(aliases=['meth'])
-    async def math(self, context, *expression):
-        expr = expression
+    async def math(self, context, *expr):
         if expr:
             expr = ''.join(expr)
             for math, code in MATH_OPERATIONS.items():
