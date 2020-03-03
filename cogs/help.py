@@ -15,6 +15,10 @@ BRIEFS = {
     'whos': '*Who is this guy?*',
 }
 
+HIDDEN_PARAMS = {
+    'snipe': ['subindex']
+}
+
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -43,8 +47,8 @@ class Help(commands.Cog):
                 if command.clean_params:
                     params = []
                     for i, p in enumerate(command.clean_params):
-                        if p.startswith('_'): continue
-                        params += [p]
+                        if p not in HIDDEN_PARAMS.get(command.qualified_name, []):
+                            params += [p]
 
                     params = ', '.join(params)
                     name += f' [{params}]'

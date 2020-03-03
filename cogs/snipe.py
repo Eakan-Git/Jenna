@@ -54,7 +54,7 @@ class Snipe(commands.Cog):
     
     @commands.group(default_params=[1])
     @commands.guild_only()
-    async def snipe(self, context, i=None, _subindex=None):
+    async def snipe(self, context, i=None, subindex=None):
         if i == 'edit':
             await self.edit(context, subindex)
             return
