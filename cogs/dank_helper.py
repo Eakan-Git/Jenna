@@ -41,10 +41,10 @@ class DankHelper(commands.Cog):
         if any(word in msg.content for word in GAMES_TO_HELP):
             await msg.channel.trigger_typing()
             content = '\n'.join(msg.content.split('\n')[1:])
+            content = content.replace(INVISIBLE_TRAP, '')
 
             if RETYPE in msg.content:
-                type_match = re.findall(TYPE_PATTERN, content)[0]
-                content = type_match.replace(INVISIBLE_TRAP, '')
+                content = re.findall(TYPE_PATTERN, content)[0]
             elif MEMORY in msg.content:
                 content = content.replace('`', '').replace('\n', ' ')
             elif COLOR in msg.content:
