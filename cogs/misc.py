@@ -34,13 +34,15 @@ class Misc(commands.Cog):
             return
         try:
             value = eval(expr)
-            if value:
+            if value is not None:
                 value = f'{value:,}'
                 response = f"That's **{value}**"
                 await context.send(response)
-        except:
+        except Exception as e:
+            await context.send("That's *bruh!*")
             import traceback
             traceback.print_exc()
+
     
     @commands.command()
     @commands.guild_only()
