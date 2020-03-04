@@ -11,13 +11,14 @@ for p in prefixes[::]:
 bot = commands.Bot(command_prefix=prefixes)
 
 extensions = [
-    'cogs.images',
-    'cogs.s',
-    'cogs.snipe',
-    'cogs.misc',
+    # 'cogs.images',
+    # 'cogs.s',
+    # 'cogs.snipe',
+    # 'cogs.misc',
 
-    'cogs.dank_helper',
-    'cogs.help',
+    # 'cogs.dank_helper',
+    # 'cogs.help',
+    'cogs.alpha'
 ]
 
 if __name__ == '__main__':
