@@ -1,8 +1,9 @@
 import discord
 import colors
-import const
 
 from discord.ext import commands
+
+INVISBLE = '‏‏‎ ‎'
 
 BRIEFS = {
     'snipe': 'Show the `i`th last deleted message in channel',
@@ -65,7 +66,7 @@ class Help(commands.Cog):
             for name, brief in fields:
                 name = f'`{name}`'
                 pad_count = (longest_name_len - len(name)) * 2 + 4
-                pad = const.INVISBLE * pad_count
+                pad = INVISBLE * pad_count
                 name = name + pad
                 lines += [f'{name} {brief}']
             lines = '\n\n'.join(lines)

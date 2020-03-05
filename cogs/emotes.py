@@ -1,6 +1,5 @@
 import discord
 import re
-import const
 import aiohttp
 import colors
 import math
@@ -15,6 +14,9 @@ LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu']
 HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét']
 
 EMOTES_PER_PAGE = 25
+EMOJI_PATTERN = '(?:^|[^<]):([^:\s]+):'
+INTERROBANG = '⁉️'
+HOME_GUILD = 596171359747440657
 
 class Emotes(commands.Cog):
     def __init__(self, bot):
@@ -22,7 +24,7 @@ class Emotes(commands.Cog):
 
     @commands.command(aliases=['emojis'])
     async def emotes(self, context, page:int=1):
-        home_guild = self.bot.get_guild(const.HOME_GUILD)
+        home_guild = self.bot.get_guild(HOME_GUILD)
         embed = colors.random_color_embed()
         embed.set_author(name='Available Emotes')
         total_page = math.ceil(len(home_guild.emojis) / EMOTES_PER_PAGE)
@@ -43,7 +45,7 @@ class Emotes(commands.Cog):
             emoji = emoji.replace(':', '')
             emoji = self.get_emoji(emoji)
             if not emoji:
-                await context.message.add_reaction(const.INTERROBANG)
+                await context.message.add_reaction(INTERROBANG)
                 return
         
         skip = 1
@@ -78,7 +80,7 @@ class Emotes(commands.Cog):
             await msg.add_reaction(emoji)
 
     async def reply_emotes(self, msg):
-        match = re.findall(const.EMOJI_PATTERN, msg.content)
+        match = re.findall(EMOJI_PATTERN, msg.content)
         msg_content = msg.content
         emojis = msg.content
 
