@@ -54,17 +54,6 @@ class DankHelper(commands.Cog):
                     lines += [f':{color}_square: `{word}`']
                 content = '\n'.join(lines)
             await msg.channel.send(content)
-    
-    @commands.command(hidden=True)
-    async def repeat(self, context, msg_id:int, limit:int=100):
-        await context.trigger_typing()
-        history = await context.history(limit=limit).flatten()
-        msg = discord.utils.get(history, id=msg_id)
-        if msg:
-            embed = msg.embeds[0] if msg.embeds else None
-            await context.send(msg.content, embed=embed)
-        else:
-            await context.send('History limit 2 smol!')
 
 def setup(bot):
     bot.add_cog(DankHelper(bot))

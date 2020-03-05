@@ -18,6 +18,7 @@ extensions = [
 
     'cogs.dank_helper',
     'cogs.help',
+    'cogs.alpha',
 ]
 
 if __name__ == '__main__':
