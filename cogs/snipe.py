@@ -1,9 +1,11 @@
 import discord
 import colors
-import timezone
+import timedisplay
+import const
 
 from discord.ext import commands
 
+SAVE_LIMIT = 10
 DELETED = 'deleted'
 EDITED = 'edited'
 
@@ -16,7 +18,11 @@ class ChannelMessageLog:
         return getattr(self, state)
     
     def log(self, state, message):
-        self.get_list(state).append(message)
+        if message.author.bot: return
+        msgs = self.get_list(state)
+        msgs.append(message)
+        msgs = msgs[-SAVE_LIMIT:]
+        setattr(self, state, msgs)
     
     def log_deleted(self, message): self.log(DELETED, message)    
     def log_edited(self, message): self.log(EDITED, message)
@@ -57,9 +63,6 @@ class Snipe(commands.Cog):
     async def snipe(self, context, i=None, subindex=None):
         if i == 'edit':
             await self.edit(context, subindex)
-            return
-        elif i == 'editlog':
-            await self.send_edit_log(context, subindex)
             return
 
         if i and not str(i).isdigit():
@@ -107,18 +110,15 @@ class Snipe(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def snipelog(self, context, channel:discord.TextChannel=None):
-        await self.send_log_in_embed(context, channel, DELETED)
+    async def snipelog(self, context, channel:discord.TextChannel=None, page:int=1):
+        await self.send_log_in_embed(context, channel, DELETED, page)
     
     @commands.command()
     @commands.guild_only()
-    async def editlog(self, context, channel:discord.TextChannel=None):
-        await self.send_edit_log(context, channel)
+    async def editlog(self, context, channel:discord.TextChannel=None, page:int=1):
+        await self.send_log_in_embed(context, channel, EDITED, page)
     
-    async def send_edit_log(self, context, channel):
-        await self.send_log_in_embed(context, channel, EDITED)
-
-    async def send_log_in_embed(self, context, channel, state):
+    async def send_log_in_embed(self, context, channel, state, page=1):
         if not channel:
             channel = context.channel
         
@@ -126,28 +126,32 @@ class Snipe(commands.Cog):
         channel_log = guild_log.channels.get(channel.id) if guild_log else None
 
         embed = self.create_empty_embed(channel, state)
-        self.embed_channel_logs(embed, channel_log, state)
+        self.embed_channel_logs(embed, channel_log, state, page)
 
         await context.send(embed=embed)
 
-    def embed_channel_logs(self, embed, channel_log, state):
-        if channel_log:
-            snipes = []
-            for m in channel_log.get_list(state):
-                extra = ''
-                if m.attachments:
-                    extra = f'[[Attachment]]({m.attachments[0].proxy_url})'
-                elif m.embeds:
-                    extra = '[Embed]'
-                
-                message_time = m.edited_at if state == EDITED and m.edited_at else m.created_at
-                message_time = timezone.to_ict(message_time)
-                time = message_time.strftime(timezone.DAY_HOUR) + message_time.strftime('%z')[:-2]
-                snipes += [f'`{time}` {m.author.mention} {m.content} {extra}']
-            
-            if snipes:
-                embed.description = '\n'.join(snipes)
-                embed.set_footer(text=state.capitalize())
+    def embed_channel_logs(self, embed, channel_log, state, page):
+        if not channel_log: return
+
+        last_msg = None
+        last_time = None
+        msgs = []
+        for m in channel_log.get_list(state):
+            extra = get_extra(m)
+            time = get_time_display(m, state)
+
+            msg = f'`{time}` {m.content} {extra}'
+            if not last_msg or last_msg.author != m.author:
+                msg = f'{m.author.mention} {msg}'
+            msgs += [msg]
+
+            last_msg = m
+            last_time = time
+        
+        if msgs:
+            footer = f'{state.capitalize()}'
+            embed.set_footer(text=footer)
+            embed.description = '\n'.join(msgs)
 
     @commands.Cog.listener()
     async def on_message_delete(self, msg):
@@ -166,11 +170,25 @@ class Snipe(commands.Cog):
         guild = self.get_guild_log(msgs[0].guild)
         for m in msgs:
             guild.log_deleted(m)
-    
+
     def get_guild_log(self, guild):
         if guild.id not in self.guilds:
             self.guilds[guild.id] = GuildMessageLog()
         return self.guilds[guild.id]
+
+def get_extra(m):
+    extra = ''
+    if m.attachments:
+        extra = f'[[Attachment]]({m.attachments[0].proxy_url})'
+    elif m.embeds:
+        extra = '[Embed]'
+    return extra
+
+def get_time_display(m, state):
+    message_time = m.edited_at if state == EDITED and m.edited_at else m.created_at
+    display_format = timedisplay.HOUR if timedisplay.is_today(message_time) else timedisplay.DAY_HOUR
+    message_time = timedisplay.to_ict(message_time, display_format)
+    return message_time
 
 def setup(bot):
     bot.add_cog(Snipe(bot))

@@ -2,7 +2,7 @@ import discord
 import colors
 import const
 import convert
-import timezone
+import timedisplay
 
 from discord.ext import commands
 from math import *
@@ -55,8 +55,8 @@ class Misc(commands.Cog):
             embed = discord.Embed(color=colors.random())
             embed.description = member.mention
             embed.set_thumbnail(url=member.avatar_url)
-            created_at = timezone.to_ict(member.created_at, timezone.DAYWEEK_DAY_IN_YEAR)
-            joined_at = timezone.to_ict(member.joined_at, timezone.DAYWEEK_DAY_IN_YEAR)
+            created_at = timedisplay.to_ict(member.created_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
+            joined_at = timedisplay.to_ict(member.joined_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
             embed.add_field(name='On Discord since', value=created_at, inline=False)
             embed.add_field(name='Joined on', value=joined_at)
         else:
