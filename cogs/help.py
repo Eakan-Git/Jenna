@@ -8,12 +8,14 @@ INVISBLE = '‏‏‎ ‎'
 BRIEFS = {
     'snipe': 'Show the `i`th last deleted message in channel',
     'snipe edit': 'Show the `i`th last edited message in channel',
-    'snipelog': 'Show all logged deleted messages in `channel`',
-    'editlog': 'Show all logged edited messages in `channel`',
+    'snipelog': 'Show last 10 deleted messages in `channel`',
+    'editlog': 'Show last 10 edited messages in `channel`',
     'life path': 'Get life path number from `DOB`',
     'avatar': 'Zoom in on someone\'s avatar before they yeet it',
     'do math': 'Compute big numbers for you',
     'whos': '*Who is this guy?*',
+    'emotes': 'Lemme drop a Nitro emoji for you',
+    'react': 'React a message with a Nitro emoji',
 }
 
 HIDDEN_PARAMS = {
