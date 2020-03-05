@@ -51,7 +51,7 @@ class DankHelper(commands.Cog):
                 color_word_pairs = re.findall(COLOR_WORD_PATTERN, content)
                 lines = []
                 for color, word in color_word_pairs:
-                    lines += [f':{color}_square: `{word}`']
+                    lines += [f':{color}_square: `{word}` = `{color}`']
                 content = '\n'.join(lines)
             await msg.channel.send(content)
 
