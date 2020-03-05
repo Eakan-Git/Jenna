@@ -19,6 +19,7 @@ extensions = [
     'cogs.dank_helper',
     'cogs.help',
     'cogs.alpha',
+    'cogs.emotes',
 ]
 
 if __name__ == '__main__':

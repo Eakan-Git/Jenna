@@ -23,3 +23,6 @@ def random(exceptions=None):
         new_color = choice(brights)()
         if new_color not in exceptions:
             return new_color
+
+def random_color_embed():
+    return discord.Embed(color=random())
