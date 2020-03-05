@@ -18,7 +18,6 @@ class ChannelMessageLog:
         return getattr(self, state)
     
     def log(self, state, message):
-        if message.author.bot: return
         msgs = self.get_list(state)
         msgs.append(message)
         msgs = msgs[-SAVE_LIMIT:]
@@ -155,6 +154,7 @@ class Snipe(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, msg):
+        if msg.author.bot: return
         guild = self.get_guild_log(msg.guild)
         guild.log_deleted(msg)
     
