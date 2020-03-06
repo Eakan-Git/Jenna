@@ -15,7 +15,8 @@ LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu']
 HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét']
 
 EMOTES_PER_PAGE = 25
-EMOJI_PATTERN = '(?:^|[^<]):([^:\s]+):'
+EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
+NAME_PATTERN = '[^:\s]+'
 INTERROBANG = '⁉️'
 HOME_GUILD = 596171359747440657
 
@@ -86,11 +87,12 @@ class Emotes(commands.Cog):
         emojis = msg.content
 
         for emoji in match:
-            emoji = self.get_emoji(emoji)
+            emoji = self.get_emoji(emoji.replace(':', ''))
             if emoji:
                 plain_emoji = f':{emoji.name}:'
                 msg_content = msg_content.replace(plain_emoji, '')
-                emojis = emojis.replace(plain_emoji, str(emoji))
+                pattern = EMOJI_PATTERN.replace(NAME_PATTERN, emoji.name)
+                emojis = re.sub(pattern, str(emoji), emojis)
         
         if emojis and not msg_content.strip():
             await msg.channel.send(emojis)
