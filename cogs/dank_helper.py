@@ -11,9 +11,10 @@ DANK_MEMER = 'Dank Memer'
 RETYPE = 'Retype'
 COLOR = 'Color'
 MEMORY = 'Memory'
-GAMES_TO_HELP = [RETYPE, COLOR, MEMORY]
+REVERSE = 'Reverse'
+GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE]
 
-TYPE_PATTERN = 'Type `(.+)`'
+WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
 INVISIBLE_TRAP = '﻿'
 
@@ -23,7 +24,7 @@ class DankHelper(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author.name != DANK_MEMER: return
+        if msg.author.name not in [DANK_MEMER, self.bot.user.name]: return
 
         is_trivia_question = msg.embeds and msg.embeds[0].author and TRIVIA_QUESTION in msg.embeds[0].author.name
         
@@ -44,7 +45,7 @@ class DankHelper(commands.Cog):
             content = content.replace(INVISIBLE_TRAP, '')
 
             if RETYPE in msg.content:
-                content = re.findall(TYPE_PATTERN, content)[0]
+                content = re.findall(WORD_PATTERN, content)[0]
             elif MEMORY in msg.content:
                 content = content.replace('`', '').replace('\n', ' ')
             elif COLOR in msg.content:
@@ -53,6 +54,9 @@ class DankHelper(commands.Cog):
                 for color, word in color_word_pairs:
                     lines += [f':{color}_square: `{word}` = `{color}`']
                 content = '\n'.join(lines)
+            elif REVERSE in msg.content:
+                content = re.findall(WORD_PATTERN, content)[0][::-1]
+
             await msg.channel.send(content)
 
 def setup(bot):
