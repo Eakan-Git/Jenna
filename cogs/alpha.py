@@ -26,6 +26,7 @@ class Alpha(commands.Cog):
                 if msg.id == msg_id:
                     embed = msg.embeds[0] if msg.embeds else None
                     await context.send(msg.content, embed=embed)
+                    return
     
     @commands.command(hidden=True)
     @commands.is_owner()
