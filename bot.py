@@ -5,7 +5,7 @@ import env
 
 from discord.ext import commands
 
-prefixes = ['j ']
+prefixes = ['j ', 'jenna ', 'jen ']
 for p in prefixes[::]:
     prefixes.append(p.capitalize())
 bot = commands.Bot(command_prefix=prefixes)
