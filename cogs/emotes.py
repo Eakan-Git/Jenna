@@ -3,6 +3,7 @@ import re
 import aiohttp
 import colors
 import math
+import random
 
 from discord.ext import commands
 
@@ -96,14 +97,22 @@ class Emotes(commands.Cog):
     
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def addemoji(self, context, name, url):
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
-                if r.status == 200:
-                    image = await r.read()
-                    await context.guild.create_custom_emoji(name=name, image=image)
-                    emoji = self.get_emoji(name)
-                    await context.message.add_reaction(emoji)
+    async def addemote(self, context, url, name=None):
+        image = None
+        response = INTERROBANG
+        
+        async with context.typing():
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as r:
+                    if r.status == 200:
+                        image = await r.read()
+            
+            if image:
+                if not name:
+                    name = 'emote%04d' % random.randint(0, 9999)
+                await context.guild.create_custom_emoji(name=name, image=image)
+                response = self.get_emoji(name)
+            await context.message.add_reaction(response)
 
 def setup(bot):
     bot.add_cog(Emotes(bot))
