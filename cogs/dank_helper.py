@@ -17,7 +17,7 @@ GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE]
 WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
 INVISIBLE_TRAP = '﻿'
-COPY_THIS = '_You can safely copy this as I have removed the traps for you_'
+COPY_THIS = '_Copy this! I\'ve removed the traps for you_'
 
 class DankHelper(commands.Cog):
     def __init__(self, bot):
@@ -45,8 +45,8 @@ class DankHelper(commands.Cog):
             content = '\n'.join(msg.content.split('\n')[1:])
             content = content.replace(INVISIBLE_TRAP, '')
 
-            lines = []
             if COLOR in msg.content:
+                lines = []
                 color_word_pairs = re.findall(COLOR_WORD_PATTERN, content)
                 for color, word in color_word_pairs:
                     lines += [f':{color}_square: `{word}` = `{color}`']
@@ -58,7 +58,7 @@ class DankHelper(commands.Cog):
             elif REVERSE in msg.content:
                 content = re.findall(WORD_PATTERN, content)[0][::-1]
             
-            if lines:
+            if any(word in msg.content for word in [RETYPE, MEMORY]):
                 yeboi = discord.utils.get(self.bot.emojis, name='yeboi')
                 await msg.channel.send(f'{yeboi} {COPY_THIS}')
 
