@@ -32,7 +32,7 @@ class Alpha(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def clean(self, context, count:int=1):
-        async with channel.typing():
+        async with context.typing():
             deleted = 0
             async for message in context.history(limit=None):
                 if message.author == self.bot.user:
