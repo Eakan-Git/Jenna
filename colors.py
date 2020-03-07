@@ -24,5 +24,5 @@ def random(exceptions=None):
         if new_color not in exceptions:
             return new_color
 
-def random_color_embed():
-    return discord.Embed(color=random())
+def embed(**kwargs):
+    return discord.Embed(color=random(), **kwargs)

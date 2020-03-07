@@ -11,6 +11,7 @@ class Alpha(commands.Cog):
     @commands.command(aliases=['rl'], hidden=True)
     @commands.is_owner()
     async def reload(self, context, cog_name):
+        await context.trigger_typing()
         cog = 'cogs.' + cog_name
         self.bot.reload_extension(cog)
         await context.send(f'Cog `{cog_name}` reloaded!')

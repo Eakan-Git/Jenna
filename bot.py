@@ -11,21 +11,23 @@ for p in prefixes[::]:
 bot = commands.Bot(command_prefix=prefixes)
 
 extensions = [
-    'cogs.dank_helper',
-    'cogs.help',
-    'cogs.alpha',
+    'dank_helper',
+    'help',
+    'alpha',
     
-    'cogs.images',
-    'cogs.s',
-    'cogs.snipe',
-    'cogs.emotes',
+    'images',
+    's',
+    'snipe',
+    'emotes',
 
-    'cogs.misc',
+    'misc',
 ]
 
+extensions = ['cogs.' + ext for ext in extensions]
+
 if __name__ == '__main__':
-    for ex in extensions:
-        bot.load_extension(ex)
+    for ext in extensions:
+        bot.load_extension(ext)
 
 @bot.event
 async def on_ready():

@@ -19,8 +19,8 @@ class Images(commands.Cog):
             member = context.author
         if not member: return
 
-        embed = discord.Embed(color=colors.random())
-        embed.title = name=f'{member.name}#{member.discriminator}'
+        embed = colors.embed()
+        embed.title = str(member)
         embed.set_image(url=str(member.avatar_url).replace('webp', 'png'))
         embed.timestamp = datetime.now().astimezone()
         await context.send(embed=embed)

@@ -91,15 +91,14 @@ class Snipe(commands.Cog):
         await context.send(embed=embed)
 
     def create_empty_embed(self, channel, state):
-        embed = discord.Embed(color=colors.random())
+        embed = colors.embed()
         embed.description = f'No {state} messages to snipe!'
         embed.set_author(name='#' + channel.name)
         return embed
     
     def embed_message_log(self, embed, msg, state):
         if msg:
-            full_name = f'{msg.author.name}#{msg.author.discriminator}'
-            embed.set_author(name=full_name, icon_url=msg.author.avatar_url)
+            embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
             embed.description = msg.content or None
             embed.timestamp = msg.created_at
             embed.set_footer(text=state.capitalize())

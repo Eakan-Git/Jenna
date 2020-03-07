@@ -51,14 +51,15 @@ class Misc(commands.Cog):
 
         embed = None
         if member:
-            response = f'It\'s **{member.name}#{member.discriminator}**'
-            embed = discord.Embed(color=colors.random())
+            response = f'It\'s **{member}**'
+            embed = colors.embed()
             embed.description = member.mention
-            embed.set_thumbnail(url=member.avatar_url)
             created_at = timedisplay.to_ict(member.created_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
             joined_at = timedisplay.to_ict(member.joined_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
-            embed.add_field(name='On Discord since', value=created_at, inline=False)
-            embed.add_field(name='Joined on', value=joined_at)
+            embed \
+                .set_thumbnail(url=member.avatar_url) \
+                .add_field(name='On Discord since', value=created_at, inline=False) \
+                .add_field(name='Joined on', value=joined_at)
         else:
             response = 'I dunno who! ' + const.SHRUG
         await context.send(response, embed=embed)
