@@ -27,7 +27,7 @@ class Emotes(commands.Cog):
     @commands.command(aliases=['emojis'])
     async def emotes(self, context, page:int=1):
         home_guild = self.bot.get_guild(HOME_GUILD)
-        embed = colors.random_color_embed()
+        embed = colors.embed()
         embed.set_author(name='Available Emotes')
         total_page = math.ceil(len(home_guild.emojis) / EMOTES_PER_PAGE)
         embed.set_footer(text=f'Page {page}/{total_page}')
