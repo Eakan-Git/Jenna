@@ -17,7 +17,6 @@ GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE]
 WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
 INVISIBLE_TRAP = '﻿'
-COPY_THIS = '_Copy this! I\'ve removed the traps for you_'
 
 class DankHelper(commands.Cog):
     def __init__(self, bot):
@@ -35,7 +34,7 @@ class DankHelper(commands.Cog):
             answer = plstrivia.try_answer(trivia)
             if answer:
                 no = trivia.answers.index(answer)
-                response = f'The answer is ||**{no})** *{answer}*||'
+                response = f'The answer is **{no})** *{answer}*'
             else:
                 response = 'I dunno man ' + const.SHRUG
             await msg.channel.send(response)
@@ -57,10 +56,6 @@ class DankHelper(commands.Cog):
                 content = content.replace('`', '').replace('\n', ' ')
             elif REVERSE in msg.content:
                 content = re.findall(WORD_PATTERN, content)[0][::-1]
-            
-            if any(word in msg.content for word in [RETYPE, MEMORY]):
-                yeboi = discord.utils.get(self.bot.emojis, name='yeboi')
-                await msg.channel.send(f'{yeboi} {COPY_THIS}')
 
             await msg.channel.send(content)
 
