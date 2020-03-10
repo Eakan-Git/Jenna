@@ -12,7 +12,7 @@ LUV = 'worryluv'
 MAD = 'worryduoi'
 
 LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu']
-HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét']
+HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét', 'ngu']
 
 EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
