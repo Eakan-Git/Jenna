@@ -43,10 +43,9 @@ class Misc(commands.Cog):
             import traceback
             traceback.print_exc()
 
-    
     @commands.command()
     @commands.guild_only()
-    async def whos(self, context, name=None):
+    async def whos(self, context, *, name=None):
         member = await convert.to_user(context, name)
 
         embed = None
@@ -63,6 +62,15 @@ class Misc(commands.Cog):
         else:
             response = 'I dunno who! ' + const.SHRUG
         await context.send(response, embed=embed)
+    
+    @commands.command(aliases=['usd'])
+    async def upsidedown(self, context, *, text=None):
+        if not text:
+            text = 'Enter some text!'
+        import upsidedown
+        text = text.replace('||', '')
+        text = upsidedown.transform(text)
+        await context.send(text)
     
 def setup(bot):
     bot.add_cog(Misc(bot))

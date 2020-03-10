@@ -16,6 +16,7 @@ BRIEFS = {
     'whos': '*Who is this guy?*',
     'emotes': 'Lemme drop a Nitro emoji for you',
     'react': 'React a message with a Nitro emoji',
+    'upsidedown': 'Write texts uʍop ǝpᴉsdn for Southern Hemisphere blokes.\n',
 }
 
 HIDDEN_PARAMS = {
