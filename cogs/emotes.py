@@ -16,7 +16,6 @@ HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét', 'ngu']
 
 EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
-NAME_PATTERN = '[^:\s]+'
 INTERROBANG = '⁉️'
 HOME_GUILD = 596171359747440657
 
@@ -83,18 +82,15 @@ class Emotes(commands.Cog):
 
     async def reply_emotes(self, msg):
         match = re.findall(EMOJI_PATTERN, msg.content)
-        msg_content = msg.content
-        emojis = msg.content
+        emojis = []
 
         for emoji in match:
             emoji = self.get_emoji(emoji.replace(':', ''))
             if emoji:
-                plain_emoji = f':{emoji.name}:'
-                msg_content = msg_content.replace(plain_emoji, '')
-                pattern = EMOJI_PATTERN.replace(NAME_PATTERN, emoji.name)
-                emojis = re.sub(pattern, str(emoji), emojis)
+                emojis += [str(emoji)]
         
-        if emojis and not msg_content.strip():
+        if emojis:
+            emojis = ' '.join(emojis)
             await msg.channel.send(emojis)
     
     @commands.command(hidden=True)
