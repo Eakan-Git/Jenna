@@ -17,6 +17,7 @@ BRIEFS = {
     'emotes': 'Lemme drop a Nitro emoji for you',
     'react': 'React a message with a Nitro emoji',
     'upsidedown': 'Write texts uʍop ǝpᴉsdn for Southern Hemisphere blokes.\n',
+    'rps': 'Play a game of Rock Paper Scissors with your friend',
 }
 
 HIDDEN_PARAMS = {
@@ -26,11 +27,10 @@ HIDDEN_PARAMS = {
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bot.remove_command('help')
     
     @commands.command(hidden=True)
     async def help(self, context):
-        embed = discord.Embed(title=f'{self.bot.user.name} Command List', color=colors.random())
+        embed = colors.embed(title=f'{self.bot.user.name} Command List')
         embed.set_footer(text='Nag DJ for more features', icon_url=self.bot.user.avatar_url)
 
         done = []

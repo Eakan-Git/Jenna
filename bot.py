@@ -19,10 +19,12 @@ extensions = [
     's',
     'snipe',
     'emotes',
+    'games',
 
     'misc',
 ]
 
+bot.remove_command('help')
 extensions = ['cogs.' + ext for ext in extensions]
 
 if __name__ == '__main__':
