@@ -16,9 +16,12 @@ BRIEFS = {
     'whos': '*Who is this guy?*',
     'emotes': 'Lemme drop a Nitro emoji for you',
     'react': 'React a message with a Nitro emoji',
-    'upsidedown': 'Write texts uʍop ǝpᴉsdn for Southern Hemisphere blokes.\n',
+    'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.\n',
     'rps': 'Play a game of Rock Paper Scissors with your friend',
+    'invite': 'Invite me to your server!',
 }
+
+DEFAULT_HELP = '_Either DJ\'s too lazy or forget to write this_'
 
 HIDDEN_PARAMS = {
     'snipe': ['subindex']
@@ -57,7 +60,7 @@ class Help(commands.Cog):
                     params = ', '.join(params)
                     name += f' [{params}]'
 
-                brief = BRIEFS.get(command.qualified_name)
+                brief = BRIEFS.get(command.qualified_name, DEFAULT_HELP)
                 fields += [(name, brief)]
             
             if fields:
@@ -72,7 +75,7 @@ class Help(commands.Cog):
                 pad = INVISBLE * pad_count
                 name = name + pad
                 lines += [f'{name} {brief}']
-            lines = '\n\n'.join(lines)
+            lines = '\n\n'.join(lines).replace('\n'*3, '\n'*2)
 
             embed.add_field(name=cog_name, value=lines, inline=False)
 
