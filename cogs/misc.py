@@ -14,6 +14,7 @@ MATH_OPERATIONS = {
 }
 
 MATH_BRIEF = 'Compute big numbers for you'
+INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=664109951781830666&permissions=1342565440&scope=bot'
 
 class Misc(commands.Cog):
     def __init__(self, bot):
@@ -71,6 +72,13 @@ class Misc(commands.Cog):
         text = text.replace('||', '')
         text = upsidedown.transform(text)
         await context.send(text)
+    
+    @commands.command()
+    async def invite(self, context):
+        worryluv = discord.utils.get(self.bot.emojis, name='worryluv')
+        embed = colors.embed()
+        embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite Jenna!'
+        await context.send(embed=embed)
     
 def setup(bot):
     bot.add_cog(Misc(bot))
