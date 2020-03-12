@@ -7,7 +7,7 @@ INVISBLE = '‏‏‎ ‎'
 
 BRIEFS = {
     'snipe': 'Show the `i`th last deleted message in channel',
-    'snipe edit': 'Show the `i`th last edited message in channel',
+    'snipedit': 'Show the `i`th last edited message in channel',
     'snipelog': 'Show last 10 deleted messages in `channel`',
     'editlog': 'Show last 10 edited messages in `channel`',
     'life path': 'Get life path number from `DOB`',
@@ -22,10 +22,6 @@ BRIEFS = {
 }
 
 DEFAULT_HELP = '_Either DJ\'s too lazy or forget to write this_'
-
-HIDDEN_PARAMS = {
-    'snipe': ['subindex']
-}
 
 class Help(commands.Cog):
     def __init__(self, bot):
@@ -54,8 +50,7 @@ class Help(commands.Cog):
                 if command.clean_params:
                     params = []
                     for i, p in enumerate(command.clean_params):
-                        if p not in HIDDEN_PARAMS.get(command.qualified_name, []):
-                            params += [p]
+                        params += [p]
 
                     params = ', '.join(params)
                     name += f' [{params}]'

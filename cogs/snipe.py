@@ -1,4 +1,5 @@
 import discord
+import typing
 import colors
 import timedisplay
 import const
@@ -57,33 +58,26 @@ class Snipe(commands.Cog):
         self.bot = bot
         self.guilds = {}
     
-    @commands.group(default_params=[1])
+    @commands.command()
     @commands.guild_only()
-    async def snipe(self, context, i=None, subindex=None):
-        if i == 'edit':
-            await self.edit(context, subindex)
-            return
-
-        if i and not str(i).isdigit():
-            return
-        
-        await self.send_message_in_embed(context, DELETED, i)
+    async def snipe(self, context, channel:typing.Optional[discord.TextChannel]=None, i=None):
+        await self.send_message_in_embed(context, channel or context.channel, DELETED, i)
     
-    @snipe.command()
+    @commands.command()
     @commands.guild_only()
-    async def edit(self, context, i=None):
-        await self.send_message_in_embed(context, EDITED, i)
+    async def snipedit(self, context, channel:typing.Optional[discord.TextChannel]=None, i=None):
+        await self.send_message_in_embed(context, channel or context.channel, EDITED, i)
 
-    async def send_message_in_embed(self, context, state, index):
+    async def send_message_in_embed(self, context, channel, state, index):
         if not index:
             index = 1
         elif type(index) is str:
             index = int(index)
 
-        guild = self.guilds.get(context.guild.id)
-        msg = guild.get_last(context.channel, state, index) if guild else None
+        guild = self.guilds.get(channel.guild.id)
+        msg = guild.get_last(channel, state, index) if guild else None
 
-        embed = self.create_empty_embed(context.channel, state)
+        embed = self.create_empty_embed(channel, state)
         self.embed_message_log(embed, msg, state)
 
         if msg and msg.embeds:
@@ -108,27 +102,24 @@ class Snipe(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def snipelog(self, context, channel:discord.TextChannel=None, page:int=1):
-        await self.send_log_in_embed(context, channel, DELETED, page)
+    async def snipelog(self, context, channel:discord.TextChannel=None):
+        await self.send_log_in_embed(context, channel or context.channel, DELETED)
     
     @commands.command()
     @commands.guild_only()
-    async def editlog(self, context, channel:discord.TextChannel=None, page:int=1):
-        await self.send_log_in_embed(context, channel, EDITED, page)
+    async def editlog(self, context, channel:discord.TextChannel=None):
+        await self.send_log_in_embed(context, channel or context.channel, EDITED)
     
-    async def send_log_in_embed(self, context, channel, state, page=1):
-        if not channel:
-            channel = context.channel
-        
+    async def send_log_in_embed(self, context, channel, state):
         guild_log = self.guilds.get(context.guild.id)
         channel_log = guild_log.channels.get(channel.id) if guild_log else None
 
         embed = self.create_empty_embed(channel, state)
-        self.embed_channel_logs(embed, channel_log, state, page)
+        self.embed_channel_logs(embed, channel_log, state)
 
         await context.send(embed=embed)
 
-    def embed_channel_logs(self, embed, channel_log, state, page):
+    def embed_channel_logs(self, embed, channel_log, state):
         if not channel_log: return
 
         last_msg = None
