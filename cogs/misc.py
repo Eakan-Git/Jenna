@@ -64,15 +64,6 @@ class Misc(commands.Cog):
             response = 'I dunno who! ' + const.SHRUG
         await context.send(response, embed=embed)
     
-    @commands.command(aliases=['usd'])
-    async def upsidedown(self, context, *, text=None):
-        if not text:
-            text = 'Enter some text!'
-        import upsidedown
-        text = text.replace('||', '')
-        text = upsidedown.transform(text)
-        await context.send(text)
-    
     @commands.command()
     async def invite(self, context):
         worryluv = discord.utils.get(self.bot.emojis, name='worryluv')

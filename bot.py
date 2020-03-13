@@ -15,6 +15,7 @@ extensions = [
     'help',
     'alpha',
     
+    'texts',
     'images',
     's',
     'snipe',

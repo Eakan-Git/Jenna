@@ -11,7 +11,7 @@ PEEK = 'peek'
 LUV = 'worryluv'
 MAD = 'worryduoi'
 
-LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu']
+LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu', 'thank']
 HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét', 'ngu']
 
 EMOTES_PER_PAGE = 25

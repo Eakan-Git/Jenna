@@ -19,6 +19,7 @@ BRIEFS = {
     'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.\n',
     'rps': 'Play a game of Rock Paper Scissors with your friend',
     'invite': 'Invite me to your server!',
+    'mock': 'mOkK WhAt yOuR FrIeNd sAyS',
 }
 
 DEFAULT_HELP = '_Either DJ\'s too lazy or forget to write this_'
