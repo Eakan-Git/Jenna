@@ -11,12 +11,12 @@ BRIEFS = {
     'snipelog': 'Show last 10 deleted messages in `channel`',
     'editlog': 'Show last 10 edited messages in `channel`',
     'life path': 'Get life path number from `DOB`',
+    'lasotuvi': 'Get your **la so tu vi** from [tuvilyso.vn](https://tuvilyso.vn)',
     'avatar': 'Zoom in on someone\'s avatar before they yeet it',
     'do math': 'Compute big numbers for you',
     'whos': '*Who is this guy?*',
     'emotes': 'Lemme drop a Nitro emoji for you',
-    'react': 'React a message with a Nitro emoji',
-    'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.\n',
+    'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.',
     'rps': 'Play a game of Rock Paper Scissors with your friend',
     'invite': 'Invite me to your server!',
     'mock': 'mOkK WhAt yOuR FrIeNd sAyS',
@@ -61,17 +61,12 @@ class Help(commands.Cog):
             
             if fields:
                 cogs_to_fields[cog_name] = fields
-            
-        longest_name_len = max([len(name) for fields in cogs_to_fields.values() for name, _ in fields])
+                
         for cog_name, fields in cogs_to_fields.items():
             lines = []
             for name, brief in fields:
-                name = f'`{name}`'
-                pad_count = (longest_name_len - len(name)) * 2 + 4
-                pad = INVISBLE * pad_count
-                name = name + pad
-                lines += [f'{name} {brief}']
-            lines = '\n\n'.join(lines).replace('\n'*3, '\n'*2)
+                lines += [f'`{name}`\n{brief}']
+            lines = '\n\n'.join(lines)
 
             embed.add_field(name=cog_name, value=lines, inline=False)
 
