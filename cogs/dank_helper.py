@@ -17,13 +17,19 @@ GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE]
 WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
 INVISIBLE_TRAP = '﻿'
+MAINTAINER_ID = 134689471164710912
 
 class DankHelper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
+    @commands.command()
+    async def me(self, context):
+        await context.send(context.author.id)
+
     @commands.Cog.listener()
     async def on_message(self, msg):
+        if type(msg.channel) is discord.DMChannel: return
         if msg.author.name not in [DANK_MEMER, self.bot.user.name]: return
 
         is_trivia_question = msg.embeds and msg.embeds[0].author and TRIVIA_QUESTION in msg.embeds[0].author.name
@@ -37,6 +43,8 @@ class DankHelper(commands.Cog):
                 response = f'The answer is **{no})** *{answer}*'
             else:
                 response = 'I dunno man ' + const.SHRUG
+                content = 'New trivia question not in database:'
+                await self.bot.get_user(MAINTAINER_ID).send(content, embed=msg.embeds[0])
             await msg.channel.send(response)
         
         if any(word in msg.content for word in GAMES_TO_HELP):
