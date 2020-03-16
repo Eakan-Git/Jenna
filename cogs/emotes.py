@@ -30,11 +30,13 @@ class Emotes(commands.Cog):
         embed.set_author(name='Available Emotes')
         total_page = math.ceil(len(home_guild.emojis) / EMOTES_PER_PAGE)
         embed.set_footer(text=f'Page {page}/{total_page}')
-
+        
+        all_emojis = sorted(home_guild.emojis, key=lambda e: e.name)
         emojis = []
         start = EMOTES_PER_PAGE * (page - 1)
         end = EMOTES_PER_PAGE * page
-        for e in home_guild.emojis[start:end]:
+        page_emojis = all_emojis[start:end]
+        for e in page_emojis:
             emojis += [f'{e} `:{e.name}:`']
         embed.description = '\n'.join(emojis)
         await context.send(embed=embed)
