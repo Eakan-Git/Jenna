@@ -4,9 +4,16 @@ import upsidedown
 from discord.ext import commands
 
 DEFAULT_TEXT = 'Enter something will you'
+MOCK_REPLACES = {
+    'c': 'k',
+    'n': 'm',
+}
 
 def spongebob_mock(s):
-    return ''.join(c.upper() if i % 2 else c for i, c in enumerate(s.lower().replace('c', 'k')))
+    s = s.lower()
+    for char, sub in MOCK_REPLACES.items():
+        s = s.lower().replace(char, sub)
+    return ''.join(c.upper() if i % 2 else c for i, c in enumerate(s))
 
 class Texts(commands.Cog):
     def __init__(self, bot):
