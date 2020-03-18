@@ -19,6 +19,8 @@ COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
 INVISIBLE_TRAP = '﻿'
 MAINTAINER_ID = 134689471164710912
 
+TRIVIA_OPTIONS = ' ABCD'
+
 class DankHelper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -40,7 +42,8 @@ class DankHelper(commands.Cog):
             answer = plstrivia.try_answer(trivia)
             if answer:
                 no = trivia.answers.index(answer)
-                response = f'The answer is **{no})** *{answer}*'
+                letter = TRIVIA_OPTIONS[no]
+                response = f'The answer is **{letter})** *{answer}*'
             else:
                 response = 'I dunno man ' + const.SHRUG
                 content = 'New trivia question not in database:'
