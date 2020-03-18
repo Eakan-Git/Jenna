@@ -15,7 +15,7 @@ REVERSE = 'Reverse'
 GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE]
 
 WORD_PATTERN = '`(.+)`'
-COLOR_WORD_PATTERN = ':(\w+):.* `(\w+)`'
+COLOR_WORD_PATTERN = ':(\w+):.* `([\w-]+)`'
 INVISIBLE_TRAP = '﻿'
 MAINTAINER_ID = 134689471164710912
 
@@ -24,10 +24,6 @@ TRIVIA_OPTIONS = ' ABCD'
 class DankHelper(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    @commands.command()
-    async def me(self, context):
-        await context.send(context.author.id)
 
     @commands.Cog.listener()
     async def on_message(self, msg):
