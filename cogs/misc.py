@@ -1,7 +1,7 @@
 import discord
 import colors
 import const
-import convert
+import converter
 import timedisplay
 
 from discord.ext import commands
@@ -26,9 +26,8 @@ class Misc(commands.Cog):
             await context.send('`do meth` you mean?')
 
     @do.command(aliases=['meth'])
-    async def math(self, context, *expr):
+    async def math(self, context, *, expr):
         if expr:
-            expr = ''.join(expr)
             for math, code in MATH_OPERATIONS.items():
                 expr = expr.replace(math, code)
         else:
@@ -46,22 +45,19 @@ class Misc(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def whos(self, context, *, name=None):
-        member = await convert.to_user(context, name)
+    async def whos(self, context, *, member:converter.Member=None):
+        member = member or context.author
+        
+        response = f'It\'s **{member}**'
+        embed = colors.embed()
+        embed.description = member.mention
+        created_at = timedisplay.to_ict(member.created_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
+        joined_at = timedisplay.to_ict(member.joined_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
+        embed \
+            .set_thumbnail(url=member.avatar_url) \
+            .add_field(name='On Discord since', value=created_at, inline=False) \
+            .add_field(name='Joined on', value=joined_at)
 
-        embed = None
-        if member:
-            response = f'It\'s **{member}**'
-            embed = colors.embed()
-            embed.description = member.mention
-            created_at = timedisplay.to_ict(member.created_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
-            joined_at = timedisplay.to_ict(member.joined_at, timedisplay.DAYWEEK_DAY_IN_YEAR)
-            embed \
-                .set_thumbnail(url=member.avatar_url) \
-                .add_field(name='On Discord since', value=created_at, inline=False) \
-                .add_field(name='Joined on', value=joined_at)
-        else:
-            response = 'I dunno who! ' + const.SHRUG
         await context.send(response, embed=embed)
     
     @commands.command()

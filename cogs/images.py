@@ -1,5 +1,5 @@
 import discord
-import convert
+import converter
 import colors
 
 from discord.ext import commands
@@ -11,14 +11,8 @@ class Images(commands.Cog):
 
     @commands.command(aliases=['pfp'])
     @commands.guild_only()
-    async def avatar(self, context, *member):
-        if member:
-            member = ' '.join(member)
-            member = await convert.to_user(context, member)
-        else:
-            member = context.author
-        if not member: return
-
+    async def avatar(self, context, *, member:converter.Member=None):
+        member = member or context.author
         embed = colors.embed()
         embed.title = str(member)
         embed.set_image(url=str(member.avatar_url).replace('webp', 'png'))

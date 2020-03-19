@@ -1,36 +1,31 @@
 import difflib
 from discord.ext import commands
 
-ROLE_SCORE_WEIGHT = 0.025
-
 member_converter = commands.MemberConverter()
 
-async def to_user(context, member_name):
-    if member_name:
+class MatchingMemberConverter(commands.MemberConverter):
+    async def convert(self, ctx, argument):
         try:
-            member = await member_converter.convert(context, member_name)
+            member = await super().convert(ctx, argument)
         except:
-            member = find_member(context, member_name)
+            member = find_member(ctx, argument)
             if member:
                 return member
-            await context.send(f"Who's **{member_name}**?")
-            import traceback; traceback.print_exc()
-            return
-    else:
-        member = context.author
-    return member
+
+ROLE_SCORE_WEIGHT = 0.025
 
 def find_member(context, member_name):
     member = context.guild.get_member_named(member_name)
 
     if not member:
         members = context.guild.members
-        members_by_nick_lower = { mem.display_name.lower(): mem for mem in members}
-        members_by_name_lower = { mem.name.lower(): mem for mem in members}
-        members_by_nick = { mem.display_name: mem for mem in members}
-        members_by_name = { mem.name: mem for mem in members}
-        members_by_name = { **members_by_nick_lower, **members_by_name_lower, **members_by_nick, **members_by_name }
-        close_matches = difflib.get_close_matches(member_name, members_by_name, 5, 0.25)
+        members_by_name = {}
+        for m in members:
+            members_by_name[m.name] = m
+            members_by_name[m.display_name] = m
+            members_by_name[m.name.lower()] = m
+            members_by_name[m.display_name.lower()] = m
+        close_matches = difflib.get_close_matches(member_name, members_by_name, 5, 0.5)
         
         def score_member(name):
             similarity = match_ratio(member_name, name)
@@ -39,12 +34,14 @@ def find_member(context, member_name):
 
             member = members_by_name[name]
             role_score = score_member_role(context.guild, member)
+            weighted_role_score = role_score * ROLE_SCORE_WEIGHT
+            total_score = similarity + weighted_role_score
 
-            total_score = similarity + role_score * ROLE_SCORE_WEIGHT
-            
+            print(f'{name}: {similarity:.2} + {(weighted_role_score):.2f} {total_score:.2f}')
             return total_score
 
         close_matches.sort(key=lambda name: score_member(name), reverse=True)
+        print()
 
         if close_matches:
             name = close_matches[0]
