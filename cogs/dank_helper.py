@@ -87,12 +87,12 @@ class DankHelper(commands.Cog):
             for color, word in color_word_pairs:
                 lines += [COLOR_WORD_FORMAT.format(color=color, word=word)]
             content = '\n'.join(lines)
+        elif REVERSE in msg.content:
+            content = re.findall(WORD_PATTERN, content)[0][::-1]
         elif any(word in msg.content for word in [RETYPE, TYPING]):
             content = re.findall(WORD_PATTERN, content)[0]
         elif MEMORY in msg.content:
             content = ' '.join(re.findall(WORD_PATTERN, content))
-        elif REVERSE in msg.content:
-            content = re.findall(WORD_PATTERN, content)[0][::-1]
 
         await msg.channel.send(content)
 
