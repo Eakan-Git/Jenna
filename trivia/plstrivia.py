@@ -21,14 +21,12 @@ class Trivia:
 
 UTF8 = 'utf-8'
 FILE = 'trivia/trivia.csv'
-
-def read_answer(a):
-    return re.findall('\*([^*]+)\*', a)[0]
+ANSWER_PATTERN = '\) \**([^\n*]+)\**'
 
 def read(qa):
     lines = qa.split('\n')
     question = lines[0].replace('*', '')
-    answers = map(read_answer, lines[3:])
+    answers = re.findall(ANSWER_PATTERN, qa)
     return Trivia(question, list(answers))
 
 def load_trivias():
