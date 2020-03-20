@@ -97,10 +97,13 @@ class DankHelper(commands.Cog):
             word = words_in_backticks[0]
             anagrams = unscramble(word)
             content = UNSCRAMBLE_ERROR
-            if anagrams:
+            if len(anagrams) == 1:
                 content = anagrams[0]
-                for a in anagrams[1:]:
-                    await msg.channel.send(a)
+            elif len(anagrams) >= 2:
+                anagrams = ' '.join(f'`{a}`' for a in anagrams)
+                content = '**Anagrams**: ' + anagrams
+            else:
+                content = '**Anagrams**: Not found!'
         elif any(word in msg.content for word in [RETYPE, TYPING]):
             content = words_in_backticks[0]
         elif MEMORY in msg.content:

@@ -35,8 +35,9 @@ class Texts(commands.Cog):
     
     @commands.command(aliases=['usb'])
     async def unscramble(self, context, *, text):
+        await context.trigger_typing()
         anagrams = unscramble(text)
-        response = f'**Anagrams**: '
+        response = f'{context.author.mention}\n**Anagrams**: '
         if anagrams:
             response += ' '.join([f'`{a}`' for a in anagrams])
         else:
