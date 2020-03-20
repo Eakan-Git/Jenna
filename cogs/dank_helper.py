@@ -4,6 +4,7 @@ import const
 
 from discord.ext import commands
 from trivia import plstrivia
+from trivia.unscramble import unscramble
 
 TRIVIA_QUESTION = 'trivia question'
 DANK_MEMER = 'Dank Memer'
@@ -13,16 +14,17 @@ TYPING = 'typing'
 COLOR = 'Color'
 MEMORY = 'Memory'
 REVERSE = 'Reverse'
-GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE, TYPING]
+SCRAMBLE = 'Scramble'
+GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
 
 WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `([\w-]+)`'
 INVISIBLE_TRAP = '﻿'
 COLOR_WORD_FORMAT = ':{color}_square: `{word}` = `{color}`'
 
-TRIVIA_OPTIONS = ' ABCD'
-OPTION_EMOJIS = ' 🇦🇧🇨🇩'
+TRIVIA_OPTIONS = ' 🇦🇧🇨🇩'
 EVENT_ENCOUNTERED = 'EVENT ENCOUNTERED'
+UNSCRAMBLE_ERROR = ':warning: Could not unscramble word'
 
 GAMBLING_ADDICT = 'Gambling Addict'
 RETADABAR_ID = 614712933997346817
@@ -67,9 +69,8 @@ class DankHelper(commands.Cog):
         answer = plstrivia.try_answer(trivia)
         if answer:
             no = trivia.answers.index(answer)
-            letter = TRIVIA_OPTIONS[no]
-            response = f'The answer is **{letter})** *{answer}*'
-            emoji = OPTION_EMOJIS[no]
+            emoji = TRIVIA_OPTIONS[no]
+            response = f'The answer is {emoji}) *{answer}*'
             await msg.add_reaction(emoji)
         else:
             response = 'I dunno man ' + const.SHRUG
@@ -80,6 +81,7 @@ class DankHelper(commands.Cog):
     async def send_minigame_assist(self, msg):
         await msg.channel.trigger_typing()
         content = msg.content.replace(INVISIBLE_TRAP, '')
+        words_in_backticks = re.findall(WORD_PATTERN, content)
 
         if COLOR in msg.content:
             lines = []
@@ -88,11 +90,19 @@ class DankHelper(commands.Cog):
                 lines += [COLOR_WORD_FORMAT.format(color=color, word=word)]
             content = '\n'.join(lines)
         elif REVERSE in msg.content:
-            content = re.findall(WORD_PATTERN, content)[0][::-1]
+            content = words_in_backticks[0][::-1]
+        elif SCRAMBLE in msg.content:
+            word = words_in_backticks[0]
+            anagrams = unscramble(word)
+            content = UNSCRAMBLE_ERROR
+            if anagrams:
+                content = anagrams[0]
+                for a in anagrams[1:]:
+                    await msg.channel.send(a)
         elif any(word in msg.content for word in [RETYPE, TYPING]):
-            content = re.findall(WORD_PATTERN, content)[0]
+            content = words_in_backticks[0]
         elif MEMORY in msg.content:
-            content = ' '.join(re.findall(WORD_PATTERN, content))
+            content = ' '.join(words_in_backticks)
 
         await msg.channel.send(content)
 

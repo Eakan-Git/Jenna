@@ -2,8 +2,8 @@ import discord
 import upsidedown
 
 from discord.ext import commands
+from trivia.unscramble import unscramble
 
-DEFAULT_TEXT = 'Enter something will you'
 MOCK_REPLACES = {
     'c': 'k',
     'n': 'm',
@@ -20,18 +20,28 @@ class Texts(commands.Cog):
         self.bot = bot
     
     @commands.command(aliases=['usd'])
-    async def upsidedown(self, context, *, text=DEFAULT_TEXT):
+    async def upsidedown(self, context, *, text):
         text = text.replace('||', '')
         text = upsidedown.transform(text)
         await context.send(text)
     
     @commands.command()
-    async def mock(self, context, *, text=DEFAULT_TEXT):
+    async def mock(self, context, *, text):
         mock = discord.utils.get(self.bot.emojis, name='mock')
         mock2 = discord.utils.get(self.bot.emojis, name='mock2')
         text = spongebob_mock(text)
         text = f'{mock2} {text} {mock}'
         await context.send(text)
+    
+    @commands.command(aliases=['usb'])
+    async def unscramble(self, context, *, text):
+        anagrams = unscramble(text)
+        response = f'**Anagrams**: '
+        if anagrams:
+            response += ' '.join([f'`{a}`' for a in anagrams])
+        else:
+            response += 'Not found!'
+        await context.send(response)
 
 def setup(bot):
     bot.add_cog(Texts(bot))
