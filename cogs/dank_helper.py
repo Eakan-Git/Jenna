@@ -23,6 +23,7 @@ INVISIBLE_TRAP = '﻿'
 COLOR_WORD_FORMAT = ':{color}_square: `{word}` = `{color}`'
 
 TRIVIA_OPTIONS = ' 🇦🇧🇨🇩'
+TRIVIA_LETTERS = ' ABCD'
 EVENT_ENCOUNTERED = 'EVENT ENCOUNTERED'
 UNSCRAMBLE_ERROR = ':warning: Could not unscramble word'
 
@@ -69,8 +70,9 @@ class DankHelper(commands.Cog):
         answer = plstrivia.try_answer(trivia)
         if answer:
             no = trivia.answers.index(answer)
+            letter = TRIVIA_LETTERS[no]
+            response = f'The answer is **{letter}**) *{answer}*'
             emoji = TRIVIA_OPTIONS[no]
-            response = f'The answer is {emoji}) *{answer}*'
             await msg.add_reaction(emoji)
         else:
             response = 'I dunno man ' + const.SHRUG
