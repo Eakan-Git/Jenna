@@ -2,6 +2,8 @@ import discord
 import colors
 import cogs
 import converter
+import traceback
+import sys
 
 from functools import partial
 from discord.ext import commands
@@ -166,6 +168,12 @@ class Help(commands.Cog):
         self.bot = bot
         bot.remove_command('help')
         bot.help_command = EmbedHelpCommand()
+    
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        if isinstance(error, commands.UserInputError):
+            await ctx.send_help(ctx.command)
 
 def setup(bot):
     bot.add_cog(Help(bot))
