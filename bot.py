@@ -2,8 +2,11 @@ import os
 import discord
 import colors
 import env
+import logging
 
 from discord.ext import commands
+
+logging.basicConfig(filename='discord.log', level=logging.ERROR)
 
 prefixes = ['j ', 'jenna ', 'jen ']
 for p in prefixes[::]:

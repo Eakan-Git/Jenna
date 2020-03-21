@@ -4,6 +4,7 @@ import cogs
 import converter
 import traceback
 import sys
+import logging
 
 from functools import partial
 from discord.ext import commands
@@ -171,9 +172,15 @@ class Help(commands.Cog):
     
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
         if isinstance(error, commands.UserInputError):
-            await ctx.send_help(ctx.command)
+            if isinstance(error, commands.MissingRequiredArgument):
+                await ctx.send(f'Missing `{error.param.name}` argument!')
+            else:
+                await ctx.send(error)
+            msg = await ctx.send_help(ctx.command)
+        else:
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        logging.exception(error, stack_info=True)
 
 def setup(bot):
     bot.add_cog(Help(bot))
