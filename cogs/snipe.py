@@ -58,24 +58,29 @@ class Snipe(commands.Cog):
         self.bot = bot
         self.guilds = {}
     
-    @commands.command()
+    @commands.command(hidden=True, aliases=['re'])
     @commands.guild_only()
-    async def snipe(self, context, channel:typing.Optional[discord.TextChannel]=None, i=None):
-        await self.send_message_in_embed(context, channel or context.channel, DELETED, i)
+    async def repeatedit(self, context, channel:typing.Optional[discord.TextChannel], i=1):
+        channel = channel or context.channel
+        msg = self.get_last_message(channel, EDITED, i)
+        if msg:
+            await context.send(msg.content, embed=msg.embeds[0] if msg.embeds else None)
+        else:
+            await context.send(embed=self.create_empty_embed(channel, EDITED))
     
     @commands.command()
     @commands.guild_only()
-    async def snipedit(self, context, channel:typing.Optional[discord.TextChannel]=None, i=None):
-        await self.send_message_in_embed(context, channel or context.channel, EDITED, i)
+    async def snipe(self, context, channel:typing.Optional[discord.TextChannel], i=1):
+        await self.send_message_in_embed(context, channel, DELETED, i)
+    
+    @commands.command()
+    @commands.guild_only()
+    async def snipedit(self, context, channel:typing.Optional[discord.TextChannel], i=1):
+        await self.send_message_in_embed(context, channel, EDITED, i)
 
     async def send_message_in_embed(self, context, channel, state, index):
-        if not index:
-            index = 1
-        elif type(index) is str:
-            index = int(index)
-
-        guild = self.guilds.get(channel.guild.id)
-        msg = guild.get_last(channel, state, index) if guild else None
+        channel = channel or context.channel
+        msg = self.get_last_message(channel, state, index)
 
         embed = self.create_empty_embed(channel, state)
         self.embed_message_log(embed, msg, state)
@@ -83,6 +88,12 @@ class Snipe(commands.Cog):
         if msg and msg.embeds:
             await context.send(embed=msg.embeds[0])
         await context.send(embed=embed)
+    
+    def get_last_message(self, channel, state, index):
+        guild = self.guilds.get(channel.guild.id)
+        msg = guild.get_last(channel, state, index) if guild else None
+
+        return msg
 
     def create_empty_embed(self, channel, state):
         embed = colors.embed()
