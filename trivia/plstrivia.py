@@ -21,7 +21,7 @@ class Trivia:
 
 UTF8 = 'utf-8'
 FILE = 'trivia/trivia.csv'
-ANSWER_PATTERN = '\) \**([^\n*]+)\**'
+ANSWER_PATTERN = '[A-D]\) \**([^\n*]+)\**'
 
 def read(qa):
     lines = qa.split('\n')
