@@ -107,7 +107,7 @@ class DankHelper(commands.Cog):
         elif any(word in msg.content for word in [RETYPE, TYPING]):
             content = words_in_backticks[0]
         elif MEMORY in msg.content:
-            content = ' '.join(words_in_backticks)
+            content = content.split('`')[1].replace('\n', ' ')
 
         await msg.channel.send(content)
 
