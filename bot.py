@@ -6,8 +6,6 @@ import logging
 
 from discord.ext import commands
 
-logging.basicConfig(filename='discord.log', level=logging.ERROR)
-
 prefixes = ['j ', 'jenna ', 'jen ']
 for p in prefixes[::]:
     prefixes.append(p.capitalize())

@@ -4,9 +4,7 @@ import cogs
 import converter
 import traceback
 import sys
-import logging
 
-from functools import partial
 from discord.ext import commands
 
 INVISBLE = '‏‏‎ ‎'
@@ -180,7 +178,6 @@ class Help(commands.Cog):
             msg = await ctx.send_help(ctx.command)
         else:
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-        logging.exception(error, stack_info=True)
 
 def setup(bot):
     bot.add_cog(Help(bot))
