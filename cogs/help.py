@@ -31,7 +31,7 @@ BRIEFS = {
 COG_EMOTES = {
     'Texts': '🗨️',
     'Images': '🖼️',
-    'S': 'hypertranscendence',
+    'S': 'es',
     'Snipe': '🕵',
     'Emotes': 'me',
     'Games': '🎲',
@@ -42,7 +42,7 @@ COG_FROM_EMOTES = { v: k for k, v in COG_EMOTES.items() }
 
 GLOBE = '🌐'
 HIDDEN_COGS = ['Help', 'Alpha']
-DEFAULT_HELP = '_Either DJ\'s too lazy or forget to write this_'
+DEFAULT_HELP = ''
 DEFAULT_COG = 'Misc'
 TITLE_FORMAT = '%s Command List'
 FOOTER = 'Nag DJ for more features'
@@ -73,7 +73,7 @@ class EmbedHelpCommand(commands.HelpCommand):
         embed.set_footer(text=FOOTER, icon_url=bot_user.avatar_url)
         return embed
     
-    async def get_cog_full_name(self, cog):
+    async def get_cog_emoted_name(self, cog):
         cog = cog or DEFAULT_COG
         cog_name = cog if type(cog) is str else cog.qualified_name
         emote = await converter.emoji(self.context, COG_EMOTES[cog_name])
@@ -106,16 +106,20 @@ class EmbedHelpCommand(commands.HelpCommand):
                 cog_to_commands[cog_name] = command_names
                 
         for cog, commands in cog_to_commands.items():
-            cog_name = await self.get_cog_full_name(cog)
+            cog_name = await self.get_cog_emoted_name(cog)
             commands = ' '.join(f'`{c}`' for c in commands)
             embed.add_field(name=cog_name, value=commands, inline=False)
         
         return embed
 
-    async def add_buttons(self, msg):
+    async def add_close_button(self, msg):
+        await self.add_buttons(msg, full=False)
+
+    async def add_buttons(self, msg, full=True):
         React = self.context.bot.get_cog(cogs.REACT)
-        await React.add_buttons(msg, COG_EMOTES.values(), self.jump_help, self.context.author)
-        await React.add_button(msg, GLOBE, self.jump_help, self.context.author)
+        if full:
+            await React.add_buttons(msg, COG_EMOTES.values(), self.jump_help, self.context.author)
+            await React.add_button(msg, GLOBE, self.jump_help, self.context.author)
         await React.add_delete_button(msg, self.context.author)
 
     async def jump_help(self, reaction, user):
@@ -136,7 +140,7 @@ class EmbedHelpCommand(commands.HelpCommand):
         embed = await self.get_cog_help(cog)
         msg = await self.get_destination().send(embed=embed)
 
-        await self.add_buttons(msg)
+        await self.add_close_button(msg)
     
     async def get_cog_help(self, cog):
         embed = self.create_embed()
@@ -146,21 +150,25 @@ class EmbedHelpCommand(commands.HelpCommand):
             command_helps += [self.get_command_help(command)]
         
         command_helps = '\n\n'.join(command_helps)
-        cog_name = await self.get_cog_full_name(cog)
+        cog_name = await self.get_cog_emoted_name(cog)
         embed.add_field(name=cog_name, value=command_helps)
         return embed
 
     async def send_command_help(self, command):
         embed = self.create_embed()
-        embed.description = self.get_command_help(command)
+        cog = await self.get_cog_emoted_name(command.cog_name)
+        command_help = self.get_command_help(command)
+        embed.add_field(name=cog, value=command_help)
         msg = await self.get_destination().send(embed=embed)
 
-        await self.add_buttons(msg)
+        await self.add_close_button(msg)
+        return msg
     
-    def get_command_help(self, command):
+    def get_command_help(self, command):        
         signature = self.get_command_signature(command, with_args=True)
         brief = BRIEFS.get(command.qualified_name, DEFAULT_HELP)
-        return f'`{signature}`\n{brief}'
+        if brief: brief = '\n' + brief
+        return f'`{signature}`{brief}'
 
 class Help(commands.Cog):
     def __init__(self, bot):
