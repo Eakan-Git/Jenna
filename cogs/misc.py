@@ -4,6 +4,8 @@ import const
 import converter
 import timedisplay
 
+from misc import covid
+from datetime import datetime
 from discord.ext import commands
 from math import *
 
@@ -19,6 +21,7 @@ INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=66410995178
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.corona_status = covid.CoronaStatus()
     
     @commands.group(hidden=True)
     async def do(self, context):
@@ -66,6 +69,37 @@ class Misc(commands.Cog):
         embed = colors.embed()
         embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite Jenna!'
         await context.send(embed=embed)
+    
+    @commands.command(aliases=['ncov', 'corona'])
+    async def covid(self, context):
+        msg = await context.send('`Downloading data...`')
+        self.corona_status.update()
+        
+        embed = colors.embed()
+        embed.description = ':microbe: **Total(+New Cases)**\n:skull: **Deaths(+New Deaths)**'
+        embed.title = 'Worldometer Coronavirus Update'
+        embed.url = covid.URL
+        embed.timestamp = datetime.now().astimezone()
+
+        for country in self.corona_status.data:
+            name, total, new_cases, deaths, new_deaths = country
+            if name not in covid.COUNTRIES: continue
+
+            flag_emote = covid.FLAG_EMOTES_BY_COUNTRY[name]
+            name = f'{flag_emote} {name}'
+            if new_cases:
+                new_cases = new_cases.replace('+', '')
+                new_cases = f'(+{new_cases})'
+            if new_deaths:
+                new_deaths = new_deaths.replace('+', '')
+                new_deaths = f'(+{new_deaths})'
+
+            deaths = deaths or 0
+            content = f':microbe: **{total}{new_cases}**'
+            content += f'\n:skull: **{deaths}{new_deaths}**'
+            content += '\n__'
+            embed.add_field(name=name, value=content)
+        await msg.edit(content='', embed=embed)
     
 def setup(bot):
     bot.add_cog(Misc(bot))
