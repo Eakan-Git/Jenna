@@ -5,6 +5,7 @@ import converter
 from discord.ext import commands
 
 X = '❌'
+OK = '✅'
 
 class Reactable:
     def __init__(self, msg, user=[]):
@@ -37,7 +38,7 @@ class React(commands.Cog):
             self.reactables.pop(message.id)
         
     async def add_delete_button(self, message, user=[]):
-        await self.add_button(message, X, self.delete, user)
+        await self.add_button(message, OK, self.delete, user)
 
     async def add_buttons(self, message, emojis, callback, user=[]):
         try:
