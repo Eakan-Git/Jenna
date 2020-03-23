@@ -120,21 +120,48 @@ class Emotes(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def addemote(self, context, url, name=None):
-        image = None
         response = INTERROBANG
         
         async with context.typing():
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as r:
-                    if r.status == 200:
-                        image = await r.read()
-            
+            image = await download_image(url)
             if image:
                 if not name:
                     name = 'emote%04d' % random.randint(0, 9999)
                 await context.guild.create_custom_emoji(name=name, image=image)
                 response = self.get_emoji(name)
             await context.message.add_reaction(response)
+    
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def stealemote(self, context, channel:typing.Optional[discord.TextChannel], msg_id:int, name=None):
+        channel = channel or context.channel
+        response = INTERROBANG
+        try:
+            await context.trigger_typing()
+            msg = await channel.fetch_message(msg_id)
+            emote = await get_emote_from_msg(context, msg)
+            name = name or emote.name
+            image = await emote.url.read()
+            await self.bot.get_guild(HOME_GUILD).create_custom_emoji(name=name, image=image)
+            response = self.get_emoji(name)
+        except:
+            import traceback; traceback.print_exc()
+        await context.message.add_reaction(response)
+    
+    @commands.command(hidden=True)
+    async def emourl(self, context, channel:typing.Optional[discord.TextChannel], msg_id:int):
+        msg = (channel or context.channel).fetch_message(msg_id)
+        e = await get_emote_from_msg(context, msg)
+        await context.send(e.url)
+    
+async def get_emote_from_msg(context, msg):
+    return await commands.PartialEmojiConverter().convert(context, msg.content)
+
+async def download_image(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as r:
+            if r.status == 200:
+                return await r.read()
 
 def setup(bot):
     bot.add_cog(Emotes(bot))
