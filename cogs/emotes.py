@@ -1,10 +1,11 @@
 import discord
+import typing
 import re
 import aiohttp
 import colors
 import math
 import random
-import converter
+import converter as conv
 import cogs
 
 from discord.ext import commands
@@ -30,7 +31,7 @@ class Emotes(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['big'])
-    async def enlarge(self, context, emoji:converter.NitroEmoji):
+    async def enlarge(self, context, emoji:conv.NitroEmoji):
         embed = discord.Embed(color=EMBED_BACKCOLOR)
         url = None
         if type(emoji) in [discord.Emoji, discord.PartialEmoji]:
@@ -65,22 +66,18 @@ class Emotes(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def react(self, context, author:discord.Member, emoji, i:int=1):
-        if type(emoji) is str:
-            emoji = emoji.replace(':', '')
-            emoji = self.get_emoji(emoji)
-            if not emoji:
-                await context.message.add_reaction(INTERROBANG)
-                return
+    async def drop(self, context, emoji:conv.NitroEmoji, author:typing.Optional[conv.Member], i:int=1):
+        counter = 1
+        async for message in context.history(limit=None, before=context.message):
+            if author and message.author != author:
+                continue
+                
+            if counter < i:
+                counter += 1
+                continue
+            break
         
-        skip = 1
-        async for message in context.history(limit=None):
-            if message.author == author:
-                if skip < i:
-                    skip += 1
-                    continue
-                await message.add_reaction(emoji)
-                return
+        await message.add_reaction(emoji)
         
     @commands.Cog.listener()
     async def on_message(self, msg):
