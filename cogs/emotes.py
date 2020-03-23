@@ -4,6 +4,8 @@ import aiohttp
 import colors
 import math
 import random
+import converter
+import cogs
 
 from discord.ext import commands
 
@@ -11,17 +13,37 @@ PEEK = 'peek'
 LUV = 'worryluv'
 MAD = 'worryduoi'
 
-LOVE_WORDS = ['luv', 'love', 'iu', 'you', 'yeu', 'yêu', 'thank']
-HATE_WORDS = ['fuck', 'screw', 'hate', 'ghet', 'ghét', 'ngu']
+LOVE_WORDS = ['luv', 'love', 'iu', 'thank', 'good']
+HATE_WORDS = ['fuck', 'screw', 'hate', 'ngu']
 
 EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
 INTERROBANG = '⁉️'
 HOME_GUILD = 596171359747440657
 
+EMBED_BACKCOLOR = 0x2f3136
+
+TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/72x72/%x.png'
+
 class Emotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(aliases=['big'])
+    async def enlarge(self, context, emoji:converter.NitroEmoji):
+        embed = discord.Embed(color=EMBED_BACKCOLOR)
+        url = None
+        if type(emoji) in [discord.Emoji, discord.PartialEmoji]:
+            url = emoji.url
+        elif len(emoji) == 1:
+            url = TWEMOJI_CDN % ord(emoji)
+        
+        if url:
+            embed.set_image(url=url)
+            await context.send(embed=embed)
+        else:
+            React = self.bot.get_cog(cogs.REACT)
+            await React.add_reaction(context.message, ':interrobang:')
 
     @commands.command(aliases=['emojis'])
     async def emotes(self, context, page:int=1):
