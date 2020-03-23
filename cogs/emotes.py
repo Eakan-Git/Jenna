@@ -82,6 +82,9 @@ class Emotes(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, msg):
         if msg.author == self.bot.user: return
+        context = await self.bot.get_context(msg)
+        if context.command:
+            return
         await self.reply_emotes(msg)
         await self.drop_emotes_on_mention(msg)
     
