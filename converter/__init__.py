@@ -9,3 +9,4 @@ Member = typing.Union[discord.Member, MatchingMemberConverter]
 
 from converter.person import to_dob as DOB
 from converter.person import to_gender as Gender
+from converter.person import MALE, FEMALE

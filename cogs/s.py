@@ -1,32 +1,10 @@
 import discord
-import base64
 import colors
-import typing
 import converter as conv
 
 from discord.ext import commands
-
-
-LSTV_URL = 'https://tuvilyso.vn/lasotuvi/%s.png'
-LSTV_SETTINGS = '1|5|0|1|1|0|0|%s|00|1|7|2'
-DEFAULT_NAME = 'Psychic Ritord'
-
-def BirthTime(hour):
-    try:
-        hour = int(hour)
-        if hour == 24:
-            hour = 0
-    except:
-        hour = -1
-    if not 0 <= hour <= 24:
-        raise commands.BadArgument('`BirthTime` must be in 24-hour format')
-    return hour
-
-def get_lifepath(dob):
-    lifepath = sum(dob.numbers) % 9
-    if lifepath == 0:
-        lifepath = 9
-    return lifepath
+from bs4 import BeautifulSoup
+from s import lsqc, lstv, BirthTime, get_lifepath
 
 class S(commands.Cog):
     def __init__(self, bot):
@@ -50,27 +28,24 @@ class S(commands.Cog):
     
     @commands.command(aliases=['lstv'])
     async def lasotuvi(self, context, dob:conv.DOB, birthtime:BirthTime, gender:conv.Gender, *, name=None):
-        name = name or DEFAULT_NAME
-
-        day, month, year = dob.numbers
-        horoscope_hour = compute_horoscope_hour(birthtime)
-
-        data = [year, month, day, horoscope_hour, gender, name, LSTV_SETTINGS % birthtime]
-        data = '|'.join(str(d) for d in data)
-        data = base64.b64encode(bytes(data, 'utf-8')).decode('ascii')
-
-        image_url = LSTV_URL % data
-
-        embed = colors.embed()
+        image_url = lstv.compile_url(dob, birthtime, gender, name)
+        gender = '♂️' if gender == conv.MALE else '♀️'
+        embed = colors.embed(title=f'{gender} {dob} {birthtime}h')
         embed.set_image(url = image_url)
 
         await context.send(embed=embed)
+    
+    @commands.command(aliases=['lsqc'])
+    async def lasoquycoc(self, context, dob:conv.DOB, birthtime:BirthTime):
+        await context.trigger_typing()
+        qc = lsqc.lookup(dob, birthtime)
+        text = qc.format_laso()
+        print(text)
 
-def compute_horoscope_hour(hour):
-    hh = (hour + 1) // 2 + 1
-    if hh == 13:
-        hh = 1
-    return hh
+        embed = colors.embed(title=f'Lá số Quỷ Cốc {dob} {birthtime}h')
+        embed.url = lsqc.compile_url(dob, birthtime)
+        qc.add_details_as_field(embed)
+        await context.send(text, embed=embed)
 
 def setup(bot):
     bot.add_cog(S(bot))

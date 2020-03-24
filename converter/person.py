@@ -17,7 +17,9 @@ def to_dob(s):
             return DOB(dob, sep)
     raise commands.BadArgument('`dob` must be `DD/MM/YYYY` or `DD-MM-YYYY`.')
 
+
 GENDERS = ['M', 'F']
+MALE, FEMALE = 1, 2
 
 def to_gender(s):
     s = s[0].upper()
