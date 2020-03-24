@@ -6,22 +6,9 @@ import converter as conv
 
 from discord.ext import commands
 
-LANG = 1
-COLOR = 5
-SAVE = 0
-TU_HOA = 1
-FORMAT = 1
-KHOI_VIET = 0
-IS_SOUTH = 0
-TIET_KHI = 1
-TIMEZONE = 7
-TUOI_NHAM = 2
-MINUTE = '00'
-
-LSTV_SETTINGS_1 = [LANG, COLOR, SAVE, TU_HOA, FORMAT, KHOI_VIET, IS_SOUTH]
-LSTV_SETTINGS_2 = [MINUTE, TIET_KHI, TIMEZONE, TUOI_NHAM]
 
 LSTV_URL = 'https://tuvilyso.vn/lasotuvi/%s.png'
+LSTV_SETTINGS = '1|5|0|1|1|0|0|%s|00|1|7|2'
 DEFAULT_NAME = 'Psychic Ritord'
 
 def BirthTime(hour):
@@ -35,6 +22,12 @@ def BirthTime(hour):
         raise commands.BadArgument('`BirthTime` must be in 24-hour format')
     return hour
 
+def get_lifepath(dob):
+    lifepath = sum(dob.numbers) % 9
+    if lifepath == 0:
+        lifepath = 9
+    return lifepath
+
 class S(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -45,17 +38,14 @@ class S(commands.Cog):
     
     @life.command()
     async def path(self, context, dob:conv.DOB):
-        await self.reply_lifepath(context, dob)
+        await self.send_lifepath(context, dob)
 
     @commands.command(hidden=True)
     async def lifepath(self, context, dob:conv.DOB):
-        await self.reply_lifepath(context, dob)
+        await self.send_lifepath(context, dob)
 
-    async def reply_lifepath(self, context, dob):
-        await context.trigger_typing()
-        lifepath = sum(dob.numbers) % 9
-        if lifepath == 0:
-            lifepath = 9
+    async def send_lifepath(self, context, dob):
+        lifepath = get_lifepath(dob)
         await context.send(f'The Life Path for **{dob}** is **Number {lifepath}**')
     
     @commands.command(aliases=['lstv'])
@@ -65,7 +55,7 @@ class S(commands.Cog):
         day, month, year = dob.numbers
         horoscope_hour = compute_horoscope_hour(birthtime)
 
-        data = [year, month, day, horoscope_hour, gender, name] + LSTV_SETTINGS_1 + [birthtime] + LSTV_SETTINGS_2
+        data = [year, month, day, horoscope_hour, gender, name, LSTV_SETTINGS % birthtime]
         data = '|'.join(str(d) for d in data)
         data = base64.b64encode(bytes(data, 'utf-8')).decode('ascii')
 
