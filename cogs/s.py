@@ -40,7 +40,6 @@ class S(commands.Cog):
         await context.trigger_typing()
         qc = lsqc.lookup(dob, birthtime)
         text = qc.format_laso()
-        print(text)
 
         embed = colors.embed(title=f'Lá số Quỷ Cốc {dob} {birthtime}h')
         embed.url = lsqc.compile_url(dob, birthtime)

@@ -58,7 +58,7 @@ class LaSoQuyCoc:
         lines += [bold(cuc).center(80, ' ')]
         lines += [meaning.center(65, ' ')]
 
-        lines = ['> ' + l for l in lines]
+        lines[0] = '﻿' + lines[0]
 
         return '\n'.join(lines)
 
