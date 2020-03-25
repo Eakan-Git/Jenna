@@ -82,7 +82,7 @@ class Misc(commands.Cog):
         embed.timestamp = datetime.now().astimezone()
 
         for country in self.corona_status.data:
-            name, total, new_cases, deaths, new_deaths = country
+            name, total, new_cases, deaths, new_deaths = country[:5]
             if name not in covid.COUNTRIES: continue
 
             flag_emote = covid.FLAG_EMOTES_BY_COUNTRY[name]

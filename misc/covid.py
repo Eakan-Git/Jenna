@@ -43,7 +43,8 @@ class CoronaStatus:
             for row in rows:
                 cols = row.find_all('td')
                 cols = [c.text.strip() for c in cols]
-                data += [[c for c in cols][:-4]]
+                country = [c for c in cols]
+                data += [country]
         
         data[0][0] = 'World'
         self.data = data
