@@ -4,7 +4,7 @@ import pycountry
 from bs4 import BeautifulSoup
 
 URL = 'https://www.worldometers.info/coronavirus/'
-UPDATE_INTERVAL = 15 * 60
+UPDATE_INTERVAL = 2 * 60
 COUNTRIES = ['Vietnam', 'USA', 'Singapore', 'Germany', 'Canada', 'Australia', 'Malaysia', 'Japan']
 
 FLAG_EMOTES_BY_COUNTRY = {}
