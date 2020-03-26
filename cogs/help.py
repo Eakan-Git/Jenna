@@ -107,7 +107,7 @@ class EmbedHelpCommand(commands.HelpCommand):
                 
         for cog, commands in cog_to_commands.items():
             cog_name = await self.get_cog_emoted_name(cog)
-            commands = ' '.join(f'`{c}`' for c in commands)
+            commands = ' • '.join(f'`{c}`' for c in commands)
             embed.add_field(name=cog_name, value=commands, inline=False)
         
         return embed
