@@ -3,13 +3,14 @@ import typing
 import converter
 
 from discord.ext import commands
+from collections.abc import Iterable
 
 X = '❌'
 OK = '✅'
 
 class Reactable:
     def __init__(self, msg, user=[]):
-        if type(user) not in (list, set):
+        if not isinstance(user, Iterable):
             user = [user]
         self.msg = msg
         self.user = user
@@ -18,7 +19,7 @@ class Reactable:
     def add_button(self, emoji, callback):
         self.callbacks_by_emoji[emoji] = callback
     
-    def get(self, reaction, user):
+    def get_callback(self, reaction, user):
         for emoji, callback in self.callbacks_by_emoji.items():
             if reaction.emoji == emoji and user in self.user:
                 return callback
@@ -62,11 +63,12 @@ class React(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        for reactable in self.reactables.values():
-            callback = reactable.get(reaction, user)
-            if callback:
-                await callback(reaction, user)
-                return
+        if user == self.bot.user: return
+        reactable = self.reactables.get(reaction.message.id)
+        if not reactable: return
+        callback = reactable.get_callback(reaction, user)
+        if callback:
+            await callback(reaction, user)
 
 def setup(bot):
     bot.add_cog(React(bot))
