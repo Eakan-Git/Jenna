@@ -9,7 +9,7 @@ class Images(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['pfp'])
+    @commands.command(aliases=['ava', 'pfp'])
     @commands.guild_only()
     async def avatar(self, context, *, member:converter.Member=None):
         member = member or context.author
