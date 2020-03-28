@@ -1,13 +1,16 @@
 import discord
+import typing
 import colors
 import const
 import converter
 import timedisplay
+import time
 
-from misc import covid
+from discord.ext import commands, tasks
+from misc import covid, randomword
 from datetime import datetime
-from discord.ext import commands
 from math import *
+from urllib.parse import quote as url_quote
 
 MATH_OPERATIONS = {
     'x': '*',
@@ -48,7 +51,7 @@ class Misc(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def whos(self, context, *, member:converter.Member=None):
+    async def whos(self, context, *, member:typing.Optional[converter.Member]=None):
         member = member or context.author
         
         response = f'It\'s **{member}**'
@@ -67,7 +70,7 @@ class Misc(commands.Cog):
     async def invite(self, context):
         worryluv = discord.utils.get(self.bot.emojis, name='worryluv')
         embed = colors.embed()
-        embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite Jenna!'
+        embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite {self.bot.user.name}!'
         await context.send(embed=embed)
     
     @commands.command(aliases=['ncov', 'corona'])
@@ -100,6 +103,21 @@ class Misc(commands.Cog):
             content += '\n__'
             embed.add_field(name=name, value=content)
         await msg.edit(content='', embed=embed)
+
+    @commands.command(aliases=['rdw'])
+    async def randomword(self, context):
+        await self.send_random(context)
+
+    async def send_random(self, context, what='Word'):
+        word, definition = randomword.get_random(what)
+        embed = colors.embed(title=word, description=definition)
+        embed.set_author(name=f'Random {what}', url=randomword.URL)
+        embed.url = randomword.GOOGLE_URL + url_quote(word)
+        await context.send(embed=embed)
+    
+    @commands.command(aliases=['rdi'])
+    async def randomidiom(self, context):
+        await self.send_random(context, randomword.IDIOM)
     
 def setup(bot):
     bot.add_cog(Misc(bot))
