@@ -3,18 +3,25 @@ from discord.ext import commands
 
 member_converter = commands.MemberConverter()
 
+DEFAULT_MATCHING = .4
+
 class MatchingMemberConverter(commands.MemberConverter):
+    def __init__(self, *, matching=DEFAULT_MATCHING):
+        self.matching = matching
+    
     async def convert(self, ctx, argument):
         try:
             member = await super().convert(ctx, argument)
         except:
-            member = find_member(ctx, argument)
+            member = find_member(ctx, argument, self.matching)
             if member:
                 return member
+            raise
 
 ROLE_SCORE_WEIGHT = 0.025
+MATCH_RETURNS = 10
 
-def find_member(context, member_name):
+def find_member(context, member_name, matching=DEFAULT_MATCHING):
     member = context.guild.get_member_named(member_name)
 
     if not member:
@@ -25,7 +32,7 @@ def find_member(context, member_name):
             members_by_name[m.display_name] = m
             members_by_name[m.name.lower()] = m
             members_by_name[m.display_name.lower()] = m
-        close_matches = difflib.get_close_matches(member_name, members_by_name, 5, 0.5)
+        close_matches = difflib.get_close_matches(member_name, members_by_name, MATCH_RETURNS, matching)
         
         def score_member(name):
             similarity = match_ratio(member_name, name)
@@ -37,7 +44,7 @@ def find_member(context, member_name):
             weighted_role_score = role_score * ROLE_SCORE_WEIGHT
             total_score = similarity + weighted_role_score
 
-            print(f'{name}: {similarity:.2} + {(weighted_role_score):.2f} {total_score:.2f}')
+            print(f'{name}: {similarity:.2f} + {(weighted_role_score):.2f} = {total_score:.2f}')
             return total_score
 
         close_matches.sort(key=lambda name: score_member(name), reverse=True)

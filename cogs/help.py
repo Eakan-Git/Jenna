@@ -179,7 +179,9 @@ class Help(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.UserInputError):
-            if isinstance(error, commands.MissingRequiredArgument):
+            if type(error) in [commands.BadArgument, commands.BadUnionArgument]:
+                error.args = (error.args[0].replace('"', '`'),)
+            if type(error) is commands.MissingRequiredArgument:
                 await ctx.send(f'Missing `{error.param.name}` argument!')
             else:
                 await ctx.send(error)
