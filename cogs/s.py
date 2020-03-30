@@ -1,10 +1,11 @@
 import discord
 import colors
+import random
 
 from discord.ext import commands
 from bs4 import BeautifulSoup
 from .core import converter as conv
-from .core.s import lsqc, lstv, BirthTime, get_lifepath
+from .core.s import lsqc, lstv, get_lifepath, BirthTime, tarot
 
 class S(commands.Cog):
     def __init__(self, bot):
@@ -45,6 +46,14 @@ class S(commands.Cog):
         embed.url = lsqc.compile_url(dob, birthtime)
         qc.add_details_as_field(embed)
         await context.send(text, embed=embed)
+    
+    @commands.command()
+    async def tarot(self, context):
+        card = random.choice(tarot.CARDS)
+        name, image, url = card
+        embed = colors.embed(title=name, url=url)
+        embed.set_image(url=image)
+        await context.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(S(bot))
