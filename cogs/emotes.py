@@ -5,9 +5,9 @@ import aiohttp
 import colors
 import math
 import random
-import converter as conv
 import cogs
 
+from .core import converter as conv
 from discord.ext import commands
 
 PEEK = 'peek'

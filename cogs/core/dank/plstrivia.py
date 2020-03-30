@@ -1,6 +1,8 @@
 import re
 import csv
 import discord
+import os
+dirname = os.path.dirname(__file__)
 
 class Trivia:
     def __init__(self, question, answers=[], correct_answer=None):
@@ -20,7 +22,7 @@ class Trivia:
         return output
 
 UTF8 = 'utf-8'
-FILE = 'trivia/trivia.csv'
+FILE = os.path.join(dirname, 'trivia.csv')
 ANSWER_PATTERN = '[A-D]\) \**([^\n*]+)\**'
 
 def read(qa):

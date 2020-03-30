@@ -1,11 +1,11 @@
 import discord
 import colors
 import cogs
-import converter
 import traceback
 import sys
 
 from discord.ext import commands
+from .core import converter as conv
 
 INVISBLE = '‏‏‎ ‎'
 
@@ -76,7 +76,7 @@ class EmbedHelpCommand(commands.HelpCommand):
     async def get_cog_emoted_name(self, cog):
         cog = cog or DEFAULT_COG
         cog_name = cog if type(cog) is str else cog.qualified_name
-        emote = await converter.emoji(self.context, COG_EMOTES[cog_name])
+        emote = await conv.emoji(self.context, COG_EMOTES[cog_name])
         full_name = f'{emote} {cog_name}'
         return full_name
 

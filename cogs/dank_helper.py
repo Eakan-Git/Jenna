@@ -3,8 +3,8 @@ import re
 import const
 
 from discord.ext import commands
-from trivia import plstrivia
-from trivia.unscramble import unscramble
+from .core.dank import plstrivia
+from .core.dank.unscramble import unscramble
 
 TRIVIA_QUESTION = 'trivia question'
 DANK_MEMER = 'Dank Memer'

@@ -3,8 +3,9 @@ import re
 import const
 
 from discord.ext import commands
-from games.rps import RPS_EMOTES, RPSGame, RPSAnnouncer
 from operator import attrgetter
+from .core import converter as conv
+from .core.games.rps import RPS_EMOTES, RPSGame, RPSAnnouncer
 
 TO_RPS = 'to a match of **Rock Paper Scissors!**'
 CHOOSE = ' Choose a hand below:'
@@ -23,7 +24,7 @@ class Games(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def rps(self, context, friend:discord.Member=None, sets:int=2, rounds:int=2):
+    async def rps(self, context, friend:conv.Member, sets:int=2, rounds:int=2):
         cannot_play = ''
         if not friend:
             cannot_play = 'Tell me you wanna play with.'

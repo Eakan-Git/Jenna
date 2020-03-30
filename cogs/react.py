@@ -1,9 +1,9 @@
 import discord
 import typing
-import converter
 
 from discord.ext import commands
 from collections.abc import Iterable
+from .core import converter
 
 X = '❌'
 OK = '✅'

@@ -1,8 +1,11 @@
-import requests
 from bs4 import BeautifulSoup
+import requests
 import json
+import os
 
-DICT_FILE = 'trivia/scrambledict.json'
+dirname = os.path.dirname(__file__)
+
+DICT_FILE = os.path.join(dirname, 'scramble.json')
 word_dict = json.load(open(DICT_FILE))
 
 URLS = [

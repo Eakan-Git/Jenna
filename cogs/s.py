@@ -1,10 +1,10 @@
 import discord
 import colors
-import converter as conv
 
 from discord.ext import commands
 from bs4 import BeautifulSoup
-from s import lsqc, lstv, BirthTime, get_lifepath
+from .core import converter as conv
+from .core.s import lsqc, lstv, BirthTime, get_lifepath
 
 class S(commands.Cog):
     def __init__(self, bot):

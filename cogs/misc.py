@@ -2,15 +2,15 @@ import discord
 import typing
 import colors
 import const
-import converter
 import timedisplay
 import time
 
-from discord.ext import commands, tasks
-from misc import covid, randomword
-from datetime import datetime
 from math import *
+from discord.ext import commands, tasks
+from datetime import datetime
 from urllib.parse import quote as url_quote
+from .core import converter
+from .core.misc import covid, randomword
 
 MATH_OPERATIONS = {
     'x': '*',

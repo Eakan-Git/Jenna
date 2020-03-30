@@ -2,7 +2,7 @@ import discord
 import upsidedown
 
 from discord.ext import commands
-from trivia.unscramble import unscramble
+from .core.dank.unscramble import unscramble
 
 MOCK_REPLACES = {
     'c': 'k',
