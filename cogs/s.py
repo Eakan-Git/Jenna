@@ -53,6 +53,7 @@ class S(commands.Cog):
         name, image, url = card
         embed = colors.embed(title=name, url=url)
         embed.set_image(url=image)
+        embed.set_footer(text='Tip: Click the title to see the meaning!')
         await context.send(embed=embed)
 
 def setup(bot):
