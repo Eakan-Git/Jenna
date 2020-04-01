@@ -17,7 +17,7 @@ async def on_ready():
     print('Logged in as', bot.user)
 
 extensions = [
-    'dank_helper',
+    'dank',
     'help',
     'alpha',
     'react',
