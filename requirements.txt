@@ -4,3 +4,4 @@ upsidedown
 requests
 beautifulsoup4
 pycountry
+googletrans
