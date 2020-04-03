@@ -2,8 +2,11 @@ import discord
 import typing
 import re
 import const
+import cogs
 
 from discord.ext import commands
+
+ALL = 'all'
 
 class Alpha(commands.Cog):
     def __init__(self, bot):
@@ -11,10 +14,12 @@ class Alpha(commands.Cog):
 
     @commands.command(aliases=['rl'])
     @commands.is_owner()
-    async def reload(self, context, *cogs):
+    async def reload(self, context, cog=ALL):
         await context.trigger_typing()
         responses = []
-        for cog_name in cogs:
+        cog = cogs.NAMES if cog == ALL else cog.split()
+        
+        for cog_name in cog:
             cog_path = 'cogs.' + cog_name
             response = 'Cog `%s`' % cog_name
 
