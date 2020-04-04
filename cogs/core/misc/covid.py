@@ -46,5 +46,5 @@ class CoronaStatus:
                 country = [c for c in cols]
                 data += [country]
         
-        data[0][0] = 'World'
+        data = data[1:]
         self.data = data
