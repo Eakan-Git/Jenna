@@ -10,13 +10,6 @@ import cogs
 from .core import converter as conv
 from discord.ext import commands
 
-PEEK = 'peek'
-LUV = 'worryluv'
-MAD = 'worryduoi'
-
-LOVE_WORDS = ['luv', 'love', 'iu', 'thank', 'good']
-HATE_WORDS = ['fuck', 'screw', 'hate', 'ngu']
-
 EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
 INTERROBANG = '⁉️'
@@ -86,23 +79,9 @@ class Emotes(commands.Cog):
         if context.command:
             return
         await self.reply_emotes(msg)
-        await self.drop_emotes_on_mention(msg)
     
     def get_emoji(self, name):
         return discord.utils.get(self.bot.emojis, name=name)
-    
-    async def drop_emotes_on_mention(self, msg):
-        direct_mention = str(self.bot.user.id) in msg.content
-        indirect_mention = self.bot.user.name.lower() in msg.content.lower()
-        if direct_mention or indirect_mention:
-            emoji = PEEK
-            if any(word in msg.content.lower() for word in LOVE_WORDS):
-                emoji = LUV
-            elif any(word in msg.content.lower() for word in HATE_WORDS):
-                emoji = MAD
-            
-            emoji = self.get_emoji(emoji)
-            await msg.add_reaction(emoji)
 
     async def reply_emotes(self, msg):
         match = re.findall(EMOJI_PATTERN, msg.content)

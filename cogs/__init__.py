@@ -7,6 +7,7 @@ NAMES = [
     'help',
     'alpha',
     'react',
+    'cute',
 
     'texts',
     'images',
