@@ -1,6 +1,7 @@
 import discord
 import time
 import random
+import env
 
 from discord.ext import commands
 
@@ -75,7 +76,7 @@ class Cute(commands.Cog):
      
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author == self.bot.user: return
+        if env.TESTING or msg.author == self.bot.user: return
         context = await self.bot.get_context(msg)
         if context.command:
             return

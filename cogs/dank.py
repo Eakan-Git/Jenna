@@ -1,6 +1,7 @@
 import discord
 import re
 import const
+import env
 
 from discord.ext import commands
 from .core.dank import plstrivia
@@ -36,8 +37,9 @@ class DankHelper(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if type(msg.channel) is discord.DMChannel: return
-        if msg.author.name not in [DANK_MEMER, self.bot.user.name]: return
+        not_dank_memer_or_self = msg.author.name not in [DANK_MEMER, self.bot.user.name]
+        in_dm = isinstance(msg.channel, discord.DMChannel)
+        if env.TESTING or not_dank_memer_or_self or in_dm: return
 
         is_trivia_question = self.is_trivia(msg)
         is_minigame = any(word in msg.content for word in GAMES_TO_HELP)

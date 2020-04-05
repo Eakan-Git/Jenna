@@ -6,6 +6,7 @@ import colors
 import math
 import random
 import cogs
+import env
 
 from .core import converter as conv
 from discord.ext import commands
@@ -74,7 +75,7 @@ class Emotes(commands.Cog):
         
     @commands.Cog.listener()
     async def on_message(self, msg):
-        if msg.author == self.bot.user: return
+        if env.TESTING or msg.author == self.bot.user: return
         context = await self.bot.get_context(msg)
         if context.command:
             return

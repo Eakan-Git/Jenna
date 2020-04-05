@@ -7,7 +7,7 @@ import cogs
 
 from discord.ext import commands
 
-prefixes = ['j ', 'jenna ', 'jen ']
+prefixes = ['j ', 'jenna '] if not env.TESTING else ['k ']
 for p in prefixes[::]:
     prefixes.append(p.capitalize())
 bot = commands.Bot(command_prefix=prefixes, case_insensitive=True)

@@ -1,3 +1,7 @@
+from dotenv import load_dotenv
 import os
 
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
+load_dotenv()
+
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+TESTING = os.getenv('TESTING')
