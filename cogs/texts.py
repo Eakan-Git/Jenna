@@ -7,17 +7,6 @@ import upsidedown
 import colors
 import googletrans
 
-MOCK_REPLACES = {
-    'c': 'k',
-    'n': 'm',
-}
-
-def spongebob_mock(s):
-    s = s.lower().replace('-', '')
-    for char, sub in MOCK_REPLACES.items():
-        s = s.lower().replace(char, sub)
-    return ''.join(c.upper() if i % 2 else c for i, c in enumerate(s))
-
 def LangCode(s):
     s = s.lower().replace('-', '')
     if s in googletrans.LANGUAGES or s in googletrans.LANGCODES:
@@ -33,14 +22,6 @@ class Texts(commands.Cog):
     async def upsidedown(self, context, *, text):
         text = text.replace('||', '')
         text = upsidedown.transform(text)
-        await context.send(text)
-    
-    @commands.command()
-    async def mock(self, context, *, text):
-        mock = discord.utils.get(self.bot.emojis, name='mock')
-        mock2 = discord.utils.get(self.bot.emojis, name='mock2')
-        text = spongebob_mock(text)
-        text = f'{mock2} {text} {mock}'
         await context.send(text)
     
     @commands.command(aliases=['usb'])
@@ -59,7 +40,7 @@ class Texts(commands.Cog):
         await context.trigger_typing()
         translated = self.translator.translate(text, dest)
         embed = colors.embed()
-        embed.description = f'{translated.text}'
+        embed.description = f'{translated.text}'.replace('nhoan', 'cringy')
         embed.set_footer(text=f'{translated.src}: {text}')
         await context.send(embed=embed)
     
