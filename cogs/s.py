@@ -1,6 +1,7 @@
 import discord
 import colors
 import random
+import time
 
 from discord.ext import commands
 from bs4 import BeautifulSoup
@@ -49,7 +50,10 @@ class S(commands.Cog):
     
     @commands.command()
     async def tarot(self, context):
-        card = random.choice(tarot.CARDS)
+        random.seed(time.time())
+        cards = tarot.CARDS[::]
+        random.shuffle(cards)
+        card = random.choice(cards)
         name, image, url = card
         embed = colors.embed(title=name, url=url)
         embed.set_image(url=image)
