@@ -41,11 +41,11 @@ COG_EMOTES = {
 COG_FROM_EMOTES = { v: k for k, v in COG_EMOTES.items() }
 
 GLOBE = '🌐'
-HIDDEN_COGS = ['Help', 'Alpha']
 DEFAULT_HELP = ''
 DEFAULT_COG = 'Misc'
 TITLE_FORMAT = '%s Command List'
-FOOTER = 'Nag DJ for more features'
+FOOTER = 'Requested by {}'
+IS_OWNER_CHECK = 'is_owner'
 
 ARG_REPLACES = {
     '[': '(',
@@ -69,16 +69,10 @@ class EmbedHelpCommand(commands.HelpCommand):
     def create_embed(self):
         bot = self.context.bot
         bot_user = bot.user
+        requesting_user = self.context.message.author
         embed = colors.embed(title=TITLE_FORMAT % bot_user.name)
-        embed.set_footer(text=FOOTER, icon_url=bot_user.avatar_url)
+        embed.set_footer(text=FOOTER.format(requesting_user.name), icon_url=requesting_user.avatar_url)
         return embed
-    
-    async def get_cog_emoted_name(self, cog):
-        cog = cog or DEFAULT_COG
-        cog_name = cog if type(cog) is str else cog.qualified_name
-        emote = await conv.emoji(self.context, COG_EMOTES[cog_name])
-        full_name = f'{emote} {cog_name}'
-        return full_name
 
     async def send_bot_help(self, mapping):
         embed = await self.get_bot_help()
@@ -91,12 +85,12 @@ class EmbedHelpCommand(commands.HelpCommand):
         done = []
         cog_to_commands = {}
         for cog_name, cog in bot.cogs.items():
-            if cog_name in HIDDEN_COGS: continue
+            if cog_name not in COG_EMOTES: continue
 
-            commands = cog.walk_commands() if cog else commands
             command_names = cog_to_commands.get(cog_name, [])
-            for command in commands:
-                if command.hidden or command in done: continue
+            for command in cog.walk_commands():
+                is_owner_only = IS_OWNER_CHECK in str(command.checks)
+                if command.hidden or command in done or is_owner_only: continue
                 
                 signature = self.get_command_signature(command)
                 command_names += [signature]
@@ -111,6 +105,13 @@ class EmbedHelpCommand(commands.HelpCommand):
             embed.add_field(name=cog_name, value=commands, inline=False)
         
         return embed
+
+    async def get_cog_emoted_name(self, cog):
+        cog = cog or DEFAULT_COG
+        cog_name = cog if type(cog) is str else cog.qualified_name
+        emote = await conv.emoji(self.context, COG_EMOTES[cog_name])
+        full_name = f'{emote} {cog_name}'
+        return full_name
 
     async def add_close_button(self, msg):
         await self.add_buttons(msg, full=False)
