@@ -12,6 +12,12 @@ class Alpha(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(aliases=['e'])
+    @commands.is_owner()
+    async def eval(self, context, *, code):
+        output = eval(code)
+        await context.send(output)
+
     @commands.command(aliases=['rl'])
     @commands.is_owner()
     async def reload(self, context, cog=ALL):
