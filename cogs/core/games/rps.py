@@ -1,4 +1,6 @@
 import discord
+import random
+import time
 
 from operator import attrgetter
 
@@ -105,15 +107,15 @@ class RPSAnnouncer:
             return f'**Set {self.game.set}**\n'
         return ''
     
-    def get_round_result(self):
+    def get_round_result(self, with_name=True):
         hands = self.game.current.hands
-        names = self.get_names()
+        names = self.get_names() if with_name else [''] * 2
         round_scores = ' - '.join(map(str, self.game.rounds_history[-1]))
         if self.game.current.is_draw():
             round_scores = '**DRAW**'
 
         result = f'{names[0]} {hands[0]} {round_scores} {hands[1]} {names[1]}'
-        return result
+        return result.strip()
 
     def for_player(self, msg, player):
         return msg.replace(player.display_name, 'You')
@@ -122,16 +124,11 @@ class RPSAnnouncer:
         return f"It's a {self.game.current.hands[0]} **DRAW**!"
     
     def get_end_result(self, player=None):
-        if player:
-            return f'**{self.game.winner.display_name}** won the game'
-        else:
-            return f'**{self.game.winner.mention}** won the game against **{self.game.loser.mention}**'
+        name = f'__{self.game.winner.display_name}__' if player else self.game.winner.mention
+        return f'{name} won the game!'
     
     def get_names(self):
         names = [f'__{p.display_name}__' for p in self.game.players]
-        windex = self.game.current.windex
-        if windex:
-            names[windex] += ' won'
         return names
 
     def get_set_result(self):
@@ -145,6 +142,7 @@ class RPSAnnouncer:
     async def delete_wait_msg(self):
         if self.wait_msg:
             await self.wait_msg.delete()
+            self.wait_msg = None
     
     async def send_challenge(self, i):
         friend_name = get_full_name(self.game.players[1-i])
@@ -164,11 +162,19 @@ class RPSAnnouncer:
         msgs = []
 
         for i, p in enumerate(players):
+            if p.bot:
+                random.seed(time.time())
+                hand = random.choice(RPS_EMOTES)
+                hands += [hand]
+                msgs += [None]
+                continue
+
             if round_num == 1:
                 await self.send_challenge(i)
 
             msg = await p.send(full_round_name)
             msgs += [msg]
+
             for emote in RPS_EMOTES:
                 await msg.add_reaction(emote)
 
@@ -185,7 +191,7 @@ class RPSAnnouncer:
             hands += [hand]
             await msg.edit(content=f'{full_round_name} You threw {hand}')
 
-            if i == 0:
+            if i == 0 and not players[1].bot:
                 await self.delete_wait_msg()
                 await self.send_wait_msg(p, players[1])
                 

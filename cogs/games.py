@@ -24,29 +24,28 @@ class Games(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def rps(self, context, friend:conv.Member, sets:int=2, rounds:int=2):
+    async def rps(self, context, friend:conv.Member, rounds:int=2, sets:int=1):
         cannot_play = ''
-        if not friend:
-            cannot_play = 'Tell me you wanna play with.'
-        elif context.author == friend:
+        if context.author == friend:
             cannot_play = 'You can\'t play with yourself ya know.'
-        elif friend == self.bot.user:
-            cannot_play = 'Go play with one of your friends.'
         elif any(friend in game.players for game in self.games):
             cannot_play = f'**{friend.display_name}** is in the middle of another game. Ask them later!'
         elif any(context.author in game.players for game in self.games):
-            cannot_play = f'Finish your current game first!'
+            cannot_play = f'Finish your ongoing game first!'
         
         if cannot_play:
             await context.send(cannot_play)
             return
+        
+        rounds = max(1, rounds)
+        ets = max(1, sets)
 
         players = [context.author, friend]
         game = RPSGame(self.bot, players, sets, rounds)
         announcer = RPSAnnouncer(game)
         self.games += [game]
 
-        summary = []
+        summary = [f'{players[0].mention} vs {players[1].mention}']
         total_round = 0
         wait_msg = None
         while True:
@@ -59,16 +58,18 @@ class Games(commands.Cog):
             
             game.move_on()
 
+            summary += [set_name + announcer.get_round_result(with_name=False)]
             round_result = set_name + announcer.get_round_result()
-            summary += [round_result]
             for p, m in zip(players, msgs):
-                await m.edit(content=announcer.for_player(round_result, p))
+                if m:
+                    await m.edit(content=announcer.for_player(round_result, p))
             
-            if game.set_winner:
+            if sets > 1 and game.set_winner:
                 set_result = announcer.get_set_result()
                 summary += [set_result]
                 for p in players:
-                    await p.send(announcer.for_player(set_result, p))
+                    if not p.bot:
+                        await p.send(announcer.for_player(set_result, p))
             if game.winner:
                 break
         
@@ -76,6 +77,7 @@ class Games(commands.Cog):
             end_result = announcer.get_end_result()
             summary += [end_result]
             for p in players:
+                if p.bot: continue
                 end_result = announcer.get_end_result(p)
                 end_result = announcer.for_player(end_result, p)
                 await p.send(end_result)
