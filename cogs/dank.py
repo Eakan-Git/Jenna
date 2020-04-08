@@ -16,6 +16,7 @@ COLOR = 'Color'
 MEMORY = 'Memory'
 REVERSE = 'Reverse'
 SCRAMBLE = 'Scramble'
+PUNCH = 'punch'
 GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
 
 WORD_PATTERN = '`(.+)`'
@@ -37,9 +38,10 @@ class DankHelper(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
+        if env.TESTING: return
         not_dank_memer_or_self = msg.author.name not in [DANK_MEMER, self.bot.user.name]
         in_dm = isinstance(msg.channel, discord.DMChannel)
-        if env.TESTING or not_dank_memer_or_self or in_dm: return
+        if not_dank_memer_or_self or in_dm: return
 
         is_trivia_question = self.is_trivia(msg)
         is_minigame = any(word in msg.content for word in GAMES_TO_HELP)
@@ -83,7 +85,6 @@ class DankHelper(commands.Cog):
         await msg.channel.send(response)
     
     async def send_minigame_assist(self, msg):
-        await msg.channel.trigger_typing()
         content = msg.content.replace(INVISIBLE_TRAP, '')
         words_in_backticks = re.findall(WORD_PATTERN, content)
 
@@ -106,10 +107,12 @@ class DankHelper(commands.Cog):
                 content = '**Anagrams**: ' + anagrams
             else:
                 content = '**Anagrams**: Not found!'
-        elif any(word in msg.content for word in [RETYPE, TYPING]):
+        elif any(word in msg.content for word in [RETYPE, TYPING]) and PUNCH not in msg.content:
             content = words_in_backticks[0]
         elif MEMORY in msg.content:
             content = content.split('`')[1].replace('\n', ' ')
+        else:
+            return
 
         await msg.channel.send(content)
 
