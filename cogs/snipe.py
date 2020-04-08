@@ -155,13 +155,13 @@ class Snipe(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, msg):
-        if msg.author.bot: return
+        if not msg.guild or msg.author == self.bot.user: return
         guild = self.get_guild_log(msg.guild)
         guild.log_deleted(msg)
     
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if before.content == after.content: return
+        if not before.guild or before.author == self.bot.user: return
 
         guild = self.get_guild_log(after.guild)
         guild.log_edited(before)
