@@ -5,18 +5,11 @@ import const
 import timedisplay
 import time
 
-from math import *
 from discord.ext import commands, tasks
 from datetime import datetime
 from urllib.parse import quote as url_quote
 from .core import converter
-from .core.misc import covid, randomword
-
-MATH_OPERATIONS = {
-    'x': '*',
-    ',': '',
-    '^': '**',
-}
+from .core.misc import covid, randomword, math
 
 MATH_BRIEF = 'Compute big numbers for you'
 INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=664109951781830666&permissions=1342565440&scope=bot'
@@ -27,27 +20,13 @@ class Misc(commands.Cog):
         self.corona_status = covid.CoronaStatus()
     
     @commands.group(hidden=True)
-    async def do(self, context):
-        if not context.invoked_subcommand:
-            await context.send('`do meth` you mean?')
+    async def do(self, context, subcommand, *, expr):
+        if subcommand in ['math', 'meth']:
+            await math.compute(context, expr)
 
-    @do.command(aliases=['meth'])
+    @commands.command(aliases=['meth'])
     async def math(self, context, *, expr):
-        if expr:
-            for math, code in MATH_OPERATIONS.items():
-                expr = expr.replace(math, code)
-        else:
-            return
-        try:
-            value = eval(expr)
-            if value is not None:
-                value = f'{value:,}'
-                response = f"That's **{value}**"
-                await context.send(response)
-        except Exception as e:
-            await context.send("That's *bruh!*")
-            import traceback
-            traceback.print_exc()
+        await math.compute(context, expr)
 
     @commands.command()
     @commands.guild_only()
