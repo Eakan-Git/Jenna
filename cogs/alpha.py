@@ -14,9 +14,19 @@ class Alpha(commands.Cog):
 
     @commands.command(aliases=['e'])
     @commands.is_owner()
-    async def eval(self, context, *, code):
-        output = eval(code)
-        await context.send(output)
+    async def eval(self, context, *, code=None):
+        if not code:
+            async def check(m):
+                return await self.bot.is_owner(m.author) and m.channel == context.channel
+            await context.send('Enter your code as a message:')
+            msg = await self.bot.wait_for('message', check=check)
+            code = msg.content.replace('`', '')
+        try:
+            output = eval(code)
+        except Exception as e:
+            output = e
+
+        await context.send(f'```{output}```')
 
     @commands.command(aliases=['rl'])
     @commands.is_owner()
