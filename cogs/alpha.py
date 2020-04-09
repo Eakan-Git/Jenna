@@ -70,7 +70,8 @@ class Alpha(commands.Cog):
         async with context.typing():
             msg = await channel.fetch_message(msg_id)
             embed = msg.embeds[0] if msg.embeds else None
-            await context.send(msg.content, embed=embed)
+            files = [await a.to_file() for a in msg.attachments]
+            await context.send(msg.content, embed=embed, files=files)
     
     @commands.command()
     async def clean(self, context, limit:typing.Optional[int]=1, *, content=''):
