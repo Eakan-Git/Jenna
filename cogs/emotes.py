@@ -190,17 +190,16 @@ class Emotes(commands.Cog):
         await context.send(f'✅ Found `{change}` new emotes!')
 
     @emote.command()
-    @commands.is_owner()
+    @commands.has_guild_permissions(manage_emojis=True)
+    @commands.bot_has_guild_permissions(manage_emojis=True)
     async def add(self, context, url, name=None):
         response = '⁉️'
-        home_guild = self.bot.get_guild(HOME_GUILD)
-
         async with context.typing():
             image = await download_image(url)
             if image:
                 if not name:
                     name = 'emoji%04d' % random.randint(0, 9999)
-                await home_guild.create_custom_emoji(name=name, image=image)
+                await context.guild.create_custom_emoji(name=name, image=image)
                 response = self.get_emoji(name)
             await context.message.add_reaction(response)
     
