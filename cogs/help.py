@@ -3,11 +3,10 @@ import colors
 import cogs
 import traceback
 import sys
+import const
 
 from discord.ext import commands
 from .core import converter as conv
-
-INVISBLE = '‏‏‎ ‎'
 
 BRIEFS = {
     'snipe': 'Show the `i`th last deleted message in channel',
@@ -107,7 +106,7 @@ class EmbedHelpCommand(commands.HelpCommand):
                 
         for cog, commands in cog_to_commands.items():
             cog_name = await self.get_cog_emoted_name(cog)
-            commands = ' • '.join(f'`{c}`' for c in commands)
+            commands = const.BULLET.join(f'`{c}`' for c in commands)
             embed.add_field(name=cog_name, value=commands, inline=False)
         
         return embed
