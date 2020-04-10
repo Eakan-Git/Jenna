@@ -45,6 +45,10 @@ class Emotes(commands.Cog):
         url = None
         name = emoji
         ext = 'png'
+
+        if emoji in self.external_emojis:
+            emoji = self.external_emojis.get(emoji)
+            emoji = await utils.to_partial_emoji(context, emoji)
         if type(emoji) in [discord.Emoji, discord.PartialEmoji]:
             file = await emoji.url.read()
             name = emoji.name
