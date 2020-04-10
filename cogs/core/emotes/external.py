@@ -4,8 +4,7 @@ from .. import embed_limit
 import colors
 import const
 
-EMOJI_LETTER = ':regional_indicator_{}:'
-EMOJI_1234 = ':1234:'
+NUMBER = '#'
 TITLE = 'Available Nitro Emotes'
 EMPTY_EMBED = colors.embed(title=TITLE)
 EMPTY_EMBED.set_footer(text='Page 1/1')
@@ -15,8 +14,8 @@ def split_list(l, parts=2):
     return [l[i*length // parts: (i+1)*length // parts] for i in range(parts)]
 
 def get_first_char(name):
-    first_char = name[0].lower()
-    return EMOJI_LETTER.format(first_char) if first_char.isalpha() else EMOJI_1234
+    first_char = name[0].upper()
+    return first_char if first_char.isalpha() else NUMBER
 
 class EmojiPaginator:
     def __init__(self, Emotes):
@@ -54,7 +53,7 @@ class EmojiPaginator:
                 split_emojis = split_list(emojis, parts)
                 split_field_values = [const.BULLET.join(e) for e in split_emojis]
                 for i, value in enumerate(split_field_values):
-                    name = field_name + const.NUMBER_EMOTES[i+1]
+                    name = field_name + str(i+1)
                     embed.add_field(name=name, value=value, inline=False)
             
             if embed_limit.over(embed):
