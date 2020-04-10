@@ -14,18 +14,22 @@ BRIEFS = {
     'snipedit': 'Show the `i`th last edited message in channel',
     'snipelog': 'Show last 10 deleted messages in `channel`',
     'editlog': 'Show last 10 edited messages in `channel`',
+    
     'life path': 'Get life path number from `DOB`',
     'lasotuvi': 'Get your **la so tu vi** from [tuvilyso.vn](https://tuvilyso.vn)',
+    
     'avatar': 'Zoom in on someone\'s avatar before they yeet it',
-    'do math': 'Compute big numbers for you',
-    'whos': '*Who is this guy?*',
-    'emotes': 'Lemme drop a Nitro emoji for you',
+    
+    'emotes': "List of Jenna\'s emotes.\n Add me to any server to use their emotes wherever I'm present.",
+    'nitrotes': 'List of collected emotes',
     'drop': 'React a message with a Nitro emoji',
+    'enlarge': 'Show a big version of an emoji',
+
+    'math': 'Compute big numbers for you',
+    'whos': '*Who is this guy?*',
     'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.',
     'rps': 'Play a game of Rock Paper Scissors with your friend',
     'invite': 'Invite me to your server!',
-    'mock': 'mOkK WhAt yOuR FrIeMd sAyS',
-    'enlarge': 'Show a big version of an emoji',
 }
 
 COG_EMOTES = {
@@ -45,7 +49,7 @@ DEFAULT_HELP = ''
 DEFAULT_COG = 'Misc'
 TITLE_FORMAT = '%s Command List'
 FOOTER = 'Requested by {}'
-IS_OWNER_CHECK = 'is_owner'
+OWNER_CHECK = 'is_owner'
 
 ARG_REPLACES = {
     '[': '(',
@@ -54,6 +58,9 @@ ARG_REPLACES = {
     '<': '[',
     '>': ']',
 }
+
+def owner_only(command):
+    return OWNER_CHECK in str(command.checks)
 
 class EmbedHelpCommand(commands.HelpCommand):
     def get_command_signature(self, command, with_args=False):
@@ -89,8 +96,7 @@ class EmbedHelpCommand(commands.HelpCommand):
 
             command_names = cog_to_commands.get(cog_name, [])
             for command in cog.walk_commands():
-                is_owner_only = IS_OWNER_CHECK in str(command.checks)
-                if command.hidden or command in done or is_owner_only: continue
+                if command.hidden or command in done or owner_only(command): continue
                 
                 signature = self.get_command_signature(command)
                 command_names += [signature]
@@ -147,7 +153,7 @@ class EmbedHelpCommand(commands.HelpCommand):
         embed = self.create_embed()
         command_helps = []
         for command in set(cog.walk_commands()):
-            if type(command) is not commands.Command or command.hidden: continue
+            if command.hidden or owner_only(command): continue
             command_helps += [self.get_command_help(command)]
         
         command_helps = '\n\n'.join(command_helps)
