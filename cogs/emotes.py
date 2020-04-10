@@ -173,12 +173,17 @@ class Emotes(commands.Cog):
         if isinstance(channel, int):
             channel = self.bot.get_channel(channel)
         channel = channel or context.channel
+        count_before = len(self.external_emojis)
+
         async with context.typing():
             async for message in channel.history(limit=limit):
                 contains_emojis = re.findall(REAL_EMOJI_PATTERN, message.content)
                 if contains_emojis:
                     await self.cache_external_emojis(message)
-        await context.message.add_reaction('✅')
+        
+        count_after = len(self.external_emojis)
+        change = count_after - count_before
+        await context.send(f'✅ Found `{change}` new emotes!')
 
     @emote.command()
     @commands.is_owner()
