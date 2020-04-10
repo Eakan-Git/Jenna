@@ -1,8 +1,10 @@
 from cogs import react
 
 REACT = 'React'
+PERSIST = 'Persist'
 
 NAMES = [
+    'persist',
     'dank',
     'help',
     'alpha',
