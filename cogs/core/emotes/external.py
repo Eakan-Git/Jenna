@@ -35,7 +35,7 @@ class EmojiPaginator:
             self.pages = await self.generate_embeds()
         self.last_emoji_count = emoji_count
         
-        page = (page-1) % len(self.pages)
+        page = (page-1) % max(len(self.pages), 1)
         return self.pages[page]
 
     async def sort_emojis(self):

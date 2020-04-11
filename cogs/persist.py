@@ -1,6 +1,7 @@
 import discord
 import pickle
 import env
+import asyncio
 
 from discord.ext import commands, tasks
 
@@ -12,6 +13,7 @@ class Persist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.data = {}
+        self.loaded = False
     
     @commands.Cog.listener()
     async def on_ready(self):
@@ -22,14 +24,14 @@ class Persist(commands.Cog):
         if backup_file:
             await backup_file[0].save(BACKUP_FILE)
             self.data = pickle.load(open(BACKUP_FILE, 'rb'))
+        self.loaded = True
         
         if env.TESTING: return
         self.backup_loop.start()
     
     async def wait_until_loaded(self):
-        def is_backup(m):
-            return m.author == self.bot.user and m.channel.id == BACKUP_CHANNEL
-        await self.bot.wait_for('message', check=is_backup)
+        while not self.loaded:
+            await asyncio.sleep(.5)
 
     def get(self, key, default=None):
         return self.data.get(key, default)

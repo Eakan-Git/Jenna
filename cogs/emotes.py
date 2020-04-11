@@ -46,9 +46,7 @@ class Emotes(commands.Cog):
         name = emoji
         ext = 'png'
 
-        if emoji in self.external_emojis:
-            emoji = self.external_emojis.get(emoji)
-            emoji = await utils.to_partial_emoji(context, emoji)
+        emoji = await self.get_external_emoji(context, emoji) or emoji
         if type(emoji) in [discord.Emoji, discord.PartialEmoji]:
             file = await emoji.url.read()
             name = emoji.name
@@ -66,6 +64,15 @@ class Emotes(commands.Cog):
             await context.send(file=file)
         else:
             await context.message.add_reaction('⁉️')
+        
+    async def get_external_emoji(self, context, name, add=False):
+        id = self.external_emojis.get(name)
+        if not id: return
+        emoji = utils.expand(name, id)
+        emoji = await utils.to_partial_emoji(context, emoji)
+        if emoji and add:
+            emoji = await self.add_emoji(emoji)
+        return emoji
 
     @commands.command(aliases=['emojis'])
     async def emotes(self, context, page:int=1):
@@ -102,8 +109,24 @@ class Emotes(commands.Cog):
                 counter += 1
                 continue
             break
-        await message.add_reaction(emoji)
         
+        external = None
+        if isinstance(emoji, str):
+            emoji = await self.get_external_emoji(context, emoji, add=True)
+            external = emoji
+        
+        try:
+            await message.add_reaction(emoji)
+            await context.message.add_reaction('✅')
+        except:
+            await context.message.add_reaction('⁉️')
+        
+        if external:
+            await external.delete()
+    
+    async def add_emoji(self, emoji):
+        return await self.bot.get_guild(HOME_GUILD).create_custom_emoji(name=emoji.name, image=await emoji.url.read())
+
     @commands.Cog.listener()
     async def on_message(self, msg):
         if msg.author == self.bot.user: return
@@ -111,10 +134,10 @@ class Emotes(commands.Cog):
         if context.command:
             return
         await self.cache_external_emojis(msg)
-        if env.TESTING: return
+        if env.TESTING and not await self.bot.is_owner(msg.author): return
         await self.reply_emojis(msg)
     
-    def get_emoji(self, name):
+    def get_known_emoji(self, name):
         def added_by_me(e):
             return -1 if e.user == self.bot.user else self.bot.emojis.index(e)
         emojis = sorted(self.bot.emojis, key=added_by_me)
@@ -128,11 +151,10 @@ class Emotes(commands.Cog):
 
         for emoji in match:
             name = emoji.replace(':', '')
-            emoji = self.get_emoji(name)
+            emoji = self.get_known_emoji(name)
             if not emoji:
-                external = self.external_emojis.get(name)
-                external = await utils.to_partial_emoji(context, external)
-                emoji = await self.add_emoji(external.name, await external.url.read())
+                external = await self.get_external_emoji(context, name)
+                emoji = await self.add_emoji(external)
                 externals += [emoji]
             
             if emoji:
@@ -159,13 +181,25 @@ class Emotes(commands.Cog):
         
         for e in emojis:
             partial = await utils.to_partial_emoji(context, e) if isinstance(e, str) else e
-            known = self.get_emoji(partial.name)
+            known = self.get_known_emoji(partial.name)
             if not known:
+                id = utils.shorten(e)
                 self.external_emojis[partial.name] = str(e)
     
     @commands.group(aliases=['emoji'], hidden=True)
     async def emote(self, context):
         pass
+
+    @emote.command()
+    @commands.is_owner()
+    async def cache(self, context, message:discord.Message):
+        before = self.external_emojis.copy()
+        await self.cache_external_emojis(message)
+        changes = []
+        if self.external_emojis != before:
+            before, after = map(set, [before.items(), self.external_emojis.items()])
+            changes = after - before
+        await context.send(f'Found `{len(changes)}` new emotes!')
 
     @emote.command()
     @commands.is_owner()
@@ -196,11 +230,8 @@ class Emotes(commands.Cog):
                 if not name:
                     name = 'emoji%04d' % random.randint(0, 9999)
                 await context.guild.create_custom_emoji(name=name, image=image)
-                response = self.get_emoji(name)
+                response = self.get_known_emoji(name)
             await context.message.add_reaction(response)
-    
-    async def add_emoji(self, name, image):
-        return await self.bot.get_guild(HOME_GUILD).create_custom_emoji(name=name, image=image)
 
 async def download_image(url):
     async with aiohttp.ClientSession() as session:
