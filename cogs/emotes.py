@@ -149,14 +149,9 @@ class Emotes(commands.Cog):
             self.external_emojis[emoji.name] = str(emoji)
 
     async def cache_external_emojis(self, msg):
+        if msg.author.bot: return
         context = await self.bot.get_context(msg)
         emojis = re.findall(REAL_EMOJI_PATTERN, msg.content)
-        if msg.embeds:
-            embed = msg.embeds[0]
-            emojis += re.findall(REAL_EMOJI_PATTERN, embed.description or '')
-            for f in embed.fields:
-                emojis += re.findall(REAL_EMOJI_PATTERN, f.name)
-                emojis += re.findall(REAL_EMOJI_PATTERN, f.value)
         emojis += [r.emoji for r in msg.reactions if isinstance(r.emoji, discord.PartialEmoji)]
         
         for e in emojis:
