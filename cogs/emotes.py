@@ -162,9 +162,7 @@ class Emotes(commands.Cog):
         for e in emojis:
             partial = await utils.to_partial_emoji(context, e) if isinstance(e, str) else e
             known = self.get_emoji(partial.name)
-            cached = self.external_emojis.get(partial.name)
-            should_cache = not (known or cached)
-            if should_cache:
+            if not known:
                 self.external_emojis[partial.name] = str(e)
     
     @commands.group(aliases=['emoji'], hidden=True)
