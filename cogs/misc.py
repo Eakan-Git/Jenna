@@ -57,14 +57,16 @@ class Misc(commands.Cog):
         msg = await context.send('`Downloading data...`')
         self.corona_status.update()
         
+        RECOVERED_EMOTE = discord.utils.get(self.bot.emojis, name='khabanhquay')
         embed = colors.embed()
         embed.description = ':microbe: **Total(+New Cases)**\n:skull: **Deaths(+New Deaths)**'
+        embed.description += f'\n{RECOVERED_EMOTE} **Recovered**'
         embed.title = 'Worldometer Coronavirus Update'
         embed.url = covid.URL
         embed.timestamp = datetime.now().astimezone()
 
         for country in self.corona_status.data:
-            name, total, new_cases, deaths, new_deaths = country[:5]
+            name, total, new_cases, deaths, new_deaths, recovered = country[:6]
             if name not in covid.COUNTRIES: continue
 
             flag_emote = covid.FLAG_EMOTES_BY_COUNTRY[name]
@@ -77,9 +79,13 @@ class Misc(commands.Cog):
                 new_deaths = f'(+{new_deaths})'
 
             deaths = deaths or 0
-            content = f':microbe: **{total}{new_cases}**'
-            content += f'\n:skull: **{deaths}{new_deaths}**'
-            content += '\n__'
+            recovered = recovered or 0
+
+            lines = [f':microbe: **{total}{new_cases}**']
+            lines += [f':skull: **{deaths}{new_deaths}**']
+            lines += [f'{RECOVERED_EMOTE} **{recovered}**']
+            lines += ['__']
+            content = '\n'.join(lines)
             embed.add_field(name=name, value=content)
         await msg.edit(content='', embed=embed)
 
