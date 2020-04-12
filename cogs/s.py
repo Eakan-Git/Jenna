@@ -40,7 +40,7 @@ class S(commands.Cog):
     @commands.command(aliases=['lsqc'])
     async def lasoquycoc(self, context, dob:conv.DOB, birthtime:BirthTime):
         await context.trigger_typing()
-        qc = lsqc.lookup(dob, birthtime)
+        qc = await lsqc.lookup(dob, birthtime)
         text = qc.format_laso()
 
         embed = colors.embed(title=f'Lá số Quỷ Cốc {dob} {birthtime}h')

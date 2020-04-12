@@ -2,7 +2,7 @@ import posixpath
 
 NAMES = open('cogs/core/s/tarot.txt').read()
 
-MAJORS, MINORS, FACES = [block.split('\n') for block in NAMES.split('\n\n')]
+MAJORS, MINORS, FACES = [block.splitlines() for block in NAMES.split('\n\n')]
 RANKS = [FACES[0]] + [i for i in range(2, 11)] + FACES[1:]
 
 ORIGIN = 'https://www.tarotcardmeanings.net'

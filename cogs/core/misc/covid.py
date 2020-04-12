@@ -1,7 +1,7 @@
-import requests
 import time
 import pycountry
 from bs4 import BeautifulSoup
+from .. import utils
 
 URL = 'https://www.worldometers.info/coronavirus/'
 UPDATE_INTERVAL = 2 * 60
@@ -21,21 +21,21 @@ class CoronaStatus:
         self.data = []
         self.last_update = 0
     
-    def update(self):
+    async def update(self):
         if self.should_update():
             self.last_update = time.time()
-            self.download_data()
+            await self.download_data()
     
     def should_update(self):
         now = time.time()
         data_age = now - self.last_update
         return data_age > UPDATE_INTERVAL
 
-    def download_data(self):
+    async def download_data(self):
         data = []
 
-        response = requests.get(URL)
-        soup = BeautifulSoup(response.text, 'html.parser')
+        web_content = await utils.download(URL, as_str=True)
+        soup = BeautifulSoup(web_content, 'html.parser')
         table = soup.find('table')
 
         for tbody in table.find_all('tbody')[::-1]:

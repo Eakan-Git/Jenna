@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests
+from .. import utils
 
 LSQC_URL = 'http://tracuu.tuvisomenh.com/kinh-dich/la-so-quy-coc-sinh-luc-%s-gio-0-phut-ngay-%s-thang-%s-nam-%s/'
 LSQC_CLASSES = ['header', 'left', 'right', 'tu-tu']
@@ -47,14 +47,14 @@ class LaSoQuyCoc:
             lines += [INDENT + bar]
             lines += ['']
         
-        rtop, rbottom = right.split('\n')
+        rtop, rbottom = right.splitlines()
         rjust_width = max(len(rtop), len(rbottom))
         
         lines[4] += RIGHT_INDENT + bold(rtop).rjust(rjust_width, ' ')
         lines[10] += RIGHT_INDENT + bold(rbottom).rjust(rjust_width, ' ')
         lines[7] = bold(left)
         
-        cuc, meaning = footer.split('\n')
+        cuc, meaning = footer.splitlines()
         lines += [bold(cuc).center(80, ' ')]
         lines += [meaning.center(65, ' ')]
 
@@ -62,17 +62,17 @@ class LaSoQuyCoc:
 
         return '\n'.join(lines)
 
-def lookup(dob, birthtime):
-    laso, details = scrape(dob, birthtime)
+async def lookup(dob, birthtime):
+    laso, details = await scrape(dob, birthtime)
     return LaSoQuyCoc(laso, details)
 
 def compile_url(dob, birthtime):
     return LSQC_URL % tuple([birthtime] + dob.numbers)
 
-def scrape(dob, birthtime):
+async def scrape(dob, birthtime):
     url = compile_url(dob, birthtime)
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    web_content = await utils.download(url, as_str=True)
+    soup = BeautifulSoup(web_content, 'html.parser')
 
     lsqc = soup.find(class_='lsqc')
     title, left, right, footer = find_multiple(lsqc, LSQC_CLASSES)

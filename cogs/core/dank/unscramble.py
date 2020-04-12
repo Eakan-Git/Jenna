@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests
+from .. import utils
 import json
 import os
 
@@ -13,7 +13,7 @@ URLS = [
     'https://wordfinder.yourdictionary.com/unscramble/',
 ]
 
-def unscramble(scrambled):
+async def unscramble(scrambled):
     word = lookup(scrambled)
     if word:
         return [word]
@@ -25,23 +25,23 @@ def lookup(scrambled):
         if sorted(scrambled) == sorted(word):
             return word
 
-def lookup_online(scrambled):
+async def lookup_online(scrambled):
     for url in URLS:
         anagrams = lookup_on_site(scrambled, url)
         if anagrams:
             break
     return anagrams
  
-def lookup_on_site(word, url):
+async def lookup_on_site(word, url):
     soup = request_site(word, url)
     anagrams = [a.text.strip() for a in soup.find_all('a') if valid_anagram(word, a.text)]
     return anagrams
 
 PARSER = 'html.parser'
-def request_site(word, url):
+async def request_site(word, url):
     url = url + word
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, PARSER)
+    web_content = await utils.download(url, as_str=True)
+    soup = BeautifulSoup(web_content, PARSER)
     return soup
 
 def valid_anagram(original, anagram, same_length=True):

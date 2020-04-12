@@ -55,7 +55,7 @@ class Misc(commands.Cog):
     @commands.command(aliases=['ncov', 'corona'])
     async def covid(self, context):
         msg = await context.send('`Downloading data...`')
-        self.corona_status.update()
+        await self.corona_status.update()
         
         RECOVERED_EMOTE = discord.utils.get(self.bot.emojis, name='khabanhquay')
         embed = colors.embed()
@@ -94,7 +94,7 @@ class Misc(commands.Cog):
         await self.send_random(context)
 
     async def send_random(self, context, what='Word'):
-        word, definition = randomword.get_random(what)
+        word, definition = await randomword.get_random(what)
         embed = colors.embed(title=word, description=definition)
         embed.set_author(name=f'Random {what}', url=randomword.URL)
         embed.url = randomword.GOOGLE_URL + url_quote(word)

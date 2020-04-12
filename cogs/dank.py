@@ -98,7 +98,7 @@ class DankHelper(commands.Cog):
             content = words_in_backticks[0][::-1]
         elif SCRAMBLE in msg.content:
             word = words_in_backticks[0]
-            anagrams = unscramble(word)
+            anagrams = await unscramble(word)
             content = UNSCRAMBLE_ERROR
             if len(anagrams) == 1:
                 content = anagrams[0]

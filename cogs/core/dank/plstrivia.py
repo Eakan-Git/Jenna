@@ -26,7 +26,7 @@ FILE = os.path.join(dirname, 'trivia.csv')
 ANSWER_PATTERN = '[A-D]\) \**([^\n*]+)\**'
 
 def read(qa):
-    lines = qa.split('\n')
+    lines = qa.splitlines()
     question = lines[0].replace('*', '')
     answers = re.findall(ANSWER_PATTERN, qa)
     return Trivia(question, list(answers))
