@@ -1,5 +1,5 @@
 from discord.ext import commands
-import aiohttp
+from ..utils import download
 import re
 
 async def to_partial_emoji(context, s):
@@ -7,12 +7,6 @@ async def to_partial_emoji(context, s):
         return await commands.PartialEmojiConverter().convert(context, s)
     except:
         print(s)
-
-async def download(url):
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            if resp.status == 200:
-                return await resp.read()
 
 EMOJID_PATTERN = '<(a*):[^:\s]+:(\d+)>'
 def shorten(emoji):
