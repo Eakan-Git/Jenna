@@ -36,7 +36,9 @@ class EmojiPaginator:
         self.last_emoji_count = emoji_count
         
         page = (page-1) % max(len(self.pages), 1)
-        return self.pages[page]
+        embed = self.pages[page]
+        embed.color = colors.get_random()
+        return embed
 
     async def sort_emojis(self):
         emojis_by_alphabet = {}
@@ -76,7 +78,6 @@ class EmojiPaginator:
         
         pages.append(embed)
         for i, embed in enumerate(pages):
-            embed.color = colors.random()
             embed.set_footer(text=f'Page {i+1}/{len(pages)}')
         return pages
 
