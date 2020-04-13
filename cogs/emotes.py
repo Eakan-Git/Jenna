@@ -154,6 +154,7 @@ class Emotes(commands.Cog):
             emoji = self.get_known_emoji(name)
             if not emoji:
                 external = await self.get_external_emoji(context, name)
+                if not external: continue
                 emoji = await self.add_emoji(external)
                 externals += [emoji]
             
