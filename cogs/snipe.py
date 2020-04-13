@@ -3,8 +3,10 @@ import typing
 import colors
 import timedisplay
 import const
+import io
 
 from discord.ext import commands
+from .core import utils
 
 SAVE_LIMIT = 10
 DELETED = 'deleted'
@@ -57,6 +59,7 @@ class Snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.guilds = {}
+        self.files_of_message = {}
     
     @commands.command(hidden=True, aliases=['re'])
     @commands.guild_only()
@@ -83,16 +86,16 @@ class Snipe(commands.Cog):
         msg = self.get_last_message(channel, state, index)
 
         embed = self.create_empty_embed(channel, state)
-        self.embed_message_log(embed, msg, state)
+        await self.embed_message_log(embed, msg, state)
+        files = await self.get_message_files_cache_if_inaccessible(msg, embed)
 
+        await context.send(embed=embed, files=files)
         if msg and msg.embeds:
             await context.send(embed=msg.embeds[0])
-        await context.send(embed=embed)
     
     def get_last_message(self, channel, state, index):
         guild = self.guilds.get(channel.guild.id)
         msg = guild.get_last(channel, state, index) if guild else None
-
         return msg
 
     def create_empty_embed(self, channel, state):
@@ -101,15 +104,28 @@ class Snipe(commands.Cog):
         embed.set_author(name='#' + channel.name)
         return embed
     
-    def embed_message_log(self, embed, msg, state):
-        if msg:
-            embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
-            embed.description = msg.content or None
-            embed.timestamp = msg.created_at
-            embed.set_footer(text=state.capitalize())
-            
-            if msg.attachments:
-                embed.set_image(url=msg.attachments[0].proxy_url)
+    async def embed_message_log(self, embed, msg, state):
+        if not msg: return
+
+        embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
+        embed.description = msg.content or msg.system_content or ''
+        embed.timestamp = msg.created_at
+        embed.set_footer(text=state.capitalize())
+        
+        if not msg.attachments: return
+
+        url = msg.attachments[0].proxy_url
+        embed.set_image(url=url)
+
+        links = get_attachment_links(msg, 'Link')
+        embed.description += '\n' + ' '.join(links)
+
+    async def get_message_files_cache_if_inaccessible(self, msg, embed):
+        accessible = embed.image and await utils.download(embed.image.url)
+        if accessible: return []
+
+        files = self.files_of_message.get(msg.id, [])
+        return files
     
     @commands.command()
     @commands.guild_only()
@@ -156,34 +172,47 @@ class Snipe(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, msg):
         if not msg.guild or msg.author == self.bot.user: return
+        await self.log_message(msg)
+    
+    async def log_message(self, msg, cache_files=True):
         guild = self.get_guild_log(msg.guild)
         guild.log_deleted(msg)
-    
+        if not cache_files: return
+        files = [await a.to_file(use_cached=True) for a in msg.attachments]
+        if files:
+            self.files_of_message[msg.id] = files
+
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not before.guild or before.author == self.bot.user: return
-
-        guild = self.get_guild_log(after.guild)
-        guild.log_edited(before)
+        await self.log_message(before, cache_files=False)
     
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, msgs):
-        guild = self.get_guild_log(msgs[0].guild)
         for m in msgs:
-            guild.log_deleted(m)
+            await self.log_message(m)
 
     def get_guild_log(self, guild):
         if guild.id not in self.guilds:
             self.guilds[guild.id] = GuildMessageLog()
         return self.guilds[guild.id]
 
-def get_extra(m):
-    extra = ''
-    if m.attachments:
-        extra = f'[[Attachment]]({m.attachments[0].proxy_url})'
-    elif m.embeds:
-        extra = '[Embed]'
-    return extra
+def get_extra(msg):
+    extra = get_attachment_links(msg)
+    for e in msg.embeds:
+        num = str(i+1) if len(msg.embeds) > 1 else ''
+        embed = f'[Embed{num}]'
+        extra += [embed]
+    return ' '.join(extra)
+
+def get_attachment_links(msg, text='File'):
+    links = []
+    count = len(msg.attachments)
+    for i, a in enumerate(msg.attachments):
+        num = str(i+1) if count > 1 else ''
+        link = f'[[{text}{num}]]({a.proxy_url})'
+        links += [link]
+    return links
 
 def get_time_display(m, state):
     message_time = m.edited_at if state == EDITED and m.edited_at else m.created_at
