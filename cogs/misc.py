@@ -7,9 +7,8 @@ import time
 
 from discord.ext import commands, tasks
 from datetime import datetime
-from urllib.parse import quote as url_quote
 from .core import converter
-from .core.misc import covid, randomword, math
+from .core.misc import covid, math
 
 MATH_BRIEF = 'Compute big numbers for you'
 INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=664109951781830666&permissions=1342565440&scope=bot'
@@ -88,21 +87,6 @@ class Misc(commands.Cog):
             content = '\n'.join(lines)
             embed.add_field(name=name, value=content)
         await msg.edit(content='', embed=embed)
-
-    @commands.command(aliases=['rdw'])
-    async def randomword(self, context):
-        await self.send_random(context)
-
-    async def send_random(self, context, what='Word'):
-        word, definition = await randomword.get_random(what)
-        embed = colors.embed(title=word, description=definition)
-        embed.set_author(name=f'Random {what}', url=randomword.URL)
-        embed.url = randomword.GOOGLE_URL + url_quote(word)
-        await context.send(embed=embed)
-    
-    @commands.command(aliases=['rdi'])
-    async def randomidiom(self, context):
-        await self.send_random(context, randomword.IDIOM)
     
 def setup(bot):
     bot.add_cog(Misc(bot))

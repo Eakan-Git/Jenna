@@ -1,10 +1,14 @@
+from urllib.parse import quote as url_quote
 from bs4 import BeautifulSoup
 from .. import utils
 
-GOOGLE_URL = 'https://www.google.com/search?q='
+GOOGLE_URL = 'https://www.google.com/search?hl=en&safe=on&q={0}&oq={0}&aq=f&aqi=&aql=&gs_sm=s'
 URL = 'https://randomword.com/'
 IDIOM = 'Idiom'
 WORD = 'word'
+
+def get_google_url(word):
+    return GOOGLE_URL.format(url_quote(word))
 
 async def get_random_word():
     return get_random()
