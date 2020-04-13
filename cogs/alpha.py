@@ -7,26 +7,47 @@ import cogs
 from discord.ext import commands
 
 ALL = 'all'
+EXIT_METHODS = ['quit()', 'exit()']
 
 class Alpha(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['e'])
+    @commands.command(aliases=['e', 'exec'])
     @commands.is_owner()
     async def eval(self, context, *, code=None):
-        if not code:
-            def check(m):
-                return m.author == context.author and m.channel == context.channel
-            await context.send('Enter your code as a message:')
-            msg = await self.bot.wait_for('message', check=check)
-            code = msg.content.replace('`', '')
-        try:
-            output = eval(code)
-        except Exception as e:
-            output = e
+        oneliner = code
+        def check(m):
+            return m.author == context.author and m.channel == context.channel
+        if not oneliner:
+            await context.send('```>>>```')
+        msg = None
+        while True:
+            if not oneliner:
+                msg = await self.bot.wait_for('message', check=check)
+                code = msg.content.replace('`', '').strip()
+                if code in EXIT_METHODS:
+                    await context.send('```<<<```')
+                    break
 
-        await context.send(f'```{output}```')
+            try:
+                if 'import' in code:
+                    output = exec(code)
+                else:
+                    output = eval(code)
+                title = '**Output**:'
+            except Exception as e:
+                output = e
+                title = '⚠️ **Error**:'
+
+            if output != None:
+                await context.send(f'{title}\n```{output}```')
+            elif msg:
+                await msg.add_reaction('✅')
+
+            if oneliner:
+                break
+
 
     @commands.command(aliases=['rl'])
     @commands.is_owner()
@@ -64,14 +85,11 @@ class Alpha(commands.Cog):
 
     @commands.command(aliases=['rp'])
     @commands.is_owner()
-    async def repeat(self, context, msg_id:int, channel:discord.TextChannel=None):
-        channel = channel or context.channel
-        
-        async with context.typing():
-            msg = await channel.fetch_message(msg_id)
-            embed = msg.embeds[0] if msg.embeds else None
-            files = [await a.to_file() for a in msg.attachments]
-            await context.send(msg.content, embed=embed, files=files)
+    async def repeat(self, context, msg:discord.Message):
+        await context.trigger_typing()
+        embed = msg.embeds[0] if msg.embeds else None
+        files = [await a.to_file() for a in msg.attachments]
+        await context.send(msg.content, embed=embed, files=files)
     
     @commands.command()
     async def clean(self, context, limit:typing.Optional[int]=1, *, content=''):
@@ -94,7 +112,8 @@ class Alpha(commands.Cog):
                     if deleted >= limit:
                         break
         
-        if is_dm:
+        permissions = context.channel.permissions_for(context.me)
+        if is_dm or not permissions.manage_messages:
             for i, m in enumerate(msgs_to_delete):
                 await m.delete()
                 await progress_msg.edit(content=f'Deleted `{i+1}/{len(msgs_to_delete)}` messages!')
