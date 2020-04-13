@@ -31,23 +31,22 @@ class Alpha(commands.Cog):
                     break
 
             try:
-                if 'import' in code:
-                    output = exec(code)
-                else:
+                try:
                     output = eval(code)
+                except:
+                    output = exec(code)
                 title = '**Output**:'
             except Exception as e:
                 output = e
                 title = '⚠️ **Error**:'
 
-            if output != None:
-                await context.send(f'{title}\n```{output}```')
-            elif msg:
-                await msg.add_reaction('✅')
+            content = f'{title}\n```{output}```'
+            if len(content) > 2000:
+                content = content[:2000-6] + '...```'
+            await context.send(content)
 
             if oneliner:
                 break
-
 
     @commands.command(aliases=['rl'])
     @commands.is_owner()
