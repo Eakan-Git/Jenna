@@ -4,7 +4,6 @@ import colors
 import timedisplay
 import const
 import io
-import cogs
 
 from discord.ext import commands
 from .core import utils
@@ -56,20 +55,11 @@ class GuildMessageLog:
         channel_log = self.get_channel_log(channel)
         return channel_log.get_last(state, index)
 
-GUILDS = 'sniped_guilds'
-
 class Snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.guilds = {}
         self.files_of_message = {}
-    
-    @commands.Cog.listener()
-    async def on_ready(self):
-        self.Persist = self.bot.get_cog(cogs.PERSIST)
-        await self.Persist.wait_until_loaded()
-        self.guilds = self.Persist.get(GUILDS, {})
-        self.Persist.set(GUILDS, self.guilds)
     
     @commands.command(hidden=True, aliases=['re'])
     @commands.guild_only()
