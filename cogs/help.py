@@ -4,32 +4,15 @@ import cogs
 import traceback
 import sys
 import const
+import csv  
 
 from discord.ext import commands
 from .core import converter as conv
 
-BRIEFS = {
-    'snipe': 'Show the `i`th last deleted message in channel',
-    'snipedit': 'Show the `i`th last edited message in channel',
-    'snipelog': 'Show last 10 deleted messages in `channel`',
-    'editlog': 'Show last 10 edited messages in `channel`',
-    
-    'life path': 'Get life path number from `DOB`',
-    'lasotuvi': 'Get your **la so tu vi** from [tuvilyso.vn](https://tuvilyso.vn)',
-    
-    'avatar': 'Zoom in on someone\'s avatar before they yeet it',
-    
-    'emotes': "List of Jenna\'s emotes.\n Add me to any server to use their emotes wherever I'm present.",
-    'nitrotes': 'List of collected emotes',
-    'drop': 'React a message with a Nitro emoji',
-    'enlarge': 'Show a big version of an emoji',
-
-    'math': 'Compute big numbers for you',
-    'whos': '*Who is this guy?*',
-    'upsidedown': 'Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.',
-    'rps': 'Play a game of Rock Paper Scissors with your friend',
-    'invite': 'Invite me to your server!',
-}
+BRIEFS_FILE = 'cogs/core/help_briefs.csv'
+with open(BRIEFS_FILE, encoding='utf8') as file:
+    reader = csv.reader(file, delimiter='|')
+    BRIEFS = {row[0]: row[1].strip().replace('\\n', '\n') for row in reader if row}
 
 COG_EMOTES = {
     'Texts': '🗨️',
@@ -191,7 +174,7 @@ class Help(commands.Cog):
                 await ctx.send(f'Missing `{error.param.name}` argument!')
             else:
                 await ctx.send(error)
-            msg = await ctx.send_help(ctx.command)
+            # msg = await ctx.send_help(ctx.command)
         else:
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
