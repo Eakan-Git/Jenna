@@ -25,9 +25,6 @@ class ChannelMessageLog:
         msgs.append(message)
         msgs = msgs[-SAVE_LIMIT:]
         setattr(self, state, msgs)
-    
-    def log_deleted(self, message): self.log(DELETED, message)    
-    def log_edited(self, message): self.log(EDITED, message)
 
     def get_last(self, state, index):
         try:
@@ -86,8 +83,10 @@ class Snipe(commands.Cog):
         msg = self.get_last_message(channel, state, index)
 
         embed = self.create_empty_embed(channel, state)
-        await self.embed_message_log(embed, msg, state)
-        files = await self.get_message_files_cache_if_inaccessible(msg, embed)
+        files = []
+        if msg:
+            await self.embed_message_log(embed, msg, state)
+            files = await self.get_message_files_cache_if_inaccessible(msg, embed)
 
         await context.send(embed=embed, files=files)
         if msg and msg.embeds:
@@ -105,8 +104,6 @@ class Snipe(commands.Cog):
         return embed
     
     async def embed_message_log(self, embed, msg, state):
-        if not msg: return
-
         embed.set_author(name=str(msg.author), icon_url=msg.author.avatar_url)
         embed.description = msg.content or msg.system_content or ''
         embed.timestamp = msg.created_at
@@ -174,10 +171,9 @@ class Snipe(commands.Cog):
         if not msg.guild or msg.author == self.bot.user: return
         await self.log_message(msg)
     
-    async def log_message(self, msg, cache_files=True):
+    async def log_message(self, msg):
         guild = self.get_guild_log(msg.guild)
         guild.log_deleted(msg)
-        if not cache_files: return
         files = [await a.to_file(use_cached=True) for a in msg.attachments]
         if files:
             self.files_of_message[msg.id] = files
@@ -185,7 +181,9 @@ class Snipe(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not before.guild or before.author == self.bot.user: return
-        await self.log_message(before, cache_files=False)
+
+        guild = self.get_guild_log(before.guild)
+        guild.log_edited(before)
     
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, msgs):
