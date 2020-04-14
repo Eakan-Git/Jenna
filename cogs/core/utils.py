@@ -1,4 +1,9 @@
 import aiohttp
+import mimetypes
+
+def url_is_image(url):
+    mimetype, encoding = mimetypes.guess_type(url)
+    return 'image' in str(mimetype)
 
 async def download(url, as_str=False):
     async with aiohttp.ClientSession() as session:

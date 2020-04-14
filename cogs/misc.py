@@ -8,7 +8,7 @@ import time
 from discord.ext import commands, tasks
 from datetime import datetime
 from .core import converter
-from .core.misc import covid, math
+from .core.misc import covid, math, reddit
 
 MATH_BRIEF = 'Compute big numbers for you'
 INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=664109951781830666&permissions=1342565440&scope=bot'
@@ -17,6 +17,7 @@ class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.corona_status = covid.CoronaStatus()
+        self.reddit_rss = reddit.RedditRSS()
     
     @commands.group(hidden=True)
     async def do(self, context, subcommand, *, expr):
@@ -88,5 +89,23 @@ class Misc(commands.Cog):
             embed.add_field(name=name, value=content)
         await msg.edit(content='', embed=embed)
     
+    @commands.group(name='reddit', hidden=True)
+    async def _reddit(self, context): pass
+
+    @_reddit.command()
+    async def top(self, context, sub:typing.Optional[reddit.valid_subname]='popular', posts:int=1):
+        await context.trigger_typing()
+
+        for i in range(posts):
+            post = await self.reddit_rss.top(sub, i)
+            embed = colors.embed(title=post.title, url=post.url, description=post.text) \
+                .set_author(name=post.sub, url=reddit.get_sub_url(sub), icon_url=post.sub_logo) \
+                .set_thumbnail(url=post.thumbnail or '') \
+                .set_image(url=post.image) \
+                .set_footer(text='Reddit', icon_url=reddit.ICON_URL)
+            if post.content_url:
+                embed.add_field(name='Link', value=post.content_url_field)
+            await context.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Misc(bot))
