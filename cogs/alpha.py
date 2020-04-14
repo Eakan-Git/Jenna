@@ -16,6 +16,8 @@ class Alpha(commands.Cog):
     @commands.command(aliases=['e', 'exec'])
     @commands.is_owner()
     async def eval(self, context, *, code=None):
+        import math, random
+
         oneliner = code
         def check(m):
             return m.author == context.author and m.channel == context.channel
