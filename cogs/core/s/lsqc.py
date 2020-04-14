@@ -76,13 +76,13 @@ async def scrape(dob, birthtime):
 
     lsqc = soup.find(class_='lsqc')
     title, left, right, footer = find_multiple(lsqc, LSQC_CLASSES)
-    center = lsqc.find_all(class_='kd-que')[1]
+    center = lsqc(class_='kd-que')[1]
     center = [0 if YIN in q['class'] else 1 for q in center]
 
     laso = [title, left, center, right, footer]
 
-    table = soup.find('table')
-    tbody = table.find('tbody')
+    table = soup.table
+    tbody = table.tbody
     rows = tbody('tr')
 
     details = []

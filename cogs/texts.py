@@ -14,11 +14,11 @@ SUPPORTED_LANGS = {**googletrans.LANGUAGES, **googletrans.LANGCODES}
 def Src2Dest(s):
     src2dest = s.split('-')
     if len(src2dest) != 2:
-        raise BadArgument('Not in lang-lang format!')
+        raise commands.BadArgument('Not in lang-lang format!')
 
     for lang in src2dest:
         if lang and lang not in SUPPORTED_LANGS:
-            raise BadArgument(f'{lang} is not a language code')
+            raise commands.BadArgument(f'{lang} is not a language code')
     
     src, dest = src2dest
     src = src or 'auto'
@@ -40,7 +40,7 @@ class Texts(commands.Cog):
     async def unscramble(self, context, *, text):
         await context.trigger_typing()
         anagrams = await unscramble(text)
-        response = f'{context.author.mention}\n**Anagrams**: '
+        response = f'`{text}` → '
         if anagrams:
             response += ' '.join([f'`{a}`' for a in anagrams])
         else:

@@ -36,12 +36,12 @@ class CoronaStatus:
 
         web_content = await utils.download(URL, as_str=True)
         soup = BeautifulSoup(web_content, 'html.parser')
-        table = soup.find('table')
+        table = soup.table
 
-        for tbody in table.find_all('tbody')[::-1]:
-            rows = tbody.find_all('tr')
+        for tbody in table('tbody')[::-1]:
+            rows = tbody('tr')
             for row in rows:
-                cols = row.find_all('td')
+                cols = row('td')
                 cols = [c.text.strip() for c in cols]
                 country = [c for c in cols]
                 data += [country]

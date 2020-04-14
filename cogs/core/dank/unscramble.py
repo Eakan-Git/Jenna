@@ -17,7 +17,7 @@ async def unscramble(scrambled):
     word = lookup(scrambled)
     if word:
         return [word]
-    return lookup_online(scrambled)
+    return await lookup_online(scrambled)
 
 def lookup(scrambled):
     length = str(len(scrambled))
@@ -27,14 +27,14 @@ def lookup(scrambled):
 
 async def lookup_online(scrambled):
     for url in URLS:
-        anagrams = lookup_on_site(scrambled, url)
+        anagrams = await lookup_on_site(scrambled, url)
         if anagrams:
             break
     return anagrams
  
 async def lookup_on_site(word, url):
-    soup = request_site(word, url)
-    anagrams = [a.text.strip() for a in soup.find_all('a') if valid_anagram(word, a.text)]
+    soup = await request_site(word, url)
+    anagrams = [a.text.strip() for a in soup('a') if valid_anagram(word, a.text)]
     return anagrams
 
 PARSER = 'html.parser'

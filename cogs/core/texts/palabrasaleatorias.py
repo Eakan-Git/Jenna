@@ -28,7 +28,7 @@ def get_title(lang):
 
 def raise_if_not_supported(lang):
     if lang not in PAGES_FOR_LANG:
-        raise discord.BadArgument(f'{lang} is not supported.')
+        raise commands.BadArgument(f'{lang} is not supported.')
 
 def get_url(lang):
     page = get_page(lang)
@@ -40,7 +40,7 @@ async def get_random(lang):
     url = get_url(lang)
     page_content = await utils.download(url, as_str=True)
     soup = BeautifulSoup(page_content, 'html.parser')
-    table = soup.find('table')
-    word = table.find('div').text.strip()
+    table = soup.table
+    word = table.div.text.strip()
     definitions = { a.text: a['href'] for a in table('a') }
     return word, definitions
