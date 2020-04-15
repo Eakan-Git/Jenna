@@ -20,10 +20,6 @@ EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
 REAL_EMOJI_PATTERN = '(<a*:[^:\s]+:\d+>)'
 HOME_GUILD = 596171359747440657
 
-EMBED_BACKCOLOR = 0x2f3136
-
-TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/72x72/%s.png'
-
 EXTERNAL_EMOJIS = 'external_emojis'
 
 class Emotes(commands.Cog):
@@ -41,7 +37,7 @@ class Emotes(commands.Cog):
 
     @commands.command(aliases=['big'])
     async def enlarge(self, context, emoji:conv.NitroEmoji):
-        embed = discord.Embed(color=EMBED_BACKCOLOR)
+        await context.trigger_typing()
         url = None
         name = emoji
         ext = 'png'
@@ -53,11 +49,13 @@ class Emotes(commands.Cog):
             if emoji.animated:
                 ext = 'gif'
         else:
-            url = TWEMOJI_CDN % '-'.join(format(ord(char), 'x') for char in emoji)
-            file = await utils.download(url, utils.READ)
+            async def download_png(emoji):
+                url = utils.get_twemoji_cdn(emoji)
+                return await utils.download(url, utils.READ)
+            
+            file = await download_png(emoji)
             if not file:
-                url = TWEMOJI_CDN % format(ord(emoji[0]), 'x')
-                file = await utils.download(url, utils.READ)
+                file = await download_png(emoji[0])
         
         if file:
             file = discord.File(io.BytesIO(file), filename=f'{name}.{ext}')

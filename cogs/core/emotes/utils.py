@@ -1,5 +1,5 @@
 from discord.ext import commands
-from ..utils import download
+from ..utils import *
 import re
 
 async def to_partial_emoji(context, s):
@@ -7,6 +7,10 @@ async def to_partial_emoji(context, s):
         return await commands.PartialEmojiConverter().convert(context, s)
     except:
         print(s)
+
+TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/72x72/%s.png'
+def get_twemoji_cdn(emoji):
+    return TWEMOJI_CDN % '-'.join(format(ord(char), 'x') for char in emoji)
 
 EMOJID_PATTERN = '<(a*):[^:\s]+:(\d+)>'
 def shorten(emoji):
