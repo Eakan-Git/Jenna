@@ -9,7 +9,7 @@ from .core import utils
 INSPIROBOT_URL = 'http://inspirobot.me'
 INSPIROBOT_API = INSPIROBOT_URL + '/api?generate=true'
 async def get_inspiro_quote():
-    return await utils.download(INSPIROBOT_API, as_str=True)
+    return await utils.download(INSPIROBOT_API)
 
 class Images(commands.Cog):
     def __init__(self, bot):

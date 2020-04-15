@@ -118,7 +118,7 @@ class Snipe(commands.Cog):
         embed.description += '\n' + ' '.join(links)
 
     async def get_message_files_cache_if_inaccessible(self, msg, embed):
-        accessible = embed.image and await utils.download(embed.image.url)
+        accessible = embed.image and await utils.download(embed.image.url, utils.READ)
         if accessible: return []
 
         files = self.files_of_message.get(msg.id, [])

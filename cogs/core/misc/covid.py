@@ -34,7 +34,7 @@ class CoronaStatus:
     async def download_data(self):
         data = []
 
-        web_content = await utils.download(URL, as_str=True)
+        web_content = await utils.download(URL)
         soup = BeautifulSoup(web_content, 'html.parser')
         table = soup.table
 

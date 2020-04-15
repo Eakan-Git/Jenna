@@ -54,10 +54,10 @@ class Emotes(commands.Cog):
                 ext = 'gif'
         else:
             url = TWEMOJI_CDN % '-'.join(format(ord(char), 'x') for char in emoji)
-            file = await utils.download(url)
+            file = await utils.download(url, utils.READ)
             if not file:
                 url = TWEMOJI_CDN % format(ord(emoji[0]), 'x')
-                file = await utils.download(url)
+                file = await utils.download(url, utils.READ)
         
         if file:
             file = discord.File(io.BytesIO(file), filename=f'{name}.{ext}')

@@ -71,7 +71,7 @@ def compile_url(dob, birthtime):
 
 async def scrape(dob, birthtime):
     url = compile_url(dob, birthtime)
-    web_content = await utils.download(url, as_str=True)
+    web_content = await utils.download(url)
     soup = BeautifulSoup(web_content, 'html.parser')
 
     lsqc = soup.find(class_='lsqc')

@@ -40,7 +40,7 @@ async def lookup_on_site(word, url):
 PARSER = 'html.parser'
 async def request_site(word, url):
     url = url + word
-    web_content = await utils.download(url, as_str=True)
+    web_content = await utils.download(url)
     soup = BeautifulSoup(web_content, PARSER)
     return soup
 

@@ -21,7 +21,7 @@ async def get_random(what=''):
     if what == WORD:
         what = ''
     url = URL + what
-    web_content = await utils.download(url, as_str=True)
+    web_content = await utils.download(url)
     soup = BeautifulSoup(web_content, 'html.parser')
     word = soup.find(id='random_word').text
     definition = soup.find(id='random_word_definition').text
