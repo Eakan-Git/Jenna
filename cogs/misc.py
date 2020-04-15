@@ -57,7 +57,7 @@ class Misc(commands.Cog):
         await self.corona_status.update()
         data = self.corona_status.data
 
-        emotes = ['khabanhquay', 'sleep', 'kys']
+        emotes = ['khabanhquay', 'facemask', 'kys']
         emotes = [str(discord.utils.get(self.bot.emojis, name=e)) for e in emotes]
         covid.set_emotes(*emotes)
 
