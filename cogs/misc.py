@@ -51,41 +51,11 @@ class Misc(commands.Cog):
         embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite {self.bot.user.name}!'
         await context.send(embed=embed)
     
-    @commands.command(aliases=['cv', 'ncov', 'corona'])
-    async def covid(self, context):
+    async def covid(self, context, region='server'):
         msg = await context.send('`Downloading data...`')
         await self.corona_status.update()
-        
-        RECOVERED_EMOTE = discord.utils.get(self.bot.emojis, name='khabanhquay')
-        embed = colors.embed()
-        embed.description = ':microbe: **Total(+New Cases)**\n:skull: **Deaths(+New Deaths)**'
-        embed.description += f'\n{RECOVERED_EMOTE} **Recovered**'
-        embed.title = 'Worldometer Coronavirus Update'
-        embed.url = covid.URL
-        embed.timestamp = datetime.now().astimezone()
-
-        for country in self.corona_status.data:
-            name, total, new_cases, deaths, new_deaths, recovered = country[:6]
-            if name not in covid.COUNTRIES: continue
-
-            flag_emote = covid.FLAG_EMOTES_BY_COUNTRY[name]
-            name = f'{flag_emote} {name}'
-            if new_cases:
-                new_cases = new_cases.replace('+', '')
-                new_cases = f'(+{new_cases})'
-            if new_deaths:
-                new_deaths = new_deaths.replace('+', '')
-                new_deaths = f'(+{new_deaths})'
-
-            deaths = deaths or 0
-            recovered = recovered or 0
-
-            lines = [f':microbe: **{total}{new_cases}**']
-            lines += [f':skull: **{deaths}{new_deaths}**']
-            lines += [f'{RECOVERED_EMOTE} **{recovered}**']
-            lines += ['__']
-            content = '\n'.join(lines)
-            embed.add_field(name=name, value=content)
+        recovered_emote = discord.utils.get(self.bot.emojis, name='khabanhquay')
+        embed = covid.embed_countries(self.corona_status.data, recovered_emote)
         await msg.edit(content='', embed=embed)
     
     @commands.group(name='reddit', aliases=['rd'], hidden=True)
