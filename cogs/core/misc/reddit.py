@@ -4,13 +4,19 @@ from urllib.parse import urlparse
 from .. import utils
 
 import discord
+import textwrap
 
 ICON_URL = 'https://www.redditstatic.com/icon.png'
-MAX_TEXT = 2000
 SUB_TOP_URL = 'https://www.reddit.com/r/{}/top/'
 RSS = '.rss'
 TOP_RSS = SUB_TOP_URL + RSS
 MIN_SUB_NAME = 3
+MAX_TEXT = 2000
+MAX_TITLE = 250
+
+SPECIAL_WEBSITES = ['twitter', 'gfycat', 'imgur', 'v.redd.it']
+def is_special_website(url):
+    return any(site in url for site in SPECIAL_WEBSITES)
 
 def get_sub_url(sub):
     return SUB_TOP_URL.format(sub)
@@ -25,6 +31,11 @@ class RedditEntry:
         self.sub = sub
         self.title = title
         self.url = url
+
+        self.titles = textwrap.wrap(title, MAX_TITLE)
+        if len(self.titles) > 1:
+            self.titles[0] += '...'
+            self.titles[1] = '...' + self.titles[1]
 
         self.author_name = author['name']
         self.author_uri = author['uri']

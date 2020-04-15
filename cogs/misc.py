@@ -51,7 +51,7 @@ class Misc(commands.Cog):
         embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite {self.bot.user.name}!'
         await context.send(embed=embed)
     
-    @commands.command(aliases=['ncov', 'corona'])
+    @commands.command(aliases=['cv', 'ncov', 'corona'])
     async def covid(self, context):
         msg = await context.send('`Downloading data...`')
         await self.corona_status.update()
@@ -97,14 +97,19 @@ class Misc(commands.Cog):
 
         for i in range(posts):
             post = await reddit.top(sub, i)
-            embed = colors.embed(title=post.title, url=post.url, description=post.text) \
+            embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
                 .set_author(name=post.sub, url=reddit.get_sub_url(sub), icon_url=post.sub_logo) \
                 .set_thumbnail(url=post.thumbnail or '') \
                 .set_image(url=post.image) \
                 .set_footer(text='Reddit', icon_url=reddit.ICON_URL)
+            if len(post.titles) == 2:
+                embed.add_field(name='More Title', value=post.titles[1])
             if post.content_url:
                 embed.add_field(name='Link', value=post.content_url_field)
             await context.send(embed=embed)
+
+            if reddit.is_special_website(post.content_url):
+                await context.send(post.content_url)
 
 def setup(bot):
     bot.add_cog(Misc(bot))
