@@ -51,12 +51,19 @@ class Misc(commands.Cog):
         embed.description = f'{worryluv} [Click here]({INVITE_LINK}) to invite {self.bot.user.name}!'
         await context.send(embed=embed)
     
+    @commands.command(aliases=['cv', 'ncov', 'corona', 'morning'])
     async def covid(self, context, region='server'):
-        msg = await context.send('`Downloading data...`')
+        await context.trigger_typing()
         await self.corona_status.update()
-        recovered_emote = discord.utils.get(self.bot.emojis, name='khabanhquay')
-        embed = covid.embed_countries(self.corona_status.data, recovered_emote)
-        await msg.edit(content='', embed=embed)
+        data = self.corona_status.data
+
+        emotes = ['khabanhquay', 'sleep', 'kys']
+        emotes = [str(discord.utils.get(self.bot.emojis, name=e)) for e in emotes]
+        covid.set_emotes(*emotes)
+
+        embed = covid.embed_countries(data) if region == 'server' \
+            else covid.embed_region(data, region)
+        await context.send(embed=embed)
     
     @commands.group(name='reddit', aliases=['rd'], hidden=True)
     async def _reddit(self, context): pass
