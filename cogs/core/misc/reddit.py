@@ -15,7 +15,7 @@ MIN_SUB_NAME = 3
 def get_sub_url(sub):
     return SUB_TOP_URL.format(sub)
 
-def valid_subname(sub):
+def subname(sub):
     if len(sub) < 3:
         raise commands.BadArgument(f'`r/{sub}` is not a subreddit')
     return sub
@@ -70,31 +70,22 @@ def parse_entry(entry):
 
     return RedditEntry(sub, title, url, author, thumbnail, content_url, text)
 
-class RedditRSS:
-    def __init__(self):
-        self.subs_rss = {}
+async def top(subreddit, index=0):
+    sub = subreddit.lower()
+    url = TOP_RSS.format(sub)
+    rss = await utils.download(url)
+    if not rss:
+        raise commands.UserInputError(f'`r\{subreddit}` does not exist')
 
-    async def top(self, subreddit, index=0):
-        sub = subreddit.lower()
-
-        rss = self.subs_rss.get(sub)
-        if not rss:
-            url = TOP_RSS.format(sub)
-            rss = await utils.download(url)
-            self.subs_rss[sub] = rss
-
-        if not rss:
-            raise commands.UserInputError(f'`r\{subreddit}` does not exist')
-
-        soup = BeautifulSoup(rss, 'html.parser')
-        entries = soup('entry')
-        sub_name = soup.feed.category['label']
-        if not entries:
-            raise commands.UserInputError(f'`{sub_name}` has no new posts today or does not exist')
-        
-        entry = entries[index]
-        entry = parse_entry(entry)
-        sub_logo = soup.feed.logo
-        if sub_logo:
-            entry.sub_logo = sub_logo.text
-        return entry
+    soup = BeautifulSoup(rss, 'html.parser')
+    entries = soup('entry')
+    sub_name = soup.feed.category['label']
+    if not entries:
+        raise commands.UserInputError(f'`{sub_name}` has no new posts today or does not exist')
+    
+    entry = entries[index]
+    entry = parse_entry(entry)
+    sub_logo = soup.feed.logo
+    if sub_logo:
+        entry.sub_logo = sub_logo.text
+    return entry
