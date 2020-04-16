@@ -5,6 +5,7 @@ MATH_OPERATIONS = {
     'x': '*',
     ',': '',
     '^': '**',
+    ' ': '',
 }
 
 async def compute(context, expr):

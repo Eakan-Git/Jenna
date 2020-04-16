@@ -3,6 +3,8 @@ import typing
 import re
 import const
 import cogs
+import importlib
+import sys
 
 from discord.ext import commands
 
@@ -52,10 +54,14 @@ class Alpha(commands.Cog):
 
     @commands.command(aliases=['rl'])
     @commands.is_owner()
-    async def reload(self, context, cog=ALL):
+    async def reload(self, context, *, cog=ALL):
         await context.trigger_typing()
         responses = []
         cog = cogs.NAMES if cog == ALL else cog.split()
+
+        core_modules = [module for name, module in sys.modules.items() if name.startswith('cogs.core')]
+        for module in core_modules:
+            importlib.reload(module)
         
         for cog_name in cog:
             cog_path = 'cogs.' + cog_name
