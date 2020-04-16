@@ -19,6 +19,7 @@ EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
 REAL_EMOJI_PATTERN = '(<a*:[^:\s]+:\d+>)'
 HOME_GUILD = 596171359747440657
+EMBED_BACKCOLOR = 0x2f3136
 
 EXTERNAL_EMOJIS = 'external_emojis'
 
@@ -34,34 +35,45 @@ class Emotes(commands.Cog):
         await self.Persist.wait_until_loaded()
         self.external_emojis = self.Persist.get(EXTERNAL_EMOJIS, {})
         self.Persist.set(EXTERNAL_EMOJIS, self.external_emojis)
+    
+    @commands.group(aliases=['emoji'], hidden=True)
+    async def emote(self, context):
+        pass
 
     @commands.command(aliases=['big'])
     async def enlarge(self, context, emoji:conv.NitroEmoji):
         await context.trigger_typing()
-        url = None
+        
+        emoji = await self.get_external_emoji(context, emoji) or emoji
+        url, single_url = utils.get_url(emoji)
         name = emoji
         ext = 'png'
-
-        emoji = await self.get_external_emoji(context, emoji) or emoji
         if type(emoji) in [discord.Emoji, discord.PartialEmoji]:
-            file = await emoji.url.read()
+            file = await url.read()
             name = emoji.name
             if emoji.animated:
                 ext = 'gif'
         else:
-            async def download_png(emoji):
-                url = utils.get_twemoji_cdn(emoji)
-                return await utils.download(url, utils.READ)
-            
-            file = await download_png(emoji)
+            file = await utils.download(url, utils.READ)
             if not file:
-                file = await download_png(emoji[0])
+                file = await utils.download(single_url, utils.READ)
         
         if file:
             file = discord.File(io.BytesIO(file), filename=f'{name}.{ext}')
             await context.send(file=file)
         else:
             await context.message.add_reaction('⁉️')
+        
+    @emote.command()
+    async def link(self, context, emoji:conv.NitroEmoji):
+        await context.trigger_typing()
+        emoji = await self.get_external_emoji(context, emoji) or emoji
+        url, single_url = await utils.get_url(emoji)
+        if not await utils.download(url, utils.READ):
+            url = single_url
+        embed = colors.embed(color=EMBED_BACKCOLOR)
+        embed.set_image(url=url)
+        await context.send(embed=embed)
         
     async def get_external_emoji(self, context, name, add=False):
         id = self.external_emojis.get(name)
@@ -184,10 +196,6 @@ class Emotes(commands.Cog):
             if not known:
                 id = utils.shorten(e)
                 self.external_emojis[partial.name] = str(e)
-    
-    @commands.group(aliases=['emoji'], hidden=True)
-    async def emote(self, context):
-        pass
 
     @emote.command()
     @commands.is_owner()

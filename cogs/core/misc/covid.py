@@ -9,6 +9,7 @@ import discord
 import time
 import pycountry
 import colors
+from flag import flag as get_flag
 
 URL = 'https://www.worldometers.info/coronavirus/'
 UPDATE_INTERVAL = 5 * 60
@@ -42,7 +43,9 @@ class CoronaStatus:
                 cols = [c.text.strip() for c in cols]
                 country = [c for c in cols]
                 
-                if country[0] == 'Total:':
+                if not country[0]:
+                    continue
+                elif country[0] == 'Total:':
                     country[0] = country[-1]
                 for i, value in enumerate(country):
                     value = str(value or 0).replace('+', '').replace(',', '')
@@ -61,7 +64,7 @@ for name in COUNTRIES_OF_INTEREST:
     FLAG_EMOTES_BY_COUNTRY[name] = ':flag_%s:' % alpha2.lower()
 
 WORLD = 'World'
-GLOBE = ':earth_asia:'
+GLOBE = '🌏'
 COUNTRIES_OF_INTEREST.insert(0, WORLD)
 FLAG_EMOTES_BY_COUNTRY[WORLD] = GLOBE
 
@@ -101,8 +104,8 @@ def compile_stats(country_data):
 def comma(number):
     return f'{number:,}' if type(number) is int else number
 
-def plus(number):
-    return f'(+{number:,})' if number else ''
+def plus(number, hide_if_none=True):
+    return f'(+{number:,})' if number and hide_if_none else ''
 
 TITLE = 'Worldometer Coronavirus Update'
 def embed_countries(data):
@@ -128,12 +131,19 @@ def percent(num, denom):
     return f'[{num_str}%]' if number else ''
 
 def embed_region(data, region):
-    country_data, flag = get_country_data_fuzzy(data, region)
+    country_data, alpha2 = get_country_data_fuzzy(data, region)
     if not country_data:
         raise commands.UserInputError('Country not found!')
-
+    
+    if alpha2:
+        flag = ':flag_{}:'.format(alpha2.lower()) if alpha2 else '🎏'
+        if country_data and country_data[-1] == 'All':
+            flag = GLOBE
+        country_code = get_flag(alpha2.upper()) if alpha2 else flag
+        flag_image = emutils.get_url(country_code)[0]
+    
     wtotal_cases, _, wtotal_deaths = data[0][1:4]
-    name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical = country_data[:8]
+    name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical, cases_per_1m, deaths_per_1m = country_data[:10]
 
     wcases_percent = percent(total_cases, wtotal_cases)
     wdeaths_percent = percent(total_deaths, wtotal_deaths)
@@ -141,25 +151,38 @@ def embed_region(data, region):
     recovered_percent = percent(recovered, total_cases)
     active_percent = percent(active_cases, total_cases)
     critical_percent = percent(critical, total_cases)
+    cases_percent = percent(cases_per_1m, 10**6)
+    deaths_pop_percent = percent(deaths_per_1m, 10**6)
 
     is_world = country_data[-1] == 'All'
     wcases_percent = f'{GLOBE} {wcases_percent}' if wcases_percent and not is_world else ''
     wdeaths_percent = f'{GLOBE} {wdeaths_percent}' if wdeaths_percent and not is_world else ''
-    deaths_percent = f'{flag} {deaths_percent}' if deaths_percent else ''
+    deaths_percent = f':microbe: {deaths_percent}' if deaths_percent else ''
+    cases_percent = f':microbe: {cases_percent}' if cases_percent else ''
+    deaths_pop_percent = f'{flag} {deaths_pop_percent}' if deaths_pop_percent else ''
 
-    new_cases = plus(new_cases)
-    new_deaths = plus(new_deaths)
+    new_cases = plus(new_cases, hide_if_none=False)
+    new_deaths = plus(new_deaths, hide_if_none=False)
 
-    total_cases, _, total_deaths, _, recovered, active_cases, critical = map(comma, country_data[1:8])
+    total_cases, _, total_deaths, _, recovered, active_cases, critical, _, _, total_tests = map(comma, country_data[1:11])
+    if total_tests == '0':
+        total_tests = 'N/A'
 
-    embed = colors.embed()
-    embed.title = f'Coronavirus cases for {name} {flag}'
-    embed \
-        .add_field(name=f':microbe: {TOTAL_CASES}', value=f'**{total_cases}** {new_cases} {wcases_percent}') \
-        .add_field(name=f':skull: {TOTAL_DEATHS}', value=f'**{total_deaths}** {new_deaths} {wdeaths_percent} {deaths_percent}', inline=False) \
+    explanation = '\n'.join([
+        f'{GLOBE} [% Global Cases]',
+        f':microbe: [% Cases]',
+        f'{flag} [% Population]',
+    ])
+
+    title = f'Coronavirus cases for {name}'
+    embed = colors.embed(title=title, description=explanation) \
+        .add_field(name=f':microbe: {TOTAL_CASES}', value=f'**{total_cases}** {new_cases} {wcases_percent} {cases_percent}') \
+        .add_field(name=f':skull: {TOTAL_DEATHS}', value=f'**{total_deaths}** {new_deaths} {wdeaths_percent} {deaths_pop_percent} {deaths_percent}', inline=False) \
         .add_field(name=f'{emotes.recovered} {RECOVERED}', value=f'**{recovered}** {recovered_percent}') \
         .add_field(name=f'{emotes.active} Active Cases', value=f'**{active_cases}** {active_percent}') \
-        .add_field(name=f'{emotes.critical} Critical', value=f'**{critical}** {critical_percent}')
+        .add_field(name=f'{emotes.critical} Critical', value=f'**{critical}** {critical_percent}') \
+        .add_field(name=f':syringe: Total Tests', value=f'**{total_tests}**') \
+        .set_thumbnail(url=flag_image)
     embed.timestamp = datetime.now().astimezone()
     return embed
 
@@ -189,8 +212,6 @@ def get_country_data_fuzzy(data, region):
         name = c[0]
         return str(name).lower() in possible_names
     country_data = discord.utils.find(match_name, data)
-    
-    flag = ':flag_{}:'.format(country.alpha_2.lower()) if country else ':flags:'
-    if country_data and country_data[-1] == 'All':
-        flag = GLOBE
-    return country_data, flag
+    alpha2 = country.alpha_2 if country else ''
+
+    return country_data, alpha2

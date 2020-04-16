@@ -4,3 +4,4 @@ upsidedown
 beautifulsoup4
 pycountry
 googletrans
+emoji-country-flag
