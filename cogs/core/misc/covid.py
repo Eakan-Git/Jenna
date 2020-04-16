@@ -88,12 +88,10 @@ __
 @dataclass
 class CustomEmotes:
     recovered: str
-    active: str
-    critical: str
 
-def set_emotes(recovered, active, critical):
+def set_emotes(recovered):
     global emotes
-    emotes = CustomEmotes(recovered, active, critical)
+    emotes = CustomEmotes(recovered)
 
 def compile_stats(country_data):
     total_cases, new_cases, total_deaths, new_deaths, recovered = country_data[1:6]
@@ -124,33 +122,38 @@ def embed_countries(data):
     
     return embed
 
-def percent(num, denom):
+def percent(num, denom, brackets=False):
     if type(num) == str or num == 0 or denom == 0: return ''
     number = num / denom * 100
     num_str = f'{number:.1g}' if number < 1 else f'{number:.1f}'
-    return f'[{num_str}%]' if number else ''
+    output = f'{num_str}%' if number else ''
+    if output and brackets:
+        output = f'[{output}]'
+    return output
 
 def embed_region(data, region):
     country_data, alpha2 = get_country_data_fuzzy(data, region)
     if not country_data:
         raise commands.UserInputError('Country not found!')
     
+    flag = country_code = '🎏'
+    if country_data and country_data[-1] == 'All':
+        flag = country_code = GLOBE
     if alpha2:
-        flag = ':flag_{}:'.format(alpha2.lower()) if alpha2 else '🎏'
-        if country_data and country_data[-1] == 'All':
-            flag = GLOBE
+        flag = ':flag_{}:'.format(alpha2.lower())
         country_code = get_flag(alpha2.upper()) if alpha2 else flag
-        flag_image = emutils.get_url(country_code)[0]
+    flag_image = emutils.get_url(country_code)[0]
     
     wtotal_cases, _, wtotal_deaths = data[0][1:4]
     name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical, cases_per_1m, deaths_per_1m = country_data[:10]
 
+    recovered_percent = percent(recovered, total_cases, brackets=True)
+    active_percent = percent(active_cases, total_cases, brackets=True)
+    critical_percent = percent(critical, total_cases, brackets=True)
+
     wcases_percent = percent(total_cases, wtotal_cases)
     wdeaths_percent = percent(total_deaths, wtotal_deaths)
     deaths_percent = percent(total_deaths, total_cases)
-    recovered_percent = percent(recovered, total_cases)
-    active_percent = percent(active_cases, total_cases)
-    critical_percent = percent(critical, total_cases)
     cases_percent = percent(cases_per_1m, 10**6)
     deaths_pop_percent = percent(deaths_per_1m, 10**6)
 
@@ -158,7 +161,7 @@ def embed_region(data, region):
     wcases_percent = f'{GLOBE} {wcases_percent}' if wcases_percent and not is_world else ''
     wdeaths_percent = f'{GLOBE} {wdeaths_percent}' if wdeaths_percent and not is_world else ''
     deaths_percent = f':microbe: {deaths_percent}' if deaths_percent else ''
-    cases_percent = f':microbe: {cases_percent}' if cases_percent else ''
+    cases_percent = f'{flag} {cases_percent}' if cases_percent else ''
     deaths_pop_percent = f'{flag} {deaths_pop_percent}' if deaths_pop_percent else ''
 
     new_cases = plus(new_cases, hide_if_none=False)
@@ -167,22 +170,26 @@ def embed_region(data, region):
     total_cases, _, total_deaths, _, recovered, active_cases, critical, _, _, total_tests = map(comma, country_data[1:11])
     if total_tests == '0':
         total_tests = 'N/A'
+    
+    cases_percentages = '\n'.join(filter(None, [wcases_percent, cases_percent]))
+    if cases_percentages: cases_percentages = '\n' + cases_percentages
+    deaths_percentages = '\n'.join(filter(None, [wdeaths_percent, deaths_pop_percent, deaths_percent]))
+    if deaths_percentages: deaths_percentages = '\n' + deaths_percentages
 
     explanation = '\n'.join([
-        f'{GLOBE} [% Global Cases]',
-        f':microbe: [% Cases]',
-        f'{flag} [% Population]',
+        f'{GLOBE} % Global Cases' if flag != GLOBE else '',
+        f'{flag} % Population',
+        f':microbe: % Total Cases',
     ])
 
     title = f'Coronavirus cases for {name}'
     embed = colors.embed(title=title, description=explanation) \
-        .add_field(name=f':microbe: {TOTAL_CASES}', value=f'**{total_cases}** {new_cases} {wcases_percent} {cases_percent}') \
-        .add_field(name=f':skull: {TOTAL_DEATHS}', value=f'**{total_deaths}** {new_deaths} {wdeaths_percent} {deaths_pop_percent} {deaths_percent}', inline=False) \
-        .add_field(name=f'{emotes.recovered} {RECOVERED}', value=f'**{recovered}** {recovered_percent}') \
-        .add_field(name=f'{emotes.active} Active Cases', value=f'**{active_cases}** {active_percent}') \
-        .add_field(name=f'{emotes.critical} Critical', value=f'**{critical}** {critical_percent}') \
-        .add_field(name=f':syringe: Total Tests', value=f'**{total_tests}**') \
-        .set_thumbnail(url=flag_image)
+        .add_field(name=f'{TOTAL_CASES}', value=f'**{total_cases}** {new_cases}{cases_percentages}') \
+        .add_field(name=f'{TOTAL_DEATHS}', value=f'**{total_deaths}** {new_deaths}{deaths_percentages}') \
+        .add_field(name=f'{RECOVERED}', value=f'**{recovered}** {recovered_percent}', inline=False) \
+        .add_field(name=f'Active Cases', value=f'**{active_cases}** {active_percent}') \
+        .add_field(name=f'Critical', value=f'**{critical}** {critical_percent}') \
+        .set_thumbnail(url=flag_image)  
     embed.timestamp = datetime.now().astimezone()
     return embed
 
