@@ -59,9 +59,14 @@ class Alpha(commands.Cog):
         responses = []
         cog = cogs.NAMES if cog == ALL else cog.split()
 
-        core_modules = [module for name, module in sys.modules.items() if name.startswith('cogs.core')]
-        for module in core_modules:
-            importlib.reload(module)
+        core_modules = [(name, module) for name, module in sys.modules.items() if name.startswith('cogs.core')]
+        for name, module in core_modules:
+            try:
+                importlib.reload(module)
+            except:
+                name = name.replace('cogs.core.', '')
+                response = f'⚠️ `{name}` reload failed!'
+                responses += [response]
         
         for cog_name in cog:
             cog_path = 'cogs.' + cog_name
@@ -73,7 +78,7 @@ class Alpha(commands.Cog):
             except:
                 import traceback; traceback.print_exc()
                 response = f'⚠️ {response} reload failed!'
-            
+             
             responses += [response]
 
         content = '\n'.join(responses)
