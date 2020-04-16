@@ -69,13 +69,15 @@ class Misc(commands.Cog):
     async def _reddit(self, context): pass
 
     @_reddit.command(aliases=['t'])
-    async def top(self, context, sub:typing.Optional[reddit.subname]='popular', posts:int=1):
+    async def top(self, context, sub:typing.Optional[reddit.subname]='random', posts='1'):
+        posts = reddit.posts(posts)
         await context.trigger_typing()
 
-        for i in range(posts):
+        vreddit_posts = []
+        for i in posts:
             post = await reddit.top(sub, i)
             embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
-                .set_author(name=post.sub, url=reddit.get_sub_url(sub), icon_url=post.sub_logo) \
+                .set_author(name=f'Top {i+1} on ' + post.sub, url=reddit.get_sub_url(sub), icon_url=post.sub_logo) \
                 .set_thumbnail(url=post.thumbnail or '') \
                 .set_image(url=post.image) \
                 .set_footer(text='Reddit', icon_url=reddit.ICON_URL)
@@ -83,10 +85,20 @@ class Misc(commands.Cog):
                 embed.add_field(name='More Title', value=post.titles[1])
             if post.content_url:
                 embed.add_field(name='Link', value=post.content_url_field)
-            await context.send(embed=embed)
+            msg = await context.send(embed=embed)
 
             if reddit.is_special_website(post.content_url):
-                await context.send(post.content_url)
+                extra_msg = await context.send(post.content_url)
+                if reddit.VREDDIT in post.content_url:
+                    vreddit_posts += [(msg, extra_msg)]
+        
+        for msg, extra_msg in vreddit_posts:
+            url = extra_msg.embeds and extra_msg.embeds[0].thumbnail.url
+            if url:
+                embed = msg.embeds[0]
+                embed.set_image(url=url).set_thumbnail(url='')
+                await extra_msg.delete()
+                await msg.edit(embed=embed)
 
 def setup(bot):
     bot.add_cog(Misc(bot))

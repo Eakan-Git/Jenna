@@ -5,6 +5,7 @@ from .. import utils
 
 import discord
 import textwrap
+import re
 
 ICON_URL = 'https://www.redditstatic.com/icon.png'
 SUB_TOP_URL = 'https://www.reddit.com/r/{}/top/'
@@ -14,7 +15,9 @@ MIN_SUB_NAME = 3
 MAX_TEXT = 2000
 MAX_TITLE = 250
 
-SPECIAL_WEBSITES = ['twitter', 'gfycat', 'imgur', 'v.redd.it']
+VREDDIT = 'v.redd.it'
+GFYCAT = 'gfycat'
+SPECIAL_WEBSITES = [VREDDIT, GFYCAT, 'twitter', 'imgur', 'youtu']
 def is_special_website(url):
     return any(site in url for site in SPECIAL_WEBSITES)
 
@@ -22,9 +25,20 @@ def get_sub_url(sub):
     return SUB_TOP_URL.format(sub)
 
 def subname(sub):
+    sub = sub.replace('r/', '').replace('/r/', '')
     if len(sub) < 3:
         raise commands.BadArgument(f'`r/{sub}` is not a subreddit')
     return sub
+
+def posts(s):
+    start = 0
+    if any(s.endswith(word) for word in ['st', 'nd', 'rd', 'th']):
+        posts = int(s[:-2])
+        start = posts - 1
+    else:
+        try: posts = int(s)
+        except: raise BadArgument(f'`{s}`? >.< I dun understand!')
+    return range(start, posts)
 
 class RedditEntry:
     def __init__(self, sub, title, url, author, thumbnail, content_url, text):
@@ -46,6 +60,8 @@ class RedditEntry:
 
         self.content_url = ''
         if content_url not in [self.url, self.image]:
+            if GFYCAT in content_url:
+                content_url = re.sub('\/\w+\/', '/', content_url)
             self.content_url = content_url
             self.content_url_hostname = urlparse(content_url).hostname
             self.content_url_field = f'[{self.content_url_hostname}]({self.content_url})'
@@ -92,9 +108,12 @@ async def top(subreddit, index=0):
     entries = soup('entry')
     sub_name = soup.feed.category['label']
     if not entries:
-        raise commands.UserInputError(f'`{sub_name}` has no new posts today or does not exist')
+        raise commands.UserInputError(f'`r\{subreddit}` has no new posts today or does not exist')
     
-    entry = entries[index]
+    try:
+        entry = entries[index]
+    except:
+        raise commands.BadArgument(f'`r\{subreddit}` only has {len(entries)} top posts')
     entry = parse_entry(entry)
     sub_logo = soup.feed.logo
     if sub_logo:

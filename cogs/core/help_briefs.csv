@@ -27,4 +27,4 @@ invite| Invite me to your server!
 covid| Fetch coronavirus cases/deaths from [Worldometer](https://www.worldometers.info/coronavirus/)
 randomword| Get a random word from [randomword.com](https://randomword.com/)
 randomidiom| Get a random word from [randomword.com](https://randomword.com/idiom)
-reddit top| Fetch the top post 
+reddit top| Fetch the top 25 posts from a subreddit\n**Tip**: Add "th" to `posts` to get one post only\n_Ex_: `reddit top 3rd` for the third post
