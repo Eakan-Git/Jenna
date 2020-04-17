@@ -1,10 +1,10 @@
 import discord
-import typing
 import colors
 import const
 import timedisplay
 import time
 
+from typing import Optional
 from discord.ext import commands, tasks
 from datetime import datetime
 from .core import converter
@@ -29,7 +29,7 @@ class Misc(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def whos(self, context, *, member:typing.Optional[converter.Member]=None):
+    async def whos(self, context, *, member:Optional[converter.Member]=None):
         member = member or context.author
         
         response = f'It\'s **{member}**'
@@ -65,40 +65,20 @@ class Misc(commands.Cog):
             else covid.embed_region(data, region)
         await context.send(embed=embed)
     
-    @commands.group(name='reddit', aliases=['rd'], hidden=True)
-    async def _reddit(self, context): pass
-
-    @_reddit.command(aliases=['t'])
-    async def top(self, context, sub:typing.Optional[reddit.subname]='random', posts='1'):
-        posts = reddit.posts(posts)
+    @commands.group(name='reddit', aliases=['r', 'rd'], invoke_without_command=True)
+    async def _reddit(self, context, sub='random', sorting:Optional[reddit.sorting]='top', posts='1'):
         await context.trigger_typing()
+        try:
+            sub = reddit.subname(sub)
+        except commands.BadArgument:
+            sorting = reddit.sorting(sub)
+            sub = 'random'
+        await reddit.send_posts_in_embeds(context, sub, sorting, posts)
 
-        vreddit_posts = []
-        for i in posts:
-            post = await reddit.top(sub, i)
-            embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
-                .set_author(name=f'Top {i+1} on ' + post.sub, url=reddit.get_sub_url(sub), icon_url=post.sub_logo) \
-                .set_thumbnail(url=post.thumbnail or '') \
-                .set_image(url=post.image) \
-                .set_footer(text='Reddit', icon_url=reddit.ICON_URL)
-            if len(post.titles) == 2:
-                embed.add_field(name='More Title', value=post.titles[1])
-            if post.content_url:
-                embed.add_field(name='Link', value=post.content_url_field)
-            msg = await context.send(embed=embed)
-
-            if reddit.is_special_website(post.content_url):
-                extra_msg = await context.send(post.content_url)
-                if reddit.VREDDIT in post.content_url:
-                    vreddit_posts += [(msg, extra_msg)]
-        
-        for msg, extra_msg in vreddit_posts:
-            url = extra_msg.embeds and extra_msg.embeds[0].thumbnail.url
-            if url:
-                embed = msg.embeds[0]
-                embed.set_image(url=url).set_thumbnail(url='')
-                await extra_msg.delete()
-                await msg.edit(embed=embed)
+    @_reddit.command(aliases=['t'], hidden=True)
+    async def top(self, context, sub:Optional[reddit.subname]='random', posts='1'):
+        await context.trigger_typing()
+        await reddit.send_posts_in_embeds(context, sub, 'top', posts)
 
 def setup(bot):
     bot.add_cog(Misc(bot))

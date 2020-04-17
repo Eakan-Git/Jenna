@@ -6,11 +6,12 @@ from .. import utils
 import discord
 import textwrap
 import re
+import colors
 
 ICON_URL = 'https://www.redditstatic.com/icon.png'
-SUB_TOP_URL = 'https://www.reddit.com/r/{}/top/'
+SUB_URL = 'https://www.reddit.com/r/{}/{}/'
 RSS = '.rss'
-TOP_RSS = SUB_TOP_URL + RSS
+RSS_URL = SUB_URL + RSS
 MIN_SUB_NAME = 3
 MAX_TEXT = 2000
 MAX_TITLE = 250
@@ -21,23 +22,32 @@ SPECIAL_WEBSITES = [VREDDIT, GFYCAT, 'twitter', 'imgur', 'youtu']
 def is_special_website(url):
     return any(site in url for site in SPECIAL_WEBSITES)
 
-def get_sub_url(sub):
-    return SUB_TOP_URL.format(sub)
+def get_sub_url(sub, sorting):
+    return SUB_URL.format(sub, sorting)
 
 def subname(sub):
     sub = sub.replace('r/', '').replace('/r/', '')
-    if len(sub) < 3:
+    if len(sub) < 3 or sub in SORTINGS:
         raise commands.BadArgument(f'`r/{sub}` is not a subreddit')
     return sub
 
-def posts(s):
+SORTINGS = ['hot', 'new', 'top', 'rising']
+def sorting(s):
+    s = s.lower()
+    for sort in SORTINGS:
+        if s[0] in SORTINGS or s in sort:
+            return sort
+    quoted_sortings = ' '.join([f'`{sort}`' for sort in SORTINGS])
+    raise commands.BadArgument(f'The sortings are {quoted_sortings}. You can use the first letters.')
+
+def parse_posts(s):
     start = 0
     if any(s.endswith(word) for word in ['st', 'nd', 'rd', 'th']):
         posts = int(s[:-2])
         start = posts - 1
     else:
         try: posts = int(s)
-        except: raise BadArgument(f'`{s}`? >.< I dun understand!')
+        except: raise commands.BadArgument(f'`{s}`? >.< I dun understand!')
     return range(start, posts)
 
 class RedditEntry:
@@ -97,13 +107,15 @@ def parse_entry(entry):
 
     return RedditEntry(sub, title, url, author, thumbnail, content_url, text)
 
-async def top(subreddit, index=0):
+async def download_rss(subreddit, sorting):
     sub = subreddit.lower()
-    url = TOP_RSS.format(sub)
+    url = RSS_URL.format(sub, sorting)
     rss = await utils.download(url)
     if not rss:
         raise commands.UserInputError(f'`r\{subreddit}` does not exist')
+    return rss
 
+def get_entry_in_rss(rss, index=0):
     soup = BeautifulSoup(rss, 'html.parser')
     entries = soup('entry')
     sub_name = soup.feed.category['label']
@@ -119,3 +131,34 @@ async def top(subreddit, index=0):
     if sub_logo:
         entry.sub_logo = sub_logo.text
     return entry
+
+async def send_posts_in_embeds(context, sub, sorting, posts):
+    posts = parse_posts(posts)
+    rss = await download_rss(sub, sorting)
+
+    vreddit_posts = []
+    for i in posts:
+        post = get_entry_in_rss(rss, i)
+        embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
+            .set_author(name=f'{sorting.title()} #{i+1} on ' + post.sub, url=get_sub_url(sub, sorting), icon_url=post.sub_logo) \
+            .set_thumbnail(url=post.thumbnail or '') \
+            .set_image(url=post.image) \
+            .set_footer(text='Reddit', icon_url=ICON_URL)
+        if len(post.titles) == 2:
+            embed.add_field(name='More Title', value=post.titles[1])
+        if post.content_url:
+            embed.add_field(name='Link', value=post.content_url_field)
+        msg = await context.send(embed=embed)
+
+        if is_special_website(post.content_url):
+            extra_msg = await context.send(post.content_url)
+            if VREDDIT in post.content_url:
+                vreddit_posts += [(msg, extra_msg)]
+        
+    for msg, extra_msg in vreddit_posts:
+        url = extra_msg.embeds and extra_msg.embeds[0].thumbnail.url
+        if url:
+            embed = msg.embeds[0]
+            embed.set_image(url=url).set_thumbnail(url='')
+            await extra_msg.delete()
+            await msg.edit(embed=embed)

@@ -116,13 +116,12 @@ class Alpha(commands.Cog):
         
         msgs_to_delete = []
         deleted = 0
-        async with context.typing():
-            async for m in context.history(limit=None):
-                if is_me(m) and m.id != progress_msg.id and content in m.content:
-                    msgs_to_delete += [m]
-                    deleted += 1
-                    if deleted >= limit:
-                        break
+        async for m in context.history(limit=None):
+            if is_me(m) and m.id != progress_msg.id and content in m.content:
+                msgs_to_delete += [m]
+                deleted += 1
+                if deleted >= limit:
+                    break
         
         permissions = context.channel.permissions_for(context.me)
         if is_dm or not permissions.manage_messages:
