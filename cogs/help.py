@@ -153,6 +153,18 @@ class EmbedHelpCommand(commands.HelpCommand):
         await self.add_close_button(msg)
         return msg
     
+    async def send_group_help(self, group):
+        embed = self.create_embed()
+        cog = await self.get_cog_emoted_name(group.cog_name)
+        command_helps = []
+        if not group.hidden:
+            command_helps += [self.get_command_help(group)]
+        command_helps += [self.get_command_help(c) for c in group.commands if not c.hidden]
+        command_helps = '\n\n'.join(command_helps)
+        embed.add_field(name=cog, value=command_helps)
+        msg = await self.get_destination().send(embed=embed)
+        await self.add_close_button(msg)
+    
     def get_command_help(self, command):        
         signature = self.get_command_signature(command, with_args=True)
         brief = BRIEFS.get(command.qualified_name, DEFAULT_HELP)
