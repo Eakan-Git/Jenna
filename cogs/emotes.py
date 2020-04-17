@@ -20,6 +20,7 @@ EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
 REAL_EMOJI_PATTERN = '(<a*:[^:\s]+:\d+>)'
 HOME_GUILD = 596171359747440657
 EMBED_BACKCOLOR = 0x2f3136
+START_QUOTE = '> '
 
 EXTERNAL_EMOJIS = 'external_emojis'
 
@@ -155,11 +156,15 @@ class Emotes(commands.Cog):
 
     async def reply_emojis(self, msg):
         context = await self.bot.get_context(msg)
-        match = re.findall(EMOJI_PATTERN, msg.content)
+        matches = []
+        for line in msg.content.splitlines():
+            if not line.startswith(START_QUOTE):
+                matches += re.findall(EMOJI_PATTERN, msg.content)
+                
         emojis = []
         externals = []
 
-        for emoji in match:
+        for emoji in matches:
             name = emoji.replace(':', '')
             emoji = self.get_known_emoji(name)
             if not emoji:
