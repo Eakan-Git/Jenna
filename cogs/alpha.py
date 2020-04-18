@@ -5,6 +5,7 @@ import const
 import cogs
 import importlib
 import sys
+import traceback
 
 from discord.ext import commands
 
@@ -64,6 +65,7 @@ class Alpha(commands.Cog):
             try:
                 importlib.reload(module)
             except:
+                traceback.print_exc()
                 name = name.replace('cogs.core.', '')
                 response = f'⚠️ `{name}` reload failed!'
                 responses += [response]
@@ -76,7 +78,7 @@ class Alpha(commands.Cog):
                 self.bot.reload_extension(cog_path)
                 response = f'✅ {response} reloaded!'
             except:
-                import traceback; traceback.print_exc()
+                traceback.print_exc()
                 response = f'⚠️ {response} reload failed!'
              
             responses += [response]

@@ -66,17 +66,18 @@ class Misc(commands.Cog):
         await context.send(embed=embed)
     
     @commands.group(name='reddit', aliases=['r', 'rd'], invoke_without_command=True)
-    async def _reddit(self, context, sub='random', sorting:Optional[reddit.sorting]='top', posts='1'):
+    async def _reddit(self, context, sub='random', sorting:Optional[reddit.sorting]='top', \
+        posts:Optional[reddit.posts]=1, *, top:reddit.period='today'):
         await context.trigger_typing()
         try:
             sub = reddit.subname(sub)
         except commands.BadArgument:
             sorting = reddit.sorting(sub)
             sub = 'random'
-        await reddit.send_posts_in_embeds(context, sub, sorting, posts)
+        await reddit.send_posts_in_embeds(context, sub, sorting, posts, top)
 
     @_reddit.command(aliases=['t'], hidden=True)
-    async def top(self, context, sub:Optional[reddit.subname]='random', posts='1'):
+    async def top(self, context, sub:Optional[reddit.subname]='random', posts:reddit.posts='1'):
         await context.trigger_typing()
         await reddit.send_posts_in_embeds(context, sub, 'top', posts)
 

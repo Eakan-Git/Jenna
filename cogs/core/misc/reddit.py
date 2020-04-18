@@ -31,7 +31,8 @@ def subname(sub):
         raise commands.BadArgument(f'`r/{sub}` is not a subreddit')
     return sub
 
-SORTINGS = ['hot', 'new', 'top', 'rising']
+TOP = 'top'
+SORTINGS = [TOP, 'hot', 'new', 'rising']
 def sorting(s):
     s = s.lower()
     for sort in SORTINGS:
@@ -41,14 +42,36 @@ def sorting(s):
     raise commands.BadArgument(f'The sortings are {quoted_sortings}. You can use the first letters.')
 
 def parse_posts(s):
+    s = str(s)
     start = 0
     if any(s.endswith(word) for word in ['st', 'nd', 'rd', 'th']):
         posts = int(s[:-2])
         start = posts - 1
     else:
         try: posts = int(s)
-        except: raise commands.BadArgument(f'`{s}`? >.< I dun understand!')
+        except: raise commands.BadArgument(f'`{s}`... posts?')
     return range(start, posts)
+posts = parse_posts
+
+PERIODS = ['hour', 'day', 'week', 'month', 'year', 'all']
+PERIODS_AS_URL = {
+    'now': 'hour',
+    'today': 'day',
+    'this week': 'week',
+    'this month': 'month',
+    'this year': 'year',
+    'all time': 'all',
+}
+PERIODS_TO_DISPLAY = { u: p for p, u in PERIODS_AS_URL.items() }
+
+def period(p):
+    p = p.lower()
+    if p in PERIODS_AS_URL:
+        p = PERIODS_AS_URL[p]
+    if p not in PERIODS:
+        quoted_periods = ' '.join(f'`{p}`' for p in PERIODS)
+        raise commands.BadArgument(f'The possible periods are {quoted_periods}')
+    return p
 
 class RedditEntry:
     def __init__(self, sub, title, url, author, thumbnail, content_url, text):
@@ -107,40 +130,48 @@ def parse_entry(entry):
 
     return RedditEntry(sub, title, url, author, thumbnail, content_url, text)
 
-async def download_rss(subreddit, sorting):
+async def download_rss(subreddit, sorting, period):
     sub = subreddit.lower()
     url = RSS_URL.format(sub, sorting)
+    if period:
+        url += '?t=' + period
     rss = await utils.download(url)
     if not rss:
         raise commands.UserInputError(f'`r\{subreddit}` does not exist')
     return rss
 
-def get_entry_in_rss(rss, index=0):
+def get_entry_in_rss(rss, index=0, sorting=TOP):
     soup = BeautifulSoup(rss, 'html.parser')
     entries = soup('entry')
     sub_name = soup.feed.category['label']
-    if not entries:
-        raise commands.UserInputError(f'`r\{subreddit}` has no new posts today or does not exist')
     
     try:
         entry = entries[index]
     except:
-        raise commands.BadArgument(f'`r\{subreddit}` only has {len(entries)} top posts')
+        subreddit = soup.feed.category['label']
+        entry_count = len(entries)
+        only = 'only ' if entry_count else ''
+        raise commands.BadArgument(f'`{subreddit}` {only}has **{entry_count}** {sorting} posts today')
     entry = parse_entry(entry)
     sub_logo = soup.feed.logo
     if sub_logo:
         entry.sub_logo = sub_logo.text
     return entry
 
-async def send_posts_in_embeds(context, sub, sorting, posts):
-    posts = parse_posts(posts)
-    rss = await download_rss(sub, sorting)
+async def send_posts_in_embeds(context, sub, sorting, posts, period):
+    if not isinstance(posts, range):
+        posts = parse_posts(posts)
+    if sorting is not TOP:
+        period = ''
+    rss = await download_rss(sub, sorting, period)
+    period = PERIODS_TO_DISPLAY.get(period, period).title()
 
     vreddit_posts = []
     for i in posts:
-        post = get_entry_in_rss(rss, i)
+        post = get_entry_in_rss(rss, i, sorting)
+        title = ' '.join(filter(None, [sorting.title(), f'#{i+1}', period]))
         embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
-            .set_author(name=f'{sorting.title()} #{i+1} on ' + post.sub, url=get_sub_url(sub, sorting), icon_url=post.sub_logo) \
+            .set_author(name=f'{title} on ' + post.sub, url=get_sub_url(sub, sorting), icon_url=post.sub_logo) \
             .set_thumbnail(url=post.thumbnail or '') \
             .set_image(url=post.image) \
             .set_footer(text='Reddit', icon_url=ICON_URL)
