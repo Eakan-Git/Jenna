@@ -14,7 +14,7 @@ def get_url(emoji):
         return emoji.url, None
     else:
         url = get_twemoji_cdn(emoji)
-        single_url = get_twemoji_cdn(emoji)
+        single_url = get_twemoji_cdn(emoji[0])
         return url, single_url
 
 TWEMOJI_CDN = 'https://twemoji.maxcdn.com/v/latest/72x72/%s.png'

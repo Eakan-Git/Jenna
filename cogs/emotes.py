@@ -38,8 +38,7 @@ class Emotes(commands.Cog):
         self.Persist.set(EXTERNAL_EMOJIS, self.external_emojis)
     
     @commands.group(aliases=['emoji'], hidden=True)
-    async def emote(self, context):
-        pass
+    async def emote(self, context): pass
 
     @commands.command(aliases=['big'])
     async def enlarge(self, context, emoji:conv.NitroEmoji):
@@ -69,7 +68,7 @@ class Emotes(commands.Cog):
     async def link(self, context, emoji:conv.NitroEmoji):
         await context.trigger_typing()
         emoji = await self.get_external_emoji(context, emoji) or emoji
-        url, single_url = await utils.get_url(emoji)
+        url, single_url = utils.get_url(emoji)
         if not await utils.download(url, utils.READ):
             url = single_url
         embed = colors.embed(color=EMBED_BACKCOLOR)
