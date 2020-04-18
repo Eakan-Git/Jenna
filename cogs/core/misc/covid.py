@@ -102,8 +102,8 @@ def compile_stats(country_data):
 def comma(number):
     return f'{number:,}' if type(number) is int else number
 
-def plus(number, hide_if_none=True):
-    return f'(+{number:,})' if number and hide_if_none else ''
+def plus(number):
+    return f'(+{number:,})'
 
 TITLE = 'Worldometer Coronavirus Update'
 def embed_countries(data):
@@ -164,8 +164,8 @@ def embed_region(data, region):
     cases_percent = f'{flag} {cases_percent}' if cases_percent else ''
     deaths_pop_percent = f'{flag} {deaths_pop_percent}' if deaths_pop_percent else ''
 
-    new_cases = plus(new_cases, hide_if_none=False)
-    new_deaths = plus(new_deaths, hide_if_none=False)
+    new_cases = plus(new_cases)
+    new_deaths = plus(new_deaths)
 
     total_cases, _, total_deaths, _, recovered, active_cases, critical, _, _, total_tests = map(comma, country_data[1:11])
     if total_tests == '0':
