@@ -5,3 +5,4 @@ beautifulsoup4
 pycountry
 googletrans
 emoji-country-flag
+requests-async

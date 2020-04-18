@@ -1,5 +1,6 @@
 import aiohttp
 import mimetypes
+import requests_async as requests
 
 def url_is_image(url):
     mimetype, encoding = mimetypes.guess_type(url)
@@ -13,3 +14,10 @@ async def download(url, method='text'):
                 if method:
                     return await getattr(resp, method)()
                 return resp
+
+async def request(url, method=''):
+    response = await requests.get(url)
+    if method == READ:
+        return response.content
+    else:
+        return response.text

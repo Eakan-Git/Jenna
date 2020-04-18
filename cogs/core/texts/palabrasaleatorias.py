@@ -38,7 +38,7 @@ def get_url(lang):
 async def get_random(lang):
     raise_if_not_supported(lang)
     url = get_url(lang)
-    page_content = await utils.download(url)
+    page_content = await utils.request(url)
     soup = BeautifulSoup(page_content, 'html.parser')
     table = soup.table
     word = table.div.text.strip()

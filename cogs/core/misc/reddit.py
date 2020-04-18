@@ -69,8 +69,9 @@ def period(p):
     if p in PERIODS_AS_URL:
         p = PERIODS_AS_URL[p]
     if p not in PERIODS:
-        quoted_periods = ' '.join(f'`{p}`' for p in PERIODS)
-        raise commands.BadArgument(f'The possible periods are {quoted_periods}')
+        quoted_periods = ', '.join(f'`{p}`' for p in PERIODS_AS_URL)
+        aliases = ', '.join(f'`{p}`' for p in PERIODS)
+        raise commands.BadArgument(f'The possible top periods are {quoted_periods}\nAliases: {aliases}')
     return p
 
 class RedditEntry:
