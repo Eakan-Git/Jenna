@@ -69,11 +69,17 @@ class Emotes(commands.Cog):
         await context.trigger_typing()
         emoji = await self.get_external_emoji(context, emoji) or emoji
         url, single_url = utils.get_url(emoji)
-        if not await utils.download(url, utils.READ):
+        if isinstance(emoji, str) and emoji[0].isalpha():
+            url = ''
+        elif single_url and not await utils.download(url, utils.READ):
             url = single_url
-        embed = colors.embed(color=EMBED_BACKCOLOR)
-        embed.set_image(url=url)
-        await context.send(embed=embed)
+        
+        if url:
+            embed = colors.embed(color=EMBED_BACKCOLOR)
+            embed.set_image(url=str(url))
+            await context.send(embed=embed)
+        else:
+            await context.message.add_reaction('⁉️')
         
     async def get_external_emoji(self, context, name, add=False):
         id = self.external_emojis.get(name)
@@ -144,7 +150,7 @@ class Emotes(commands.Cog):
         if context.command:
             return
         await self.cache_external_emojis(msg)
-        if env.TESTING and not await self.bot.is_owner(msg.author): return
+        if env.TESTING: return
         await self.reply_emojis(msg)
     
     def get_known_emoji(self, name):
