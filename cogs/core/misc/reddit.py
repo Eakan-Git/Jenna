@@ -22,9 +22,6 @@ SPECIAL_WEBSITES = [VREDDIT, GFYCAT, 'twitter', 'imgur', 'youtu']
 def is_special_website(url):
     return any(site in url for site in SPECIAL_WEBSITES)
 
-def get_sub_url(sub, sorting):
-    return SUB_URL.format(sub, sorting)
-
 def subname(sub):
     sub = sub.replace('r/', '').replace('/r/', '')
     if len(sub) < 3 or sub in SORTINGS:
@@ -131,11 +128,14 @@ def parse_entry(entry):
 
     return RedditEntry(sub, title, url, author, thumbnail, content_url, text)
 
-async def download_rss(subreddit, sorting, period):
-    sub = subreddit.lower()
-    url = RSS_URL.format(sub, sorting)
+def compile_url(sub, sorting, period, link=RSS_URL):
+    url = link.format(sub.lower(), sorting)
     if period:
         url += '?t=' + period
+    return url
+
+async def download_rss(subreddit, sorting, period):
+    url = compile_url(subreddit, sorting, period)
     rss = await utils.download(url)
     if not rss:
         raise commands.UserInputError(f'`r\{subreddit}` does not exist')
@@ -165,6 +165,7 @@ async def send_posts_in_embeds(context, sub, sorting, posts, period):
     if sorting is not TOP:
         period = ''
     rss = await download_rss(sub, sorting, period)
+    sub_url = compile_url(sub, sorting, period, link=SUB_URL)
     period = PERIODS_TO_DISPLAY.get(period, period).title()
 
     vreddit_posts = []
@@ -172,7 +173,7 @@ async def send_posts_in_embeds(context, sub, sorting, posts, period):
         post = get_entry_in_rss(rss, i, sorting)
         title = ' '.join(filter(None, [sorting.title(), f'#{i+1}', period]))
         embed = colors.embed(title=post.titles[0], url=post.url, description=post.text) \
-            .set_author(name=f'{title} on ' + post.sub, url=get_sub_url(sub, sorting), icon_url=post.sub_logo) \
+            .set_author(name=f'{title} on ' + post.sub, url=sub_url, icon_url=post.sub_logo) \
             .set_thumbnail(url=post.thumbnail or '') \
             .set_image(url=post.image) \
             .set_footer(text='Reddit', icon_url=ICON_URL)
