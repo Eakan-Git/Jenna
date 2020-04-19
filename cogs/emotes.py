@@ -164,7 +164,7 @@ class Emotes(commands.Cog):
         matches = []
         for line in msg.content.splitlines():
             if not line.startswith(START_QUOTE):
-                matches += re.findall(EMOJI_PATTERN, msg.content)
+                matches += re.findall(EMOJI_PATTERN, line)
                 
         emojis = []
         externals = []
