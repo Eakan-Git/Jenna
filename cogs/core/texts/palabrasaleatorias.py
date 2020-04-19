@@ -1,6 +1,7 @@
 from .. import utils
-import discord
 from bs4 import BeautifulSoup
+from discord.ext import commands
+import discord
 
 URL = 'https://www.palabrasaleatorias.com/'
 PAGES_FOR_LANG = {
@@ -22,13 +23,13 @@ def get_page(lang):
     return PAGES_FOR_LANG.get(lang)
 
 def get_title(lang):
-    page = get_page(lang) or 'palabras-aleatorias'
+    page = get_page(lang) if lang != 'es' else 'palabras-aleatorias'
     title = ' '.join(page.split('-')).title()
     return title
 
 def raise_if_not_supported(lang):
     if lang not in PAGES_FOR_LANG:
-        raise commands.BadArgument(f'{lang} is not supported.')
+        raise commands.BadArgument(f'`{lang}` is not supported.')
 
 def get_url(lang):
     page = get_page(lang)
