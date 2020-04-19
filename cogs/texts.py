@@ -9,16 +9,12 @@ import colors
 import googletrans
 import const
 
-SUPPORTED_LANGS = {**googletrans.LANGUAGES, **googletrans.LANGCODES}
+SUPPORTED_LANGS = { 'auto': 'Automatic', **googletrans.LANGUAGES, **googletrans.LANGCODES}
 
 def Src2Dest(s):
     src2dest = s.split('-')
     if len(src2dest) != 2:
         raise commands.BadArgument('Not in lang-lang format!')
-
-    for lang in src2dest:
-        if lang and lang not in SUPPORTED_LANGS:
-            raise commands.BadArgument(f'{lang} is not a language code')
     
     src, dest = src2dest
     src = src or 'auto'
@@ -49,7 +45,12 @@ class Texts(commands.Cog):
     
     @commands.command(aliases=['tr', 'tl'])
     async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto-en', *, text):
-        src, dest = src2dest.split('-')
+        src2dest = src2dest.split('-')
+        for lang in src2dest:
+            if lang and lang not in SUPPORTED_LANGS:
+                raise commands.BadArgument(f'`{lang}` is not a language code')
+        src, dest = src2dest
+
         await context.trigger_typing()
         translated = self.translator.translate(text, dest=dest, src=src)
         embed = colors.embed()
