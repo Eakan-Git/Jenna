@@ -18,12 +18,11 @@ class ChannelMessageLog:
         self.edited = []
     
     def get_list(self, state):
-        return getattr(self, state)
+        return getattr(self, state)[-SAVE_LIMIT:]
     
     def log(self, state, message):
         msgs = self.get_list(state)
         msgs.append(message)
-        msgs = msgs[-SAVE_LIMIT:]
         setattr(self, state, msgs)
 
     def get_last(self, state, index):
@@ -73,7 +72,7 @@ class Snipe(commands.Cog):
     async def snipe(self, context, channel:typing.Optional[discord.TextChannel], i=1):
         await self.send_message_in_embed(context, channel, DELETED, i)
     
-    @commands.command()
+    @commands.command(aliases=['editsnipe'])
     @commands.guild_only()
     async def snipedit(self, context, channel:typing.Optional[discord.TextChannel], i=1):
         await self.send_message_in_embed(context, channel, EDITED, i)
