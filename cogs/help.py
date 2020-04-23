@@ -188,7 +188,7 @@ class Help(commands.Cog):
             else:
                 await ctx.send(error)
         else:
-            original = error.original
+            original = error.original if hasattr(error, 'original') else error
             exception = traceback.format_exception(type(original), original, original.__traceback__)
             exception = '\n'.join(exception)
             print(exception)
