@@ -12,7 +12,7 @@ SAVE_LIMIT = 10
 DELETED = 'deleted'
 EDITED = 'edited'
 
-class ChannelMessageLog:
+class ChannelLog:
     def __init__(self):
         self.deleted = []
         self.edited = []
@@ -24,6 +24,9 @@ class ChannelMessageLog:
         msgs = self.get_list(state)
         msgs.append(message)
         setattr(self, state, msgs)
+    
+    def log_deleted(self, message): self.log(DELETED, message)
+    def log_edited(self, message): self.log(EDITED, message)
 
     def get_last(self, state, index):
         try:
@@ -31,30 +34,10 @@ class ChannelMessageLog:
         except:
             return None
 
-class GuildMessageLog:
-    def __init__(self):
-        self.channels = {}
-    
-    def get_channel_log(self, channel):
-        if channel.id not in self.channels:
-            self.channels[channel.id] = ChannelMessageLog()
-        return self.channels[channel.id]
-    
-    def log(self, state, message):
-        channel = self.get_channel_log(message.channel)
-        channel.log(state, message)
-
-    def log_deleted(self, message): self.log(DELETED, message)
-    def log_edited(self, message): self.log(EDITED, message)
-    
-    def get_last(self, channel, state, index=1):
-        channel_log = self.get_channel_log(channel)
-        return channel_log.get_last(state, index)
-
 class Snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guilds = {}
+        self.channel_logs = {}
         self.files_of_message = {}
     
     @commands.command(hidden=True, aliases=['re'])
@@ -92,8 +75,8 @@ class Snipe(commands.Cog):
             await context.send(embed=msg.embeds[0])
     
     def get_last_message(self, channel, state, index):
-        guild = self.guilds.get(channel.guild.id)
-        msg = guild.get_last(channel, state, index) if guild else None
+        log = self.channel_logs.get(channel.id)
+        msg = log.get_last(state, index) if log else None
         return msg
 
     def create_empty_embed(self, channel, state):
@@ -134,31 +117,32 @@ class Snipe(commands.Cog):
         await self.send_log_in_embed(context, channel or context.channel, EDITED)
     
     async def send_log_in_embed(self, context, channel, state):
-        guild_log = self.guilds.get(context.guild.id)
-        channel_log = guild_log.channels.get(channel.id) if guild_log else None
-
+        log = self.channel_logs.get(channel.id)
         embed = self.create_empty_embed(channel, state)
-        self.embed_channel_logs(embed, channel_log, state)
+        self.embed_channel_logs(embed, log, state)
 
         await context.send(embed=embed)
 
     def embed_channel_logs(self, embed, channel_log, state):
         if not channel_log: return
 
-        last_msg = None
-        last_time = None
+        prev_msg = None
         msgs = []
-        for m in channel_log.get_list(state):
+        logged_msgs = channel_log.get_list(state)
+
+        for i, m in enumerate(logged_msgs):
             extra = get_extra(m)
             time = get_time_display(m, state)
 
             msg = f'`{time}` {m.content} {extra}'
-            if not last_msg or last_msg.author != m.author:
-                msg = f'{m.author.mention} {msg}'
+            author_first_msg = not prev_msg or prev_msg.author != m.author
+            if author_first_msg:
+                next_msg_same_author = i + 1 < len(logged_msgs) and logged_msgs[i+1].author == m.author
+                sep = '\n' if next_msg_same_author else ' '
+                msg = f'{m.author.mention}{sep}{msg}'
             msgs += [msg]
 
-            last_msg = m
-            last_time = time
+            prev_msg = m
         
         if msgs:
             footer = f'{state.capitalize()}'
@@ -171,9 +155,14 @@ class Snipe(commands.Cog):
         await self.log_message(msg)
     
     async def log_message(self, msg):
-        guild = self.get_guild_log(msg.guild)
-        guild.log_deleted(msg)
-        files = [await a.to_file(use_cached=True) for a in msg.attachments]
+        log = self.get_or_create_log(msg.channel)
+        log.log_deleted(msg)
+        files = []
+        for a in msg.attachments:
+            try:
+                files += [await a.to_file(use_cached=True)]
+            except:
+                await self.bot.owner.send(f'Cannot download file: {a.url}\n{a.proxy_url}')
         if files:
             self.files_of_message[msg.id] = files
 
@@ -181,18 +170,18 @@ class Snipe(commands.Cog):
     async def on_message_edit(self, before, after):
         if not before.guild or before.author == self.bot.user: return
 
-        guild = self.get_guild_log(before.guild)
-        guild.log_edited(before)
+        log = self.get_or_create_log(before.channel)
+        log.log_edited(before)
     
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, msgs):
         for m in msgs:
             await self.log_message(m)
-
-    def get_guild_log(self, guild):
-        if guild.id not in self.guilds:
-            self.guilds[guild.id] = GuildMessageLog()
-        return self.guilds[guild.id]
+    
+    def get_or_create_log(self, channel):
+        if channel.id not in self.channel_logs:
+            self.channel_logs[channel.id] = ChannelLog()
+        return self.channel_logs[channel.id]
 
 def get_extra(msg):
     extra = get_attachment_links(msg)
