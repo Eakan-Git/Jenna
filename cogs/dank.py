@@ -81,7 +81,7 @@ class DankHelper(commands.Cog):
         else:
             response = 'I dunno man ' + const.SHRUG
             content = 'New trivia question not in database:'
-            await self.bot.get_user(self.bot.owner_id).send(content, embed=msg.embeds[0])
+            await self.bot.owner.send(content, embed=msg.embeds[0])
         await msg.channel.send(response)
     
     async def send_minigame_assist(self, msg):

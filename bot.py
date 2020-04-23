@@ -7,15 +7,17 @@ import cogs
 
 from discord.ext import commands
 
+class Bot(commands.Bot):
+    async def on_ready(self):
+        await bot.change_presence(activity=discord.Game('j help'))
+        await self.is_owner(self.user)
+        self.owner = self.get_user(self.owner_id)
+        print('Logged in as', bot.user)
+
 prefixes = ['j ', 'jenna '] if not env.TESTING else ['k ']
 for p in prefixes[::]:
     prefixes.append(p.capitalize())
-bot = commands.Bot(command_prefix=prefixes, case_insensitive=True)
-
-@bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.Game('j help'))
-    print('Logged in as', bot.user)
+bot = Bot(command_prefix=prefixes, case_insensitive=True)
 
 if __name__ == '__main__':
     for cog in cogs.LIST:

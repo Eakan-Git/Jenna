@@ -4,7 +4,8 @@ import cogs
 import traceback
 import sys
 import const
-import csv  
+import csv
+import env
 
 from discord.ext import commands
 from .core import converter as conv
@@ -186,9 +187,15 @@ class Help(commands.Cog):
                 await ctx.send(f'Missing `{error.param.name}` argument!')
             else:
                 await ctx.send(error)
-            # msg = await ctx.send_help(ctx.command)
         else:
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            original = error.original
+            exception = traceback.format_exception(type(original), original, original.__traceback__)
+            exception = '\n'.join(exception)
+            print(exception)
+            if isinstance(error, ignored_errors): return
+            await self.bot.owner.send(f'```{exception}```')
+
+ignored_errors = (commands.CommandNotFound,)
 
 def setup(bot):
     bot.add_cog(Help(bot))
