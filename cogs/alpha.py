@@ -52,23 +52,36 @@ class Alpha(commands.Cog):
 
             if oneliner:
                 break
-
-    @commands.command(aliases=['rl'])
+        
+    @commands.command(aliases=['rlm'])
     @commands.is_owner()
-    async def reload(self, context, *, cog=ALL):
+    async def reloadmodule(self, context, *, module=ALL):
+        await context.trigger_typing()
+        responses = []
+        core_modules = [(name, module) for name, module in sys.modules.items() if name.startswith('cogs.core')]
+        modules = core_modules if module == ALL else module.split()
+        reloaded_modules = filter(lambda m: any(rm in m[0] for rm in modules), core_modules)
+        
+        for name, module in reloaded_modules:
+            name = name.replace('cogs.core.', '')
+            name = f'Module `{name}`'
+            try:
+                importlib.reload(module)
+                response = f'✅ {name} reloaded!'
+            except:
+                traceback.print_exc()
+                response = f'⚠️ {name} reload failed!'
+            responses += [response]
+        
+        content = '\n'.join(responses)
+        await context.send(content)
+
+    @commands.command(aliases=['rl', 'rlc'])
+    @commands.is_owner()
+    async def reloadcog(self, context, *, cog=ALL):
         await context.trigger_typing()
         responses = []
         cog = cogs.NAMES if cog == ALL else cog.split()
-
-        core_modules = [(name, module) for name, module in sys.modules.items() if name.startswith('cogs.core')]
-        for name, module in core_modules:
-            try:
-                importlib.reload(module)
-            except:
-                traceback.print_exc()
-                name = name.replace('cogs.core.', '')
-                response = f'⚠️ `{name}` reload failed!'
-                responses += [response]
         
         for cog_name in cog:
             cog_path = 'cogs.' + cog_name
