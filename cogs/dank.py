@@ -26,7 +26,7 @@ COLOR_WORD_FORMAT = ':{color}_square: `{word}` = `{color}`'
 
 TRIVIA_OPTIONS = ' 🇦🇧🇨🇩'
 TRIVIA_LETTERS = ' ABCD'
-EVENT_ENCOUNTERED = 'EVENT ENCOUNTERED'
+EVENT_ENCOUNTERED = 'EVENT TIME'
 UNSCRAMBLE_ERROR = ':warning: Could not unscramble word'
 
 GAMBLING_ADDICT = 'Gambling Addict'
