@@ -52,8 +52,11 @@ class Misc(commands.Cog):
         await context.send(embed=embed)
     
     @commands.command(aliases=['cv', 'ncov', 'corona', 'morning'])
-    async def covid(self, context, region='server'):
+    async def covid(self, context, *, region='server'):
         await context.trigger_typing()
+        empty = covid.create_empty_embed()
+        msg = await context.send(embed=empty)
+
         await self.corona_status.update()
         data = self.corona_status.data
 
@@ -63,7 +66,8 @@ class Misc(commands.Cog):
 
         embed = covid.embed_countries(data) if region == 'server' \
             else covid.embed_region(data, region)
-        await context.send(embed=embed)
+        embed.color = empty.color
+        await msg.edit(embed=embed)
     
     @commands.group(name='reddit', aliases=['r', 'rd'], invoke_without_command=True)
     async def _reddit(self, context, sub='random', sorting:Optional[reddit.sorting]='top', \

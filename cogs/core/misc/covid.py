@@ -9,6 +9,7 @@ import discord
 import time
 import pycountry
 import colors
+import asyncio
 from flag import flag as get_flag
 
 URL = 'https://www.worldometers.info/coronavirus/'
@@ -18,11 +19,14 @@ class CoronaStatus:
     def __init__(self):
         self.data = []
         self.last_update = 0
+        self.is_downloading = False
     
     async def update(self):
         if self.should_update():
             self.last_update = time.time()
             await self.download_data()
+        while self.is_downloading:
+            await asyncio.sleep(1)
     
     def should_update(self):
         now = time.time()
@@ -30,6 +34,7 @@ class CoronaStatus:
         return data_age > UPDATE_INTERVAL
 
     async def download_data(self):
+        self.is_downloading = True
         data = []
 
         web_content = await utils.download(URL)
@@ -48,13 +53,15 @@ class CoronaStatus:
                 elif country[0] == 'Total:':
                     country[0] = country[-1]
                 for i, value in enumerate(country):
-                    value = str(value or 0).replace('+', '').replace(',', '')
+                    if value != 'N/A':
+                        value = str(value or 0).replace('+', '').replace(',', '')
                     try: country[i] = int(value)
                     except: pass
 
                 data += [country]
         
         self.data = data
+        self.is_downloading = False
 
 COUNTRIES_OF_INTEREST = ['Vietnam', 'USA', 'Singapore', 'Germany', 'Canada', 'Australia', 'Malaysia', 'Netherlands']
 
@@ -79,11 +86,6 @@ EXPLANATION = f''':microbe: **{TOTAL_CASES}** (+{NEW_CASES})
 {RECOVERED_EMOTE} **{RECOVERED}**
 __
 '''
-STATS = ''':microbe: **{:,}** {}
-:skull: **{:,}** {}
-{} **{:,}**
-__
-'''
 
 @dataclass
 class CustomEmotes:
@@ -94,20 +96,28 @@ def set_emotes(recovered):
     emotes = CustomEmotes(recovered)
 
 def compile_stats(country_data):
-    total_cases, new_cases, total_deaths, new_deaths, recovered = country_data[1:6]
+    total_cases, new_cases, total_deaths, new_deaths, recovered = map(comma, country_data[1:6])
     new_cases = plus(new_cases)
     new_deaths = plus(new_deaths)
-    return STATS.format(total_cases, new_cases, total_deaths, new_deaths, emotes.recovered, recovered)
+    return (
+        f':microbe: **{total_cases}** {new_cases}\n'
+        f':skull: **{total_deaths}** {new_deaths}\n'
+        f'{emotes.recovered} **{recovered}**\n'
+        '__' )
 
 def comma(number):
     return f'{number:,}' if type(number) is int else number
 
 def plus(number, hide_if_none=True):
-    return '' if not number and hide_if_none else f'(+{number:,})'
+    return '' if number == '0' and hide_if_none else f'(+{number})'
 
 TITLE = 'Worldometer Coronavirus Update'
+def create_empty_embed():
+    return colors.embed(title=TITLE, url=URL, description='Downloading data...')
+
 def embed_countries(data):
-    embed = colors.embed(title=TITLE, url=URL, description=EXPLANATION.replace(RECOVERED_EMOTE, emotes.recovered))
+    embed = create_empty_embed() 
+    embed.description = EXPLANATION.replace(RECOVERED_EMOTE, emotes.recovered)
     embed.timestamp = datetime.now().astimezone()
 
     for country_data in data:
@@ -164,12 +174,9 @@ def embed_region(data, region):
     cases_percent = f'{flag} {cases_percent}' if cases_percent else ''
     deaths_pop_percent = f'{flag} {deaths_pop_percent}' if deaths_pop_percent else ''
 
+    total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical = map(comma, country_data[1:8])
     new_cases = plus(new_cases, hide_if_none=False)
     new_deaths = plus(new_deaths, hide_if_none=False)
-
-    total_cases, _, total_deaths, _, recovered, active_cases, critical, _, _, total_tests = map(comma, country_data[1:11])
-    if total_tests == '0':
-        total_tests = 'N/A'
     
     cases_percentages = '\n'.join(filter(None, [wcases_percent, cases_percent]))
     if cases_percentages: cases_percentages = '\n' + cases_percentages
@@ -183,7 +190,7 @@ def embed_region(data, region):
     ])
 
     title = f'Coronavirus cases for {name}'
-    embed = colors.embed(title=title, description=explanation) \
+    embed = colors.embed(title=title, url=URL, description=explanation) \
         .add_field(name=f'{TOTAL_CASES}', value=f'**{total_cases}** {new_cases}{cases_percentages}') \
         .add_field(name=f'{TOTAL_DEATHS}', value=f'**{total_deaths}** {new_deaths}{deaths_percentages}') \
         .add_field(name=f'{RECOVERED}', value=f'**{recovered}** {recovered_percent}', inline=False) \
