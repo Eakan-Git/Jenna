@@ -1,5 +1,5 @@
-listlang| Shows a list of supported languages for translation
 translate| Google Translate
+translate lang| Shows a list of supported languages for translation
 
 snipe| Show the `i`th last deleted message in channel
 snipedit| Show the `i`th last edited message in channel

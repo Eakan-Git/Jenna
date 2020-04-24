@@ -34,10 +34,9 @@ TITLE_FORMAT = '%s Command List'
 FOOTER = 'Requested by {}'
 OWNER_CHECK = 'is_owner'
 
-ARG_REPLACES = {
+ARG_NEW_BRACKETS = {
     '[': '(',
     ']': ')',
-    '> <': ' ',
     '<': '[',
     '>': ']',
 }
@@ -50,10 +49,13 @@ class EmbedHelpCommand(commands.HelpCommand):
         aliases = [command.qualified_name] + command.aliases
         signature = '/'.join(aliases)
         if with_args:
-            args = command.signature
-            for a, b in ARG_REPLACES.items():
-                args = args.replace(a, b)
-            signature += ' ' + args
+            args = command.signature.split()
+            for i, a in enumerate(args):
+                brackets = a[0] + a[-1]
+                for old, new in ARG_NEW_BRACKETS.items():
+                    brackets = brackets.replace(old, new)
+                args[i] = brackets[0] + a[1:-1] + brackets[1]
+            signature += ' ' + ' '.join(args)
         return signature.strip()
     
     def create_embed(self):

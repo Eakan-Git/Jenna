@@ -43,7 +43,7 @@ class Texts(commands.Cog):
             response += 'Not found!'
         await context.send(response)
     
-    @commands.command(aliases=['tr', 'tl'])
+    @commands.group(aliases=['tr', 'tl'], invoke_without_command=True)
     async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto>en', *, text):
         src2dest = src2dest.split('>')
         for lang in src2dest:
@@ -58,9 +58,9 @@ class Texts(commands.Cog):
         embed.set_footer(text=f'{translated.src}>{translated.dest}: {text}')
         await context.send(embed=embed)
     
-    @commands.command()
-    async def listlang(self, context):
-        output = 'Supported Languages:\n'
+    @translate.command()
+    async def lang(self, context):
+        output = '**Supported Languages**:\n'
         output += const.BULLET.join([f'`{code}`-{lang.title()}' for code, lang in googletrans.LANGUAGES.items()])
         await context.send(output)
 
