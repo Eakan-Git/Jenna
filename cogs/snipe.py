@@ -158,13 +158,20 @@ class Snipe(commands.Cog):
         log = self.get_or_create_log(msg.channel)
         log.log_deleted(msg)
         files = []
+        exception = None
         for a in msg.attachments:
             try:
                 files += [await a.to_file(use_cached=True)]
-            except:
-                await self.bot.owner.send(f'Cannot download file: {a.url}\n{a.proxy_url}')
+            except Exception as e:
+                exception = e
+                await self.bot.owner.send(f'Cannot download file: {a.proxy_url}')
+                
+                data = await utils.download(a.proxu_url, utils.READ)
+                files += [discord.File(io.BytesIO(data), filename=a.filename)]
         if files:
             self.files_of_message[msg.id] = files
+        if exception:
+            raise exception
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
