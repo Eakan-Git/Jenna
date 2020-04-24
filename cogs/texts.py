@@ -12,14 +12,14 @@ import const
 SUPPORTED_LANGS = { 'auto': 'Automatic', **googletrans.LANGUAGES, **googletrans.LANGCODES}
 
 def Src2Dest(s):
-    src2dest = s.split('-')
+    src2dest = s.split('>')
     if len(src2dest) != 2:
-        raise commands.BadArgument('Not in lang-lang format!')
+        raise commands.BadArgument('Not in lang>lang format!')
     
     src, dest = src2dest
     src = src or 'auto'
     dest = dest or 'en'
-    return '-'.join([src, dest])
+    return '>'.join([src, dest])
 
 class Texts(commands.Cog):
     def __init__(self, bot):
@@ -44,8 +44,8 @@ class Texts(commands.Cog):
         await context.send(response)
     
     @commands.command(aliases=['tr', 'tl'])
-    async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto-en', *, text):
-        src2dest = src2dest.split('-')
+    async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto>en', *, text):
+        src2dest = src2dest.split('>')
         for lang in src2dest:
             if lang and lang not in SUPPORTED_LANGS:
                 raise commands.BadArgument(f'`{lang}` is not a language code')
@@ -55,7 +55,7 @@ class Texts(commands.Cog):
         translated = self.translator.translate(text, dest=dest, src=src)
         embed = colors.embed()
         embed.description = f'{translated.text}'.replace('nhoan', 'cringy')
-        embed.set_footer(text=f'{translated.src}-{translated.dest}: {text}')
+        embed.set_footer(text=f'{translated.src}>{translated.dest}: {text}')
         await context.send(embed=embed)
     
     @commands.command()
