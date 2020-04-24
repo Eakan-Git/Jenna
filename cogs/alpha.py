@@ -30,7 +30,7 @@ class Alpha(commands.Cog):
         while True:
             if not oneliner:
                 msg = await self.bot.wait_for('message', check=check)
-                code = msg.content.replace('`', '').strip()
+                code = msg.content
                 if code in EXIT_METHODS:
                     await context.send('```<<<```')
                     break
@@ -45,10 +45,13 @@ class Alpha(commands.Cog):
                 output = e
                 title = '⚠️ **Error**:'
 
-            content = f'{title}\n```{output}```'
-            if len(content) > 2000:
-                content = content[:2000-6] + '...```'
-            await context.send(content)
+            if not oneliner and output == None:
+                await msg.add_reaction('✅')
+            else:
+                content = f'{title}\n{output}'
+                if len(content) > 2000:
+                    content = content[:2000-6] + '...'
+                await context.send(content)
 
             if oneliner:
                 break
