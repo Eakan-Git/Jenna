@@ -64,8 +64,12 @@ class Misc(commands.Cog):
         emotes = [str(discord.utils.get(self.bot.emojis, name=e)) for e in emotes]
         covid.set_emotes(*emotes)
 
-        embed = covid.embed_countries(data) if region == 'server' \
-            else covid.embed_region(data, region)
+        try:
+            embed = covid.embed_countries(data) if region == 'server' \
+                else covid.embed_region(data, region)
+        except commands.UserInputError as e:
+            embed = empty
+            embed.description = e.args[0]
         embed.color = empty.color
         await msg.edit(embed=embed)
     
