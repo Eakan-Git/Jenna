@@ -137,7 +137,9 @@ def compile_url(sub, sorting, period, link=RSS_URL):
 async def download_rss(subreddit, sorting, period):
     url = compile_url(subreddit, sorting, period)
     rss = await utils.download(url)
-    if not rss:
+    subname = BeautifulSoup(rss, 'html.parser').feed.category['label']
+    invalid_subname = ' ' in subname
+    if not rss or invalid_subname:
         raise commands.UserInputError(f'`r\{subreddit}` does not exist')
     return rss
 
