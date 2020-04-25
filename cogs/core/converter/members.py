@@ -45,6 +45,7 @@ def find_member(context, input_name, matching=DEFAULT_MATCHING):
 
     close_matches.sort(key=lambda name: score_member(name), reverse=True)
 
+    member = None
     if close_matches:
         name = close_matches[0]
         member = members_by_name[name]

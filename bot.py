@@ -13,6 +13,8 @@ class Bot(commands.Bot):
         await self.is_owner(self.user)
         self.owner = self.get_user(self.owner_id)
         print('Logged in as', bot.user)
+        if env.TESTING: return
+        await self.owner.send('I\'m ready to go!')
 
 prefixes = ['j ', 'jenna '] if not env.TESTING else ['k ']
 for p in prefixes[::]:
