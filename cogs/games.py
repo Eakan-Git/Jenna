@@ -24,7 +24,7 @@ class Games(commands.Cog):
     
     @commands.command()
     @commands.guild_only()
-    async def rps(self, context, friend:conv.Member, rounds:int=2, sets:int=1):
+    async def rps(self, context, friend:conv.FuzzyMember, rounds:int=2, sets:int=1):
         cannot_play = ''
         if context.author == friend:
             cannot_play = 'You can\'t play with yourself ya know.'

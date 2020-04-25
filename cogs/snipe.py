@@ -166,7 +166,7 @@ class Snipe(commands.Cog):
                 exception = e
                 await self.bot.owner.send(f'Cannot download file: {a.proxy_url}')
                 
-                data = await utils.download(a.proxu_url, utils.READ)
+                data = await utils.download(a.proxy_url, utils.READ)
                 files += [discord.File(io.BytesIO(data), filename=a.filename)]
         if files:
             self.files_of_message[msg.id] = files

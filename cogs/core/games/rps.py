@@ -145,7 +145,7 @@ class RPSAnnouncer:
             self.wait_msg = None
     
     async def send_challenge(self, i):
-        friend_name = get_full_name(self.game.players[1-i])
+        friend_name = get_full_name(self.game.players[1-i]).replace(str(self.game.bot.user), 'me')
         msg = f'{friend_name} challenged you {TO_RPS}' if i \
         else f'You challenged {friend_name} {TO_RPS}'
         await self.game.players[i].send(msg)

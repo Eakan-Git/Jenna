@@ -1,11 +1,10 @@
-import difflib
 from discord.ext import commands
-
-member_converter = commands.MemberConverter()
+import difflib
+import typing
 
 DEFAULT_MATCHING = .4
 
-class MatchingMemberConverter(commands.MemberConverter):
+class FuzzyMember(commands.MemberConverter):
     def __init__(self, *, matching=DEFAULT_MATCHING):
         self.matching = matching
     
@@ -21,38 +20,34 @@ class MatchingMemberConverter(commands.MemberConverter):
 ROLE_SCORE_WEIGHT = 0.025
 MATCH_RETURNS = 10
 
-def find_member(context, member_name, matching=DEFAULT_MATCHING):
-    member = context.guild.get_member_named(member_name)
+def find_member(context, input_name, matching=DEFAULT_MATCHING):
+    members = context.guild.members
+    members_by_name = {}
+    for m in members:
+        members_by_name[m.name] = m
+        members_by_name[m.display_name] = m
+        members_by_name[m.name.lower()] = m
+        members_by_name[m.display_name.lower()] = m
+    close_matches = difflib.get_close_matches(input_name, members_by_name, MATCH_RETURNS, matching)
+    
+    def score_member(member_name):
+        similarity = match_ratio(input_name, member_name)
+        similarity += match_ratio(input_name.lower(), member_name.lower()) / 2
+        similarity /= 1.5
 
-    if not member:
-        members = context.guild.members
-        members_by_name = {}
-        for m in members:
-            members_by_name[m.name] = m
-            members_by_name[m.display_name] = m
-            members_by_name[m.name.lower()] = m
-            members_by_name[m.display_name.lower()] = m
-        close_matches = difflib.get_close_matches(member_name, members_by_name, MATCH_RETURNS, matching)
-        
-        def score_member(name):
-            similarity = match_ratio(member_name, name)
-            similarity += match_ratio(member_name.lower(), name.lower()) / 2
-            similarity /= 1.5
+        member = members_by_name[member_name]
+        role_score = score_member_role(context.guild, member)
+        weighted_role_score = role_score * ROLE_SCORE_WEIGHT
+        partial_match = int(input_name in member_name) * 0.5
+        total_score = similarity + weighted_role_score + partial_match
 
-            member = members_by_name[name]
-            role_score = score_member_role(context.guild, member)
-            weighted_role_score = role_score * ROLE_SCORE_WEIGHT
-            total_score = similarity + weighted_role_score
+        return total_score
 
-            print(f'{name}: {similarity:.2f} + {(weighted_role_score):.2f} = {total_score:.2f}')
-            return total_score
+    close_matches.sort(key=lambda name: score_member(name), reverse=True)
 
-        close_matches.sort(key=lambda name: score_member(name), reverse=True)
-        print()
-
-        if close_matches:
-            name = close_matches[0]
-            member = members_by_name[name]
+    if close_matches:
+        name = close_matches[0]
+        member = members_by_name[name]
     
     return member
 

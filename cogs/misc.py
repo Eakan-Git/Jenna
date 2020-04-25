@@ -7,7 +7,7 @@ import time
 from typing import Optional
 from discord.ext import commands, tasks
 from datetime import datetime
-from .core import converter
+from .core import converter as conv
 from .core.misc import covid, math, reddit
 
 MATH_BRIEF = 'Compute big numbers for you'
@@ -29,7 +29,7 @@ class Misc(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def whos(self, context, *, member:Optional[converter.Member]=None):
+    async def whos(self, context, *, member:Optional[conv.FuzzyMember]=None):
         member = member or context.author
         
         response = f'It\'s **{member}**'

@@ -14,6 +14,7 @@ from .core import converter as conv
 from .core import embed_limit
 from .core.emotes import external, utils
 from discord.ext import commands
+from typing import Optional
 
 EMOTES_PER_PAGE = 25
 EMOJI_PATTERN = '(:[^:\s]+:)(?!\d)'
@@ -115,10 +116,10 @@ class Emotes(commands.Cog):
         await context.send(embed=embed)
 
     @commands.command()
-    @commands.guild_only()
-    async def drop(self, context, emoji:conv.NitroEmoji, author:typing.Optional[conv.Member], i:int=1):
+    async def drop(self, context, emoji:conv.NitroEmoji, author:Optional[conv.FuzzyMember], channel:Optional[discord.TextChannel], i:int=1):
+        channel = channel or context.channel
         counter = 1
-        async for message in context.history(limit=None, before=context.message):
+        async for message in channel.history(limit=None, before=context.message):
             if author and message.author != author:
                 continue
             if counter < i:

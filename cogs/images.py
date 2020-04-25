@@ -17,7 +17,7 @@ class Images(commands.Cog):
 
     @commands.command(aliases=['ava', 'pfp'])
     @commands.guild_only()
-    async def avatar(self, context, *, member:conv.Member=None):
+    async def avatar(self, context, *, member:conv.FuzzyMember=None):
         member = member or context.author
         embed = colors.embed()
         embed.title = str(member)
