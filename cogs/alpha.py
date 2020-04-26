@@ -15,6 +15,14 @@ EXIT_METHODS = ['quit()', 'exit()']
 class Alpha(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+    
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        x = reaction.emoji == '❌'
+        owner_react = user == self.bot.owner
+        my_message = reaction.message.author == self.bot.user
+        if x and owner_react and my_message:
+            await reaction.message.delete()
 
     @commands.command(aliases=['e', 'exec'])
     @commands.is_owner()
@@ -61,12 +69,15 @@ class Alpha(commands.Cog):
     async def reloadmodule(self, context, *, module=ALL):
         await context.trigger_typing()
         responses = []
-        core_modules = [(name, module) for name, module in sys.modules.items() if name.startswith('cogs.core')]
-        modules = core_modules if module == ALL else module.split()
-        reloaded_modules = filter(lambda m: any(rm in m[0] for rm in modules), core_modules)
+        core_modules = [(name, module) for name, module in sys.modules.items() if name.startswith('cogs.')]
+        if module == ALL:
+            reloaded_modules = core_modules
+        else:
+            modules = module.split()
+            reloaded_modules = filter(lambda m: any(rm in m[0] for rm in modules), core_modules)
         
         for name, module in reloaded_modules:
-            name = name.replace('cogs.core.', '')
+            name = name.replace('cogs.', '')
             name = f'Module `{name}`'
             try:
                 importlib.reload(module)

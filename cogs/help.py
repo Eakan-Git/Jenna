@@ -181,21 +181,25 @@ class Help(commands.Cog):
         bot.help_command = EmbedHelpCommand()
     
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, context, error):
         if isinstance(error, commands.UserInputError):
             if type(error) in [commands.BadArgument, commands.BadUnionArgument]:
                 error.args = (error.args[0].replace('"', '`'),)
             if type(error) is commands.MissingRequiredArgument:
-                await ctx.send(f'Missing `{error.param.name}` argument!')
+                await context.send(f'Missing `{error.param.name}` argument!')
             else:
-                await ctx.send(error)
+                await context.send(error)
         else:
             original = error.original if hasattr(error, 'original') else error
             exception = traceback.format_exception(type(original), original, original.__traceback__)
             exception = '\n'.join(exception)
             print(exception)
             if isinstance(error, ignored_errors): return
-            await self.bot.owner.send(f'```{exception}```')
+            content = f'```{exception}```'
+            if context.author == self.bot.owner:
+                await context.send(content)
+            else:
+                await self.bot.owner.send(content)
 
 ignored_errors = (commands.CommandNotFound,)
 
