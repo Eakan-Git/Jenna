@@ -16,8 +16,9 @@ COLOR = 'Color'
 MEMORY = 'Memory'
 REVERSE = 'Reverse'
 SCRAMBLE = 'Scramble'
+EMOJI_MATCH = 'Emoji Match'
+GAMES_TO_HELP = [EMOJI_MATCH, RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
 PUNCH = 'punch'
-GAMES_TO_HELP = [RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
 
 WORD_PATTERN = '`(.+)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `([\w-]+)`'
@@ -111,6 +112,8 @@ class DankHelper(commands.Cog):
             content = words_in_backticks[0]
         elif MEMORY in msg.content:
             content = content.split('`')[1].replace('\n', ' ')
+        elif EMOJI_MATCH in msg.content:
+            content = msg.content.splitlines()[1]
         else:
             return
 
