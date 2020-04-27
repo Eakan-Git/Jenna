@@ -48,10 +48,14 @@ class CoronaStatus:
                 cols = [c.text.strip() for c in cols]
                 country = [c for c in cols]
                 
-                if not country[0]:
+                name = country[0]
+                if not name:
                     continue
-                elif country[0] == 'Total:':
+                elif name == 'Total:':
                     country[0] = country[-1]
+                elif name in COUNTRY_RENAMES:
+                    country[0] = COUNTRY_RENAMES[name]
+
                 for i, value in enumerate(country):
                     if value != 'N/A':
                         value = str(value or 0).replace('+', '').replace(',', '')
@@ -63,6 +67,9 @@ class CoronaStatus:
         self.data = data
         self.is_downloading = False
 
+COUNTRY_RENAMES = {
+    'S. Korea': 'South Korea',
+}
 COUNTRIES_OF_INTEREST = ['Vietnam', 'USA', 'Singapore', 'Germany', 'Canada', 'Australia', 'Malaysia', 'Netherlands']
 
 FLAG_EMOTES_BY_COUNTRY = {}
@@ -146,7 +153,7 @@ def embed_region(data, region):
     if not country_data:
         raise commands.UserInputError('Country not found!')
     
-    flag = country_code = '🎏'
+    flag = country_code = '🚩'
     if country_data and country_data[-1] == 'All':
         flag = country_code = GLOBE
     if alpha2:
@@ -183,11 +190,11 @@ def embed_region(data, region):
     deaths_percentages = '\n'.join(filter(None, [wdeaths_percent, deaths_pop_percent, deaths_percent]))
     if deaths_percentages: deaths_percentages = '\n' + deaths_percentages
 
-    explanation = '\n'.join([
+    explanation = '\n'.join(filter(None, (
         f'{GLOBE} % Global Cases' if flag != GLOBE else '',
-        f'{flag} % Population',
-        f':microbe: % Total Cases',
-    ])
+        f'{flag} % Population' if flag in cases_percent + deaths_pop_percent else '',
+        f':microbe: % Total Cases' if ':microbe:' in deaths_percent else '',
+    )))
 
     title = f'Coronavirus cases for {name}'
     embed = colors.embed(title=title, url=URL, description=explanation) \
@@ -201,18 +208,23 @@ def embed_region(data, region):
     return embed
 
 CONTINENTS = ['World', 'All', 'Europe', 'North America', 'South America', 'Asia', 'Africa', 'Oceania']
+CUSTOM_SEARCH_TERMS = {
+    'south korea': 'KOR',
+    'korea': 'KOR',
+    'uk': 'GB',
+}
 
 def get_country_data_fuzzy(data, region):
     country = None
     if region.title() not in CONTINENTS:
-        if region.upper() == 'UK':
-            country = pycountry.countries.get(alpha_2='GB')
-        else:
-            try:
-                countries = pycountry.countries.search_fuzzy(region)
-                country = countries[0]
-            except:
-                pass
+        term = CUSTOM_SEARCH_TERMS.get(region.lower())
+        if not term:
+            term = region
+        try:
+            countries = pycountry.countries.search_fuzzy(term)
+            country = countries[0]
+        except:
+            pass
     
     possible_names = [region]
     if country:
@@ -223,9 +235,10 @@ def get_country_data_fuzzy(data, region):
     possible_names = [n.lower() for n in possible_names]
 
     def match_name(c):
-        name = c[0]
-        return str(name).lower() in possible_names
+        name = str(c[0]).lower()
+        return name in possible_names
     country_data = discord.utils.find(match_name, data)
     alpha2 = country.alpha_2 if country else ''
+    if region.lower() == 'europe': alpha2 = 'EU'
 
     return country_data, alpha2
