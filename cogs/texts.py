@@ -32,7 +32,7 @@ class Texts(commands.Cog):
         text = upsidedown.transform(text)
         await context.send(text)
     
-    @commands.command(aliases=['usb'])
+    @commands.command(aliases=['usb'], hidden=True)
     async def unscramble(self, context, *, text):
         await context.trigger_typing()
         anagrams = await unscramble(text)
