@@ -14,6 +14,7 @@ class Persist(commands.Cog):
         self.bot = bot
         self.data = {}
         self.loaded = False
+        self.data_changed = False
     
     @commands.Cog.listener()
     async def on_ready(self):
@@ -37,19 +38,12 @@ class Persist(commands.Cog):
         return self.data.get(key, default)
 
     def set(self, key, value):
+        self.data_changed = self.data.get(key) != value
         self.data[key] = value
-
-    @commands.command()
-    async def save(self, context, key, value):
-        self.data[key] = value
-    
-    @commands.command()
-    async def print(self, context, key):
-        value = self.data.get(key)
-        await context.send(value)
     
     @tasks.loop(seconds=10)
     async def backup_loop(self):
+        if not self.data_changed: return
         await self.upload_backup()
         await self.delete_old_backups()
 
