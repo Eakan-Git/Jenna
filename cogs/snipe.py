@@ -38,6 +38,7 @@ class Snipe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.channel_logs = {}
+        self.backup_files = {}
         self.files_of_message = {}
     
     @commands.command(hidden=True, aliases=['re'])
@@ -68,7 +69,7 @@ class Snipe(commands.Cog):
         files = []
         if msg:
             await self.embed_message_log(embed, msg, state)
-            files = await self.get_message_files_cache_if_inaccessible(msg, embed)
+            files = await self.get_backup_files(msg, embed)
 
         await context.send(embed=embed, files=files)
         if msg and msg.embeds:
@@ -99,11 +100,14 @@ class Snipe(commands.Cog):
         links = get_attachment_links(msg, 'Link')
         embed.description += '\n' + ' '.join(links)
 
-    async def get_message_files_cache_if_inaccessible(self, msg, embed):
+    async def get_backup_files(self, msg, embed):
         accessible = embed.image and await utils.download(embed.image.url, utils.READ)
-        if accessible: return []
+        multiple_files = len(msg.attachments) > 1
+        if accessible and not multiple_files: return []
 
-        files = self.files_of_message.get(msg.id, [])
+        files = self.backup_files.get(msg.id, [])
+        if files:
+            embed.set_image(url='')
         return files
     
     @commands.command()
@@ -150,40 +154,25 @@ class Snipe(commands.Cog):
             embed.description = '\n'.join(msgs)
 
     @commands.Cog.listener()
+    async def on_message(self, msg):
+        files = [await a.to_file() for a in msg.attachments]
+        if files:
+            self.backup_files[msg.id] = files
+
+    @commands.Cog.listener()
     async def on_message_delete(self, msg):
         if not msg.guild or msg.author == self.bot.user: return
-        await self.log_message(msg)
+        self.get_or_create_log(msg.channel).log_deleted(msg)
     
-    async def log_message(self, msg):
-        log = self.get_or_create_log(msg.channel)
-        log.log_deleted(msg)
-        files = []
-        exception = None
-        for a in msg.attachments:
-            try:
-                files += [await a.to_file(use_cached=True)]
-            except Exception as e:
-                exception = e
-                await self.bot.owner.send(f'Cannot download file: {a.proxy_url}')
-                
-                data = await utils.download(a.proxy_url, utils.READ)
-                files += [discord.File(io.BytesIO(data), filename=a.filename)]
-        if files:
-            self.files_of_message[msg.id] = files
-        if exception:
-            raise exception
-
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not before.guild or before.author == self.bot.user: return
-
-        log = self.get_or_create_log(before.channel)
-        log.log_edited(before)
+        self.get_or_create_log(before.channel).log_edited(before)
     
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, msgs):
         for m in msgs:
-            await self.log_message(m)
+            self.get_or_create_log(m.channel).log_deleted(m)
     
     def get_or_create_log(self, channel):
         if channel.id not in self.channel_logs:
