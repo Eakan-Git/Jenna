@@ -44,14 +44,19 @@ class Texts(commands.Cog):
         await context.send(response)
     
     @commands.group(aliases=['tr', 'tl'], invoke_without_command=True)
-    async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto>en', *, text):
+    async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto>en', *, text=None):
+        await context.trigger_typing()
+        
         src2dest = src2dest.split('>')
         for lang in src2dest:
             if lang and lang not in SUPPORTED_LANGS:
                 raise commands.BadArgument(f'`{lang}` is not a language code')
         src, dest = src2dest
+        
+        if not text:
+            last_message = await context.history(limit=1, before=context.message).flatten()
+            text = last_message[0].content
 
-        await context.trigger_typing()
         translated = self.translator.translate(text, dest=dest, src=src)
         embed = colors.embed()
         embed.description = f'{translated.text}'.replace('nhoan', 'cringy')
