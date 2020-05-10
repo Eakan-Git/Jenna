@@ -195,11 +195,15 @@ class Help(commands.Cog):
             exception = '\n'.join(exception)
             print(exception)
             if isinstance(error, ignored_errors): return
+
+            msg = context.message
+            embed = colors.embed(description=msg.content) \
+                .add_field(name='Source', value=f'by {msg.author.mention} in {msg.channel.mention} of `{msg.guild}`')
             content = f'```{exception}```'
             if context.author == self.bot.owner:
-                await context.send(content)
+                await context.send(content, embed=embed)
             else:
-                await self.bot.owner.send(content)
+                await self.bot.owner.send(content, embed=embed)
 
 ignored_errors = (commands.CommandNotFound,)
 
