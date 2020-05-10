@@ -18,9 +18,8 @@ REVERSE = 'Reverse'
 SCRAMBLE = 'Scramble'
 EMOJI_MATCH = 'Emoji Match'
 GAMES_TO_HELP = [EMOJI_MATCH, RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
-PUNCH = 'punch'
 
-WORD_PATTERN = '`(.+)`'
+WORD_PATTERN = '`(.+?)`'
 COLOR_WORD_PATTERN = ':(\w+):.* `([\w-]+)`'
 INVISIBLE_TRAP = '﻿'
 COLOR_WORD_FORMAT = ':{color}_square: `{word}` = `{color}`'
@@ -88,7 +87,8 @@ class DankHelper(commands.Cog):
     async def send_minigame_assist(self, msg):
         content = msg.content.replace(INVISIBLE_TRAP, '')
         words_in_backticks = re.findall(WORD_PATTERN, content)
-
+        backticked_word = words_in_backticks[0] if len(words_in_backticks) == 1 else ''
+        
         if COLOR in msg.content:
             lines = []
             color_word_pairs = re.findall(COLOR_WORD_PATTERN, content)
@@ -96,9 +96,9 @@ class DankHelper(commands.Cog):
                 lines += [COLOR_WORD_FORMAT.format(color=color, word=word)]
             content = '\n'.join(lines)
         elif REVERSE in msg.content:
-            content = words_in_backticks[0][::-1]
+            content = backticked_word[::-1]
         elif SCRAMBLE in msg.content:
-            word = words_in_backticks[0]
+            word = backticked_word
             anagrams = await unscramble(word)
             content = UNSCRAMBLE_ERROR
             if len(anagrams) == 1:
@@ -108,16 +108,17 @@ class DankHelper(commands.Cog):
                 content = '**Anagrams**: ' + anagrams
             else:
                 content = '**Anagrams**: Not found!'
-        elif any(word in msg.content for word in [RETYPE, TYPING]) and PUNCH not in msg.content:
-            content = words_in_backticks[0]
+        elif any(word in msg.content for word in [RETYPE, TYPING]):
+            content = backticked_word
         elif MEMORY in msg.content:
             content = content.split('`')[1].replace('\n', ' ')
         elif EMOJI_MATCH in msg.content:
             content = msg.content.splitlines()[1]
         else:
             return
-
-        await msg.channel.send(content)
+        
+        if content:
+            await msg.channel.send(content)
 
 def setup(bot):
     bot.add_cog(DankHelper(bot))
