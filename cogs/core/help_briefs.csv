@@ -18,6 +18,9 @@ nitrotes| List of collected emotes
 drop| React a message with a Nitro emote
 enlarge| Show a big version of an emote
 emote add| Add an emote to your server (requires `Manage Emojis` permission)
+emote link| Get an emote's URL
+spell| Write 🇹 🇪 🇽 🇹 with big emojis
+respell| React a message with 🇪 🇲 🇴 🇯 🇮\n**Note**: The letters must be unique or the text can't be spelled correctly.
 
 math| Compute big numbers for you
 whos| *Who is this guy?*

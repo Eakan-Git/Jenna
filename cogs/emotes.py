@@ -25,6 +25,9 @@ START_QUOTE = '> '
 
 EXTERNAL_EMOJIS = 'external_emojis'
 
+REGION_OFFSET = 0x1f1a5
+KEYCAP = '️⃣'
+
 class Emotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -38,6 +41,42 @@ class Emotes(commands.Cog):
         self.external_emojis = self.Persist.get(EXTERNAL_EMOJIS, {})
         self.Persist.set(EXTERNAL_EMOJIS, self.external_emojis)
     
+    @commands.command(aliases=['s'])
+    async def spell(self, context, *, text):
+        spelled = []
+        for c in text.upper():
+            if c.isalpha():
+                c = chr(ord(c) + REGION_OFFSET)
+            elif c.isdigit():
+                c += KEYCAP
+            spelled += [c]
+        spelled = ' '.join(spelled)
+        await context.send(spelled)
+    
+    @commands.command(aliases=['rs'])
+    async def reactspell(self, context, channel:Optional[discord.TextChannel], i:Optional[int]=1, *, text):
+        spelled = []
+        ab = ''
+        for c in text.upper():
+            if c.isalpha():
+                o = ord(c) + REGION_OFFSET
+                if c in 'AB':
+                    if c in ab:
+                        o -= 0x76
+                    else:
+                        ab += c
+                c = chr(o)
+            elif c.isdigit():
+                c += KEYCAP
+            else:
+                continue
+            spelled += [c]
+        
+        message = await self.count_message(context, None, channel, i)
+        for c in spelled:
+            await message.add_reaction(c)
+        await context.message.add_reaction('✅')
+
     @commands.group(aliases=['emoji'], hidden=True)
     async def emote(self, context): pass
 
@@ -115,8 +154,7 @@ class Emotes(commands.Cog):
         embed = await self.external_paginator.get_page(context, page)
         await context.send(embed=embed)
 
-    @commands.command()
-    async def drop(self, context, emoji:conv.NitroEmoji, author:Optional[conv.FuzzyMember], channel:Optional[discord.TextChannel], i:int=1):
+    async def count_message(self, context, author, channel, i):
         channel = channel or context.channel
         counter = 1
         async for message in channel.history(limit=None, before=context.message):
@@ -126,6 +164,11 @@ class Emotes(commands.Cog):
                 counter += 1
                 continue
             break
+        return message
+
+    @commands.command()
+    async def drop(self, context, emoji:conv.NitroEmoji, author:Optional[conv.FuzzyMember], channel:Optional[discord.TextChannel], i:int=1):
+        message = await self.count_message(context, author, channel, i)
         
         external = None
         if isinstance(emoji, str):
@@ -151,9 +194,9 @@ class Emotes(commands.Cog):
         if context.command:
             return
         await self.cache_external_emojis(msg)
-        is_owner = await self.bot.is_owner(msg.author)
-        if env.TESTING and not is_owner:
-            return
+        # is_owner = await self.bot.is_owner(msg.author)
+        # if env.TESTING and not is_owner:
+        return
         await self.reply_emojis(msg)
     
     def get_known_emoji(self, name):
