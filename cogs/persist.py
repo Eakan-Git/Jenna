@@ -13,6 +13,7 @@ class Persist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.data = {}
+        self.last_saved = {}
         self.loaded = False
         self.data_changed = False
     
@@ -38,12 +39,13 @@ class Persist(commands.Cog):
         return self.data.get(key, default)
 
     def set(self, key, value):
-        self.data_changed = self.data.get(key) != value
         self.data[key] = value
     
     @tasks.loop(seconds=10)
     async def backup_loop(self):
-        if not self.data_changed: return
+        if self.data == self.last_saved: return
+        self.last_saved = self.data
+
         await self.upload_backup()
         await self.delete_old_backups()
 
