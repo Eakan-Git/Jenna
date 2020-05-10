@@ -194,9 +194,9 @@ class Emotes(commands.Cog):
         if context.command:
             return
         await self.cache_external_emojis(msg)
-        # is_owner = await self.bot.is_owner(msg.author)
-        # if env.TESTING and not is_owner:
-        return
+        is_owner = await self.bot.is_owner(msg.author)
+        if env.TESTING and not is_owner:
+            return
         await self.reply_emojis(msg)
     
     def get_known_emoji(self, name):
@@ -219,9 +219,8 @@ class Emotes(commands.Cog):
             name = emoji.replace(':', '')
             emoji = self.get_known_emoji(name)
             if not emoji:
-                external = await self.get_external_emoji(context, name)
-                if not external: continue
-                emoji = await self.add_emoji(external)
+                emoji = await self.get_external_emoji(context, name, add=True)
+                if not emoji: continue
                 externals += [emoji]
             
             if emoji:
