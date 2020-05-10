@@ -20,7 +20,7 @@ enlarge| Show a big version of an emote
 emote add| Add an emote to your server (requires `Manage Emojis` permission)
 emote link| Get an emote's URL
 spell| Write 🇹 🇪 🇽 🇹 with big emojis
-respell| React a message with 🇪 🇲 🇴 🇯 🇮\n**Note**: The letters must be unique or the text can't be spelled correctly.
+reactspell| React a message with 🇪 🇲 🇴 🇯 🇮\n**Note**: The letters must be unique or the text can't be spelled correctly.
 
 math| Compute big numbers for you
 whos| *Who is this guy?*
@@ -31,3 +31,4 @@ covid| Fetch coronavirus cases/deaths from [Worldometer](https://www.worldometer
 randomword| Get a random word from [randomword.com](https://randomword.com/)
 randomidiom| Get a random idiom from [randomword.com](https://randomword.com/idiom)
 reddit| Fetch the top 25 posts from a subreddit\n**Tip**: Add "th" to `posts` to get one post only\n_Ex_: `r all top 3rd` for the third post from r/all
+inspiro| Get a quote image from [inspirobot.me](http://inspirobot.me/)
