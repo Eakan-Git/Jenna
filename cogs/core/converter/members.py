@@ -1,6 +1,7 @@
 from discord.ext import commands
 import difflib
 import typing
+import discord
 
 DEFAULT_MATCHING = .4
 
@@ -16,6 +17,8 @@ class FuzzyMember(commands.MemberConverter):
             if member:
                 return member
             raise
+
+FuzzyMember = typing.Union[discord.Member, FuzzyMember]
 
 ROLE_SCORE_WEIGHT = 0.025
 MATCH_RETURNS = 10
