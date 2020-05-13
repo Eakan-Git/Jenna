@@ -1,5 +1,4 @@
 import discord
-import typing
 import re
 import const
 import cogs
@@ -8,9 +7,14 @@ import sys
 import traceback
 
 from discord.ext import commands
+from typing import Optional
 
 ALL = 'all'
 EXIT_METHODS = ['quit()', 'exit()']
+def is_tick(s):
+    if s == '`':
+        return True
+    raise commands.BadArgument('No backticks!')
 
 class Alpha(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +22,7 @@ class Alpha(commands.Cog):
     
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        x = reaction.emoji == '❌'
+        x = reaction.emoji == '🗑️'
         owner_react = user == self.bot.owner
         my_message = reaction.message.author == self.bot.user
         if x and owner_react and my_message:
@@ -26,7 +30,7 @@ class Alpha(commands.Cog):
 
     @commands.command(aliases=['e', 'exec'])
     @commands.is_owner()
-    async def eval(self, context, *, code=None):
+    async def eval(self, context, tick:Optional[is_tick]=False, *, code=None):
         import math, random
 
         oneliner = code
@@ -44,10 +48,14 @@ class Alpha(commands.Cog):
                     break
 
             try:
+                asynchronous = code.startswith('await ')
+                code = code.replace('await ', '')
                 try:
                     output = eval(code)
                 except:
                     output = exec(code)
+                if asynchronous:
+                    output = await output
                 title = '**Output**:'
             except Exception as e:
                 output = e
@@ -56,9 +64,13 @@ class Alpha(commands.Cog):
             if not oneliner and output == None:
                 await msg.add_reaction('✅')
             else:
+                if tick:
+                    output = f'```{output}```'
                 content = f'{title}\n{output}'
                 if len(content) > 2000:
                     content = content[:2000-6] + '...'
+                    if tick:
+                        content += '```'
                 await context.send(content)
 
             if oneliner:
@@ -114,13 +126,9 @@ class Alpha(commands.Cog):
         await context.send(content)
     
     @commands.command()
-    async def clearto(self, context, to_id:int):
+    async def clearuntil(self, context, message:discord.Message):
         await context.trigger_typing()
-        msgs_to_clear = []
-        async for msg in context.history(limit=None):
-            msgs_to_clear += [msg]
-            if msg.id == to_id:
-                break
+        msgs_to_clear = await context.history(after=message).flatten()
         await context.channel.delete_messages(msgs_to_clear)
         await context.send(f'Deleted `{len(msgs_to_clear)}` messages!', delete_after=3)
 
@@ -133,7 +141,7 @@ class Alpha(commands.Cog):
         await context.send(msg.content, embed=embed, files=files)
     
     @commands.command()
-    async def clean(self, context, limit:typing.Optional[int]=1, *, content=''):
+    async def clean(self, context, limit:Optional[int]=1, *, content=''):
         is_dm = type(context.channel) is discord.DMChannel
         is_owner = await self.bot.is_owner(context.author)
         allowed = is_owner or is_dm
