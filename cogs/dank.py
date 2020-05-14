@@ -15,7 +15,7 @@ TYPING = 'typing'
 COLOR = 'Color'
 MEMORY = 'Memory'
 REVERSE = 'Reverse'
-SCRAMBLE = 'Scramble'
+SCRAMBLE = 'scramble'
 EMOJI_MATCH = 'Emoji Match'
 GAMES_TO_HELP = [EMOJI_MATCH, RETYPE, COLOR, MEMORY, REVERSE, TYPING, SCRAMBLE]
 
@@ -97,17 +97,9 @@ class DankHelper(commands.Cog):
             content = '\n'.join(lines)
         elif REVERSE in msg.content:
             content = backticked_word[::-1]
-        elif SCRAMBLE in msg.content:
-            word = backticked_word
-            anagrams = await unscramble(word)
-            content = UNSCRAMBLE_ERROR
-            if len(anagrams) == 1:
-                content = anagrams[0]
-            elif len(anagrams) >= 2:
-                anagrams = ' '.join(f'`{a}`' for a in anagrams)
-                content = '**Anagrams**: ' + anagrams
-            else:
-                content = '**Anagrams**: Not found!'
+        elif SCRAMBLE in msg.content.lower():
+            anagrams = [await unscramble(word) for word in words_in_backticks]
+            content = '\n'.join(' '.join(a) for a in anagrams)
         elif any(word in msg.content for word in [RETYPE, TYPING]):
             content = backticked_word
         elif MEMORY in msg.content:
