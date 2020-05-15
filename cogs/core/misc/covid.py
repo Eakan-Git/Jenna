@@ -48,13 +48,13 @@ class CoronaStatus:
                 cols = [c.text.strip() for c in cols]
                 country = [c for c in cols]
                 
-                name = country[0]
+                name = country[1]
                 if not name:
                     continue
                 elif name == 'Total:':
-                    country[0] = country[-1]
+                    country[1] = country[-1]
                 elif name in COUNTRY_RENAMES:
-                    country[0] = COUNTRY_RENAMES[name]
+                    country[1] = COUNTRY_RENAMES[name]
 
                 for i, value in enumerate(country):
                     if value != 'N/A':
@@ -103,7 +103,7 @@ def set_emotes(recovered):
     emotes = CustomEmotes(recovered)
 
 def compile_stats(country_data):
-    total_cases, new_cases, total_deaths, new_deaths, recovered = map(comma, country_data[1:6])
+    total_cases, new_cases, total_deaths, new_deaths, recovered = map(comma, country_data[2:7])
     new_cases = plus(new_cases)
     new_deaths = plus(new_deaths)
     return (
@@ -128,7 +128,7 @@ def embed_countries(data):
     embed.timestamp = datetime.now().astimezone()
 
     for country_data in data:
-        name = country_data[0]
+        name = country_data[1]
         if name not in COUNTRIES_OF_INTEREST: continue
 
         flag_emote = FLAG_EMOTES_BY_COUNTRY[name]
@@ -161,8 +161,8 @@ def embed_region(data, region):
         country_code = get_flag(alpha2.upper()) if alpha2 else flag
     flag_image = emutils.get_url(country_code)[0]
     
-    wtotal_cases, _, wtotal_deaths = data[0][1:4]
-    name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical, cases_per_1m, deaths_per_1m = country_data[:10]
+    wtotal_cases, _, wtotal_deaths = data[0][2:5]
+    name, total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical, cases_per_1m, deaths_per_1m = country_data[1:11]
 
     recovered_percent = percent(recovered, total_cases, brackets=True)
     active_percent = percent(active_cases, total_cases, brackets=True)
@@ -181,7 +181,7 @@ def embed_region(data, region):
     cases_percent = f'{flag} {cases_percent}' if cases_percent else ''
     deaths_pop_percent = f'{flag} {deaths_pop_percent}' if deaths_pop_percent else ''
 
-    total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical = map(comma, country_data[1:8])
+    total_cases, new_cases, total_deaths, new_deaths, recovered, active_cases, critical = map(comma, country_data[2:9])
     new_cases = plus(new_cases, hide_if_none=False)
     new_deaths = plus(new_deaths, hide_if_none=False)
     
@@ -210,7 +210,6 @@ def embed_region(data, region):
 CONTINENTS = ['World', 'All', 'Europe', 'North America', 'South America', 'Asia', 'Africa', 'Oceania']
 CUSTOM_SEARCH_TERMS = {
     'south korea': 'KOR',
-    'korea': 'KOR',
     'uk': 'GB',
 }
 
@@ -235,7 +234,7 @@ def get_country_data_fuzzy(data, region):
     possible_names = [n.lower() for n in possible_names]
 
     def match_name(c):
-        name = str(c[0]).lower()
+        name = str(c[1]).lower()
         return name in possible_names
     country_data = discord.utils.find(match_name, data)
     alpha2 = country.alpha_2 if country else ''
