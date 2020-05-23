@@ -10,6 +10,7 @@ import env
 import const
 import io
 
+from .cmds.emotes import spell, reactspell
 from .core import converter as conv
 from .core import embed_limit
 from .core.emotes import external, utils
@@ -24,9 +25,6 @@ EMBED_BACKCOLOR = 0x2f3136
 START_QUOTE = '> '
 
 EXTERNAL_EMOJIS = 'external_emojis'
-
-REGION_OFFSET = 0x1f1a5
-KEYCAP = '️⃣'
 
 class Emotes(commands.Cog):
     def __init__(self, bot):
@@ -43,38 +41,12 @@ class Emotes(commands.Cog):
     
     @commands.command(aliases=['s'])
     async def spell(self, context, *, text):
-        spelled = []
-        for c in text.upper():
-            if c.isalpha():
-                c = chr(ord(c) + REGION_OFFSET)
-            elif c.isdigit():
-                c += KEYCAP
-            spelled += [c]
-        spelled = ' '.join(spelled)
-        await context.send(spelled)
+        await spell(context, text)
     
     @commands.command(aliases=['rs'])
     async def reactspell(self, context, channel:Optional[discord.TextChannel], i:Optional[int]=1, *, text):
-        spelled = []
-        ab = ''
-        for c in text.upper():
-            if c.isalpha():
-                o = ord(c) + REGION_OFFSET
-                if c in 'AB':
-                    if c in ab:
-                        o -= 0x76
-                    else:
-                        ab += c
-                c = chr(o)
-            elif c.isdigit():
-                c += KEYCAP
-            else:
-                continue
-            spelled += [c]
-        
         message = await self.count_message(context, None, channel, i)
-        for c in spelled:
-            await message.add_reaction(c)
+        await reactspell(message, text)
         await context.message.add_reaction('✅')
 
     @commands.group(aliases=['emoji'], hidden=True)
