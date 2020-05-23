@@ -4,7 +4,7 @@ import discord
 import re
 import colors
 
-JUMP_URL_PATTERN = '(https://discord\.com/channels/\d+/\d+/\d+)'
+JUMP_URL_PATTERN = '(https://discord(?:app)?\.com/channels/\d+/\d+/\d+)'
 
 class Preview(commands.Cog):
     def __init__(self, bot):
@@ -18,6 +18,7 @@ class Preview(commands.Cog):
         urls = re.findall(JUMP_URL_PATTERN, message.content)
         context = await self.bot.get_context(message)
         for jump_url in urls:
+            jump_url = jump_url.replace('app', '')
             quoted_message = await self.message_converter.convert(context, jump_url)
             author = quoted_message.author
 
