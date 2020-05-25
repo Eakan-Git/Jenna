@@ -1,4 +1,4 @@
-git+https://github.com/DleanJeans/discord.py@master#egg=discord.py
+git+https://github.com/Rapptz/discord.py@66c6be50d8ac5d401a658c757c5f1ccb454c798b#egg=discord.py
 python-dotenv==0.11.0
 upsidedown
 beautifulsoup4
