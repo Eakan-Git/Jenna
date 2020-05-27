@@ -19,14 +19,14 @@ class Misc(commands.Cog):
         self.corona_status = covid.CoronaStatus()
 
     @commands.command(hidden=True)
-    async def do(self, context, subcommand, *, expr=None):
+    async def do(self, context, subcommand, *, line=None):
         if subcommand not in ['math', 'meth']:
-            expr = subcommand
-        await math.compute(context, expr)
+            line = subcommand
+        await math.compute(context, line)
 
     @commands.command(aliases=['meth'])
-    async def math(self, context, *, expr):
-        await math.compute(context, expr)
+    async def math(self, context, *, line):
+        await math.compute(context, line)
 
     @commands.command()
     @commands.guild_only()
