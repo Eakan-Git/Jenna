@@ -18,7 +18,13 @@ class Misc(commands.Cog):
         self.bot = bot
         self.corona_status = covid.CoronaStatus()
 
-    @commands.command(aliases=['meth', 'do'])
+    @commands.command(hidden=True)
+    async def do(self, context, subcommand, *, expr=None):
+        if subcommand not in ['math', 'meth']:
+            expr = subcommand
+        await math.compute(context, expr)
+
+    @commands.command(aliases=['meth'])
     async def math(self, context, *, expr):
         await math.compute(context, expr)
 
