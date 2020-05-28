@@ -95,8 +95,13 @@ class Texts(commands.Cog):
         await self.send_random(context, randomword.IDIOM)
 
     @commands.group(aliases=['def', 'df'])
-    async def define(self, context, lang:Optional[define.DefinedLang]='en', *, word):
-        embed = await define.define(lang, word)
+    async def define(self, context, full:Optional[define.Full]=False, lang:Optional[define.DefinedLang]='en', *, word):
+        command = context.message.content.split()
+        command.insert(2, 'full')
+        command = ' '.join(command)
+        embed = await define.define(lang, word, full)
+        if not full and not embed.footer:
+            embed.set_footer(text=define.FULL_FOOTER + command)
         await context.send(embed=embed)
     
     @define.command(aliases=['lang'])
