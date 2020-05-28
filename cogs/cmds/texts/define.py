@@ -46,11 +46,15 @@ async def define(lang, word):
                 if not de: continue
                 numbering = f'{i+1}. ' if len(defs) > 1 else ''
                 new_lines = []
-                new_lines += [numbering + de[DEFINITION]]
-                if de.get(EXAMPLE):
-                    new_lines += [f'*"{de[EXAMPLE]}"*']
-                if de.get(SYNONYMS) and len(''.join(de[SYNONYMS])):
-                    new_lines += [f'**{SYNONYMS.title()}**: ' + ' • '.join(f'`{s}`' for s in de[SYNONYMS])]
+                new_lines += [numbering + de.get(DEFINITION, '')]
+                
+                example = de.get(EXAMPLE)
+                if example:
+                    new_lines += [f'*"{example}"*']
+                
+                synonyms = de.get(SYNONYMS, [])
+                if len(''.join(synonyms)):
+                    new_lines += [f'**{SYNONYMS.title()}**: ' + ' • '.join(f'`{s}`' for s in synonyms)]
                 new_lines += ['']
                 
                 value = '\n'.join(lines + new_lines)
@@ -60,8 +64,9 @@ async def define(lang, word):
                     lines = []
                 lines += new_lines
             
-            if d.get(ORIGIN):
-                lines += [f'**{ORIGIN.title()}**: {d[ORIGIN]}\n']
+            origin = d.get(ORIGIN)
+            if origin:
+                lines += [f'**{ORIGIN.title()}**: {origin}\n']
 
             add_lines_as_field(embed, title, lines)
     
