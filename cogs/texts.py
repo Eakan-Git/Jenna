@@ -1,8 +1,9 @@
 from discord.ext import commands
 from .core.dank.unscramble import unscramble
 from .core.texts import randomword, palabrasaleatorias as pa
+from .cmds.texts import define
+from typing import Optional
 
-import typing
 import discord
 import upsidedown
 import colors
@@ -44,7 +45,7 @@ class Texts(commands.Cog):
         await context.send(response)
     
     @commands.group(aliases=['tr', 'tl'], invoke_without_command=True)
-    async def translate(self, context, src2dest:typing.Optional[Src2Dest]='auto>en', *, text=None):
+    async def translate(self, context, src2dest:Optional[Src2Dest]='auto>en', *, text=None):
         await context.trigger_typing()
         
         src2dest = src2dest.split('>')
@@ -59,12 +60,13 @@ class Texts(commands.Cog):
 
         translated = self.translator.translate(text, dest=dest, src=src)
         embed = colors.embed()
+        embed.set_author(name='Google Translate', url='https://translate.google.com/')
         embed.description = f'{translated.text}'.replace('nhoan', 'cringy')
         embed.set_footer(text=f'{translated.src}>{translated.dest}: {text}')
         await context.send(embed=embed)
     
-    @translate.command()
-    async def lang(self, context):
+    @translate.command(aliases=['lang'])
+    async def langs(self, context):
         output = '**Supported Languages**:\n'
         output += const.BULLET.join([f'`{code}`-{lang.title()}' for code, lang in googletrans.LANGUAGES.items()])
         await context.send(output)
@@ -91,6 +93,19 @@ class Texts(commands.Cog):
     @commands.command(aliases=['rdi'])
     async def randomidiom(self, context):
         await self.send_random(context, randomword.IDIOM)
+
+    @commands.group(aliases=['def', 'df'])
+    async def define(self, context, lang:Optional[define.DefinedLang]='en', *, word):
+        embed = await define.define(lang, word)
+        await context.send(embed=embed)
+    
+    @define.command(aliases=['lang'])
+    async def langs(self, context):
+        response = (
+            'Google Dictionary supported languages:'
+            '\n'.join([f'{lang}({code}' for code, lang in define.SUPPORTED_LANGS])
+        )
+        await context.send(response)
 
 def setup(bot):
     bot.add_cog(Texts(bot))
