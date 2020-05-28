@@ -197,8 +197,13 @@ class Help(commands.Cog):
             if isinstance(error, ignored_errors): return
 
             msg = context.message
+            source = (
+                f'by {msg.author.mention} ({msg.author.display_name})\n'
+                f'in {msg.channel.mention} of `{msg.guild}`\n'
+                f'[Jump]({msg.jump_url})'
+            )
             embed = colors.embed(description=msg.content) \
-                .add_field(name='Source', value=f'by {msg.author.mention} in {msg.channel.mention} of `{msg.guild}`')
+                .add_field(name='Source', value=source)
             content = f'```{exception}```'
             if context.author == self.bot.owner:
                 await context.send(content, embed=embed)
