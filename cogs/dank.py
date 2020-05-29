@@ -80,8 +80,10 @@ class DankHelper(commands.Cog):
             await msg.add_reaction(emoji)
         else:
             response = 'I dunno man ' + const.SHRUG
-            content = 'New trivia question not in database:'
-            await self.bot.owner.send(content, embed=msg.embeds[0])
+            content = 'New Trivia:'
+            embed = msg.embeds[0]
+            embed.add_field(name='Jump', value=f'[URL]({msg.jump_url})')
+            await self.bot.owner.send(content, embed=embed)
         await msg.channel.send(response)
     
     async def send_minigame_assist(self, msg):
