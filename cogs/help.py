@@ -22,6 +22,7 @@ COG_EMOTES = {
     'Snipe': '🕵',
     'Emotes': 'me',
     'Games': '🎲',
+    'Bahbell': '🏋️',
     'Misc': '♾️',
 }
 

@@ -32,3 +32,5 @@ randomword| Get a random word from [randomword.com](https://randomword.com/)
 randomidiom| Get a random idiom from [randomword.com](https://randomword.com/idiom)
 reddit| Fetch the top 25 posts from a subreddit\n**Tip**: Add "th" to `posts` to get one post only\n_Ex_: `r all top 3rd` for the third post from r/all
 inspiro| Get a quote image from [inspirobot.me](http://inspirobot.me/)
+
+bodyfat| Calculate body fat percentage from height, neck, waist and hips measurements (hips not required for male)

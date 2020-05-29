@@ -18,6 +18,7 @@ NAMES = [
     'snipe',
     'emotes',
     'games',
+    'bahbell',
 
     'misc',
 ]
