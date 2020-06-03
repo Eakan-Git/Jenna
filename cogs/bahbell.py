@@ -1,6 +1,6 @@
 from discord.ext import commands
 from .core import converter as conv
-from .cmds.bahbell import bfp, mass
+from .cmds.bahbell import bfp, mass, wilks
 from typing import Optional
 
 import discord
@@ -12,7 +12,7 @@ class Bahbell(commands.Cog):
     
     @commands.command(aliases=['bfp'])
     async def bodyfat(self, context, gender:conv.Gender, height:float, neck:float, waist:float, hip:Optional[float]):
-        embed = bfp.embed_bfp(gender, height, neck, waist, hip)
+        embed = bfp.embed(gender, height, neck, waist, hip)
         await context.send(embed=embed)
 
     @commands.command()
