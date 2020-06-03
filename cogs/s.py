@@ -31,7 +31,7 @@ class S(commands.Cog):
     @commands.command(aliases=['lstv'])
     async def lasotuvi(self, context, dob:conv.DOB, birthtime:BirthTime, gender:conv.Gender, *, name=None):
         image_url = lstv.compile_url(dob, birthtime, gender, name)
-        gender = '♂️' if gender == conv.MALE else '♀️'
+        gender = conv.get_gender_emote(gender)
         embed = colors.embed(title=f'{gender} {dob} {birthtime}h')
         embed.set_image(url = image_url)
 

@@ -19,8 +19,9 @@ def embed(gender, height, neck, waist, hip):
             raise commands.BadArgument('Missing `hip` measurement for girls!')
         bfp = female_bfp(height, neck, waist, hip)
     
+    gender_emote = conv.get_gender_emote(gender)
     embed = colors.embed(title=f'{bfp:.2f}%') \
-                .set_author(name='Body Fat Percentage') \
+                .set_author(name=f'{gender_emote} Body Fat Percentage') \
                 .add_field(name='Height', value=f'**{height:0.0f}** cm') \
                 .add_field(name='Neck', value=f'**{neck:0.0f}** cm') \
                 .add_field(name='Waist', value=f'**{waist:0.0f}** cm')

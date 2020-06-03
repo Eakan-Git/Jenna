@@ -31,8 +31,9 @@ def embed(gender, bodyweight, lifted_weight):
     wilks_formula = male_wilks if gender == conv.MALE else female_wilks
     wilks_value = wilks_formula(bodyweight, lifted_weight)
 
+    gender_emote = conv.get_gender_emote(gender)
     embed = colors.embed(title=f'{wilks_value:.2f}') \
-                    .set_author(name='Wilks Points') \
+                    .set_author(name=f'{gender_emote} Wilks Points') \
                     .add_field(name='Bodyweight', value=f'**{bodyweight:g}** kg')
     
     if lifted_weight != 1:
