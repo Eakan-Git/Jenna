@@ -27,6 +27,11 @@ class Bahbell(commands.Cog):
     async def on_message(self, message):
         if message.author.bot: return
         await mass.process_commands(message)
+    
+    @commands.command()
+    async def wilks(self, context, gender:conv.Gender, bodyweight:float, lifted_weight:float=1):
+        embed = wilks.embed(gender, bodyweight, lifted_weight)
+        await context.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Bahbell(bot))
