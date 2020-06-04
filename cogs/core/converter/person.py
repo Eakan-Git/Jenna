@@ -25,7 +25,9 @@ def to_gender(s):
     s = s[0].upper()
     if s in GENDERS:
         return GENDERS.index(s) + 1
-    raise commands.BadArgument('`gender` must be `M/F/Male/Female`')
+    if s == 'W':
+        return FEMALE
+    raise commands.BadArgument('`gender` must be `M/F/Male/Female/Men/Women`')
 
 def get_gender_emote(gender):
     return '♂' if gender == MALE else '♀️'

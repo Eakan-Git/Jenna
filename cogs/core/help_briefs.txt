@@ -1,0 +1,114 @@
+translate|
+Google Translate text from a language to another.
+Translates the previous message if `text` left empty.
+_Ex_: `de>fr` translates from German to French
+`fr>` translates from French to English
+`>es` translates auto-detected language to Spanish
+
+translate langs|
+Shows a list of languages supported by Google Translate
+
+define|
+Look up a word or phrase in Google Dictionary
+
+define langs|
+Shows a list of languages supported by Google Dictionary
+
+snipe|
+Show the `i`th last deleted message in channel
+
+snipedit|
+Show the `i`th last edited message in channel
+
+snipelog|
+Show the last 10 deleted messages in `channel`
+
+editlog|
+Show the last 10 edited messages in `channel`
+
+life path|
+Get life path number from `DOB`
+
+lasotuvi|
+Get your **la so tu vi** from [tuvilyso.vn](https://tuvilyso.vn)
+
+lasoquycoc|
+Get your **la so quy coc** from [tuvisomenh.com](http://tracuu.tuvisomenh.com/kinh-dich/la-so-quy-coc)
+
+tarot|
+Get a tarot card from [www.tarotcardmeanings.net](https://www.tarotcardmeanings.net)
+
+avatar|
+Zoom in on someone's avatar before they yeet it
+
+emotes|
+List of Jenna's emotes.
+ Add me to any server to use their emotes wherever I am.
+
+nitrotes|
+List of collected emotes
+
+drop|
+React a message with a Nitro emote
+
+enlarge|
+Show a big version of an emote
+
+emote add|
+Add an emote to your server (requires `Manage Emojis` permission)
+
+emote link|
+Get an emote's URL
+
+spell|
+Write 🇹 🇪 🇽 🇹 with big emojis
+
+reactspell|
+React a message with 🇪 🇲 🇴 🇯 🇮
+**Note**: The (most) letters must be unique or the text can't be spelled correctly.
+
+math|
+Compute big numbers for you
+
+whos|
+*Who is this guy?*
+
+upsidedown|
+Write texts uʍop ǝpᴉsdn for your mates in the Southern Hemisphere.
+
+rps|
+Play a game of Rock Paper Scissors with your friend
+
+invite|
+Invite me to your server!
+
+covid|
+Fetch coronavirus cases/deaths from [Worldometer](https://www.worldometers.info/coronavirus/)
+
+randomword|
+Get a random word from [randomword.com](https://randomword.com/)
+
+randomidiom|
+Get a random idiom from [randomword.com](https://randomword.com/idiom)
+
+reddit|
+Fetch the top 25 posts from a subreddit
+**Tip**: Add "th" to `posts` to get one post only
+_Ex_: `r all top 3` for 3 top posts from r/all
+`r all top 3rd` for the third post from r/all
+
+inspiro|
+Get a computer generated quote image from [inspirobot.me](http://inspirobot.me/)
+
+bodyfat|
+Calculate body fat percentage from height, neck, waist and hips measurements (hips not required for male)
+_Ex_: `j bfp F 170 35 65 90`
+= Female H170 N35 W65 H90
+
+ipfgl|
+Calculate IPF GL Points
+`equipment`: **R**aw/**C**lassic
+`event`: **F**ull**M**eet/**B**ench**P**ress
+
+wilks|
+Calculate Wilks Points from bodyweight and lifted weight

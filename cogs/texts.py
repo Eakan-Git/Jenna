@@ -64,9 +64,9 @@ class Texts(commands.Cog):
         embed.description = f'{translated.text}'.replace('nhoan', 'cringy')
         embed.set_footer(text=f'{translated.src}>{translated.dest}: {text}')
         await context.send(embed=embed)
-    
-    @translate.command(aliases=['lang'])
-    async def langs(self, context):
+
+    @translate.command(name='langs', aliases=['lang'])
+    async def translatelangs(self, context):
         output = '**Supported Languages**:\n'
         output += const.BULLET.join([f'`{code}`-{lang.title()}' for code, lang in googletrans.LANGUAGES.items()])
         await context.send(output)
@@ -94,7 +94,7 @@ class Texts(commands.Cog):
     async def randomidiom(self, context):
         await self.send_random(context, randomword.IDIOM)
 
-    @commands.group(aliases=['def', 'df'])
+    @commands.group(aliases=['def', 'df'], invoke_without_command=True)
     async def define(self, context, full:Optional[define.Full]=False, lang:Optional[define.DefinedLang]='en', *, word):
         command = context.message.content.split()
         command.insert(2, 'full')
@@ -104,12 +104,10 @@ class Texts(commands.Cog):
             embed.set_footer(text=define.FULL_FOOTER + command)
         await context.send(embed=embed)
     
-    @define.command(aliases=['lang'])
-    async def langs(self, context):
-        response = (
-            'Google Dictionary supported languages:'
-            '\n'.join([f'{lang}({code}' for code, lang in define.SUPPORTED_LANGS])
-        )
+    @define.command(name='langs', aliases=['lang'])
+    async def dictlangs(self, context):
+        languages = '\n'.join([f'`{code}` - {lang}' for code, lang in define.SUPPORTED_LANGS.items()])
+        response = 'Google Dictionary supported languages:\n' + languages
         await context.send(response)
 
 def setup(bot):

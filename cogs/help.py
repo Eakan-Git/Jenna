@@ -4,16 +4,17 @@ import cogs
 import traceback
 import sys
 import const
-import csv
 import env
+import os
 
 from discord.ext import commands
 from .core import converter as conv
 
-BRIEFS_FILE = 'cogs/core/help_briefs.csv'
+BRIEFS_FILE = os.path.join(os.path.dirname(__file__), 'core/help_briefs.txt')
 with open(BRIEFS_FILE, encoding='utf8') as file:
-    reader = csv.reader(file, delimiter='|')
-    BRIEFS = {row[0]: row[1].strip().replace('\\n', '\n') for row in reader if row}
+    BRIEFS = file.read().split('\n\n')
+    BRIEFS = [b.split('|') for b in BRIEFS]
+    BRIEFS = { command: brief.strip() for command, brief in BRIEFS}
 
 COG_EMOTES = {
     'Texts': '🗨️',
