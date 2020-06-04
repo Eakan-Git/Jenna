@@ -99,7 +99,7 @@ class Alpha(commands.Cog):
                 response = f'⚠️ {name} reload failed!'
             responses += [response]
         
-        content = '\n'.join(responses)
+        content = '\n'.join(responses) if responses else f'⚠️ No modules named `{module}`!'
         await context.send(content)
 
     @commands.command(aliases=['rl', 'rlc'])

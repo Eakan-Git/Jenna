@@ -1,6 +1,6 @@
 from discord.ext import commands
 from .core import converter as conv
-from .cmds.bahbell import bfp, mass, wilks
+from .cmds.bahbell import bfp, mass, wilks, ipfgl
 from typing import Optional
 
 import discord
@@ -31,6 +31,12 @@ class Bahbell(commands.Cog):
     @commands.command()
     async def wilks(self, context, gender:conv.Gender, bodyweight:float, lifted_weight:float=1):
         embed = wilks.embed(gender, bodyweight, lifted_weight)
+        await context.send(embed=embed)
+    
+    @commands.command(aliases=['ipf'])
+    async def ipfgl(self, context, gender:conv.Gender, bodyweight:float, \
+        equipment:ipfgl.Equipment, event:ipfgl.Event, result_kg:float):
+        embed = ipfgl.embed(gender, bodyweight, equipment, event, result_kg)
         await context.send(embed=embed)
 
 def setup(bot):
