@@ -101,9 +101,8 @@ inspiro|
 Get a computer generated quote image from [inspirobot.me](http://inspirobot.me/)
 
 bodyfat|
-Calculate body fat percentage from height, neck, waist and hips measurements (hips not required for male)
-_Ex_: `j bfp F 170 35 65 90`
-= Female H170 N35 W65 H90
+Calculate body fat percentage from height and measurements of neck, waist and hips (not required for male) 
+_Ex_: `j bfp F 170 35 65 90` - Female H170 N35 W65 H90
 
 ipfgl|
 Calculate IPF GL Points
@@ -112,3 +111,12 @@ Calculate IPF GL Points
 
 wilks|
 Calculate Wilks Points from bodyweight and lifted weight
+
+robi|
+Calculate Robi Points from your result and a [World Record](http://www.iwf.net/results/world-records/)
+
+kg2lbs|
+**Example**: `50 kg = lbs`
+
+lbs2kg|
+**Example**: `100 lbs = kg`

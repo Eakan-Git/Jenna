@@ -1,6 +1,6 @@
 from discord.ext import commands
 from .core import converter as conv
-from .cmds.bahbell import bfp, mass, wilks, ipfgl
+from .cmds.bahbell import bfp, mass, wilks, ipfgl, robi
 from typing import Optional
 
 import discord
@@ -37,6 +37,11 @@ class Bahbell(commands.Cog):
     async def ipfgl(self, context, gender:conv.Gender, bodyweight:float, \
         equipment:ipfgl.Equipment, event:ipfgl.Event, result_kg:float):
         embed = ipfgl.embed(gender, bodyweight, equipment, event, result_kg)
+        await context.send(embed=embed)
+    
+    @commands.command()
+    async def robi(self, context, world_record:float, total_kg:float):
+        embed = robi.embed(world_record, total_kg)
         await context.send(embed=embed)
 
 def setup(bot):
