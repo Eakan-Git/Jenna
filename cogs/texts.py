@@ -56,7 +56,7 @@ class Texts(commands.Cog):
         
         if not text:
             last_message = await context.history(limit=1, before=context.message).flatten()
-            text = last_message[0].content
+            text = last_message[0].clean_content
 
         translated = self.translator.translate(text, dest=dest, src=src)
         embed = colors.embed()
