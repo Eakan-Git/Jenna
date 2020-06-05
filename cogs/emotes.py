@@ -87,9 +87,7 @@ class Emotes(commands.Cog):
             url = single_url
         
         if url:
-            embed = colors.embed(color=EMBED_BACKCOLOR)
-            embed.set_image(url=str(url))
-            await context.send(embed=embed)
+            await context.send(url)
         else:
             await context.message.add_reaction('⁉️')
         
