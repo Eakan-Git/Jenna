@@ -32,8 +32,8 @@ class S(commands.Cog):
     async def lasotuvi(self, context, dob:conv.DOB, birthtime:BirthTime, gender:conv.Gender, *, name=None):
         image_url = lstv.compile_url(dob, birthtime, gender, name)
         gender = conv.get_gender_emote(gender)
-        embed = colors.embed(title=f'{gender} {dob} {birthtime}h')
-        embed.set_image(url = image_url)
+        embed = colors.embed(title=f'{gender} {dob} {birthtime}h', url=image_url)
+        embed.set_image(url=image_url)
 
         await context.send(embed=embed)
     
