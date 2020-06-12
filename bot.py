@@ -6,10 +6,9 @@ import logging
 import cogs
 
 from discord.ext import commands
-
 class Bot(commands.Bot):
     async def on_ready(self):
-        await bot.change_presence(activity=discord.Game('j help'))
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="j help"))
         await self.is_owner(self.user)
         self.owner = self.get_user(self.owner_id)
         print('Logged in as', bot.user)

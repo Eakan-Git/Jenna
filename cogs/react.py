@@ -63,6 +63,13 @@ class React(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
+        await self.process_reaction(reaction, user)
+    
+    @commands.Cog.listener()
+    async def on_reaction_remove(self, reaction, user):
+        await self.process_reaction(reaction, user)
+
+    async def process_reaction(self, reaction, user):
         if user == self.bot.user: return
         reactable = self.reactables.get(reaction.message.id)
         if not reactable: return

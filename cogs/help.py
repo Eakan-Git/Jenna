@@ -186,8 +186,10 @@ class Help(commands.Cog):
         if isinstance(error, commands.UserInputError):
             if type(error) in [commands.BadArgument, commands.BadUnionArgument]:
                 error.args = (error.args[0].replace('"', '`'),)
+                await context.send_help(context.command)
             if type(error) is commands.MissingRequiredArgument:
                 await context.send(f'Missing `{error.param.name}` argument!')
+                await context.send_help(context.command)
             else:
                 await context.send(error)
         else:
