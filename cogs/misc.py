@@ -9,7 +9,6 @@ from discord.ext import commands, tasks
 from datetime import datetime
 from .core import converter as conv
 from .core.misc import covid, math, reddit
-from urllib.parse import quote
 
 MATH_BRIEF = 'Compute big numbers for you'
 INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=664109951781830666&permissions=1342565440&scope=bot'
@@ -21,7 +20,7 @@ class Misc(commands.Cog):
 
     @commands.command(aliases=['gg', 'g'])
     async def google(self, context, *, query):
-        url = 'https://www.google.com/search?q=' + quote(query)
+        url = 'https://www.google.com/search?q=' + query.replace(' ', '+')
         await context.send(url)
 
     @commands.command(hidden=True)
