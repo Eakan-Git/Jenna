@@ -20,7 +20,10 @@ class Misc(commands.Cog):
         self.corona_status = covid.CoronaStatus()
 
     @commands.command(aliases=['gg', 'g', 'whats'])
-    async def google(self, context, *, query):
+    async def google(self, context, *, query=None):
+        if not query:
+            last_message = await context.history(limit=1, before=context.message).flatten()
+            query = last_message[0].clean_content or ''
         query = ''.join(char if char.isalpha() else quote_plus(char) for char in query)
         url = 'https://www.google.com/search?q=' + query
         await context.send(url)
