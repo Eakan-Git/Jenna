@@ -39,7 +39,6 @@ class Snipe(commands.Cog):
         self.bot = bot
         self.channel_logs = {}
         self.backup_files = {}
-        self.files_of_message = {}
     
     @commands.command(hidden=True, aliases=['re'])
     @commands.guild_only()
@@ -105,7 +104,8 @@ class Snipe(commands.Cog):
         multiple_files = len(msg.attachments) > 1
         if accessible and not multiple_files: return []
 
-        files = self.backup_files.get(msg.id, [])
+        files = self.backup_files.get(msg.id, {})
+        files = [discord.File(io.BytesIO(data), name) for name, data in files.items()]
         if files:
             embed.set_image(url='')
         return files
@@ -155,7 +155,7 @@ class Snipe(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, msg):
-        files = [await a.to_file() for a in msg.attachments]
+        files = { a.filename: await a.read() for a in msg.attachments }
         if files:
             self.backup_files[msg.id] = files
 
