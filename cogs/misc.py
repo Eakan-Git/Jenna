@@ -19,7 +19,7 @@ class Misc(commands.Cog):
         self.bot = bot
         self.corona_status = covid.CoronaStatus()
 
-    @commands.command(aliases=['gg', 'g'])
+    @commands.command(aliases=['gg', 'g', 'whats'])
     async def google(self, context, *, query):
         query = ''.join(char if char.isalpha() else quote_plus(char) for char in query)
         url = 'https://www.google.com/search?q=' + query
