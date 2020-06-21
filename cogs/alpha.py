@@ -56,7 +56,7 @@ class Alpha(commands.Cog):
                     output = exec(code)
                 if asynchronous:
                     output = await output
-                title = '**Output**:'
+                title = ''
             except Exception as e:
                 output = e
                 title = '⚠️ **Error**:'
