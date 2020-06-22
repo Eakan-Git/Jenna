@@ -8,7 +8,7 @@ class NitroEmojiConverter(commands.PartialEmojiConverter):
         emoji = discord.utils.get(ctx.bot.emojis, name=no_colon)
         if not emoji:
             try: emoji = await super().convert(ctx, arg)
-            except: emoji = arg
+            except: emoji = no_colon
         return emoji
 
 emoji_converter = NitroEmojiConverter()

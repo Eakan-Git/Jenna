@@ -54,8 +54,6 @@ class Emotes(commands.Cog):
 
     @commands.command(aliases=['big'])
     async def enlarge(self, context, emoji:conv.NitroEmoji):
-        await context.trigger_typing()
-        
         emoji = await self.get_external_emoji(context, emoji) or emoji
         url, single_url = utils.get_url(emoji)
         name = emoji
