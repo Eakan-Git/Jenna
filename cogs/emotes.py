@@ -233,7 +233,7 @@ class Emotes(commands.Cog):
 
     @emote.command()
     @commands.is_owner()
-    async def scan(self, context, channel:typing.Union[discord.TextChannel, int]=None, limit:int=None):
+    async def scan(self, context, channel:typing.Union[discord.TextChannel, int]=None, limit:int=100):
         if isinstance(channel, int):
             channel = self.bot.get_channel(channel)
         channel = channel or context.channel
