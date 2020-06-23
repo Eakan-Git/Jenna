@@ -188,7 +188,7 @@ class Help(commands.Cog):
                 error.args = (error.args[0].replace('"', '`'),)
                 await context.send_help(context.command)
             if type(error) is commands.MissingRequiredArgument:
-                await context.send(f'Missing `{error.param.name}` argument!')
+                await context.send(f'Missing `{error.param.name}`!')
                 await context.send_help(context.command)
             else:
                 await context.send(error)
@@ -200,11 +200,11 @@ class Help(commands.Cog):
             if isinstance(error, ignored_errors): return
 
             msg = context.message
-            source = (
-                f'by {msg.author.mention} ({msg.author.display_name})\n'
-                f'in {msg.channel.mention} of `{msg.guild}`\n'
+            source = source = ''.join([
+                f'by {msg.author.mention} ({msg.author.display_name})\n',
+                f'in {msg.channel.mention} of `{msg.guild}`\n' if not isinstance(msg.channel, discord.DMChannel) else '',
                 f'[Jump]({msg.jump_url})'
-            )
+            ])
             embed = colors.embed(description=msg.content) \
                 .add_field(name='Source', value=source)
             content = f'```{exception}```'

@@ -25,7 +25,7 @@ def is_special_website(url):
 def subname(sub):
     sub = sub.replace('r/', '').replace('/r/', '')
     if len(sub) < 3 or sub in SORTINGS:
-        raise commands.BadArgument(f'`r/{sub}` is not a subreddit')
+        raise RedditError(f'`r/{sub}` is not a subreddit')
     return sub
 
 TOP = 'top'
@@ -36,7 +36,7 @@ def sorting(s):
         if s[0] in SORTINGS or s in sort:
             return sort
     quoted_sortings = ' '.join([f'`{sort}`' for sort in SORTINGS])
-    raise commands.BadArgument(f'The sortings are {quoted_sortings}. You can use the first letters.')
+    raise RedditError(f'The sortings are {quoted_sortings}. You can use the first letters.')
 
 def parse_posts(s):
     s = str(s)
@@ -46,7 +46,7 @@ def parse_posts(s):
         start = posts - 1
     else:
         try: posts = int(s)
-        except: raise commands.BadArgument(f'`{s}`... posts?')
+        except: raise RedditError(f'`{s}`... posts?')
     return range(start, posts)
 posts = parse_posts
 
@@ -68,8 +68,12 @@ def period(p):
     if p not in PERIODS:
         quoted_periods = ', '.join(f'`{p}`' for p in PERIODS_AS_URL)
         aliases = ', '.join(f'`{p}`' for p in PERIODS)
-        raise commands.BadArgument(f'The possible top periods are {quoted_periods}\nAliases: {aliases}')
+        raise RedditError(f'The possible top periods are {quoted_periods}\nAliases: {aliases}')
     return p
+
+class RedditError(commands.UserInputError):
+    def __init__(self, message=None):
+        super().__init__(message)
 
 class RedditEntry:
     def __init__(self, sub, title, url, author, thumbnail, content_url, text):
@@ -159,7 +163,7 @@ def get_entry_in_rss(rss, index=0, sorting=TOP):
         subreddit = soup.feed.category['label']
         entry_count = len(entries)
         only = 'only ' if entry_count else ''
-        raise commands.BadArgument(f'`{subreddit}` {only}has **{entry_count}** {sorting} posts today')
+        raise RedditError(f'`{subreddit}` {only}has **{entry_count}** {sorting} posts today')
     entry = parse_entry(entry)
     sub_logo = soup.feed.logo
     if sub_logo:

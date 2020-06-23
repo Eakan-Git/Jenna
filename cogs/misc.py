@@ -90,7 +90,7 @@ class Misc(commands.Cog):
         await context.trigger_typing()
         try:
             sub = reddit.subname(sub)
-        except commands.BadArgument:
+        except reddit.RedditError:
             sorting = reddit.sorting(sub)
             sub = 'random'
         await reddit.send_posts_in_embeds(context, sub, sorting, posts, top)
