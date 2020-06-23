@@ -7,6 +7,7 @@ import discord
 import textwrap
 import re
 import colors
+import asyncio
 
 ICON_URL = 'https://www.redditstatic.com/icon.png'
 SUB_URL = 'https://www.reddit.com/r/{}/{}/'
@@ -200,6 +201,10 @@ async def send_posts_in_embeds(context, sub, sorting, posts, period):
                 vreddit_posts += [(msg, extra_msg)]
         
     for msg, extra_msg in vreddit_posts:
+        while not extra_msg.embeds:
+            await asyncio.sleep(1)
+            extra_msg = await extra_msg.channel.fetch_message(extra_msg.id)
+            continue
         url = extra_msg.embeds and extra_msg.embeds[0].thumbnail.url
         if url:
             embed = msg.embeds[0]
