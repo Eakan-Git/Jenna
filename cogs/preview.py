@@ -23,7 +23,8 @@ class Preview(commands.Cog):
 
             author_text = f'{author.display_name} #{quoted_message.channel}'
             embed = colors.embed(description=quoted_message.content) \
-                    .set_author(name=author_text, url=jump_url, icon_url=author.avatar_url)
+                    .set_author(name=author_text, icon_url=author.avatar_url) \
+                    .add_field(name='Link', value=f'[Jump]({jump_url})')
             
             embed.timestamp = quoted_message.created_at
             for a in quoted_message.attachments:
