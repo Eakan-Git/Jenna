@@ -47,7 +47,6 @@ class Persist(commands.Cog):
         self.last_saved = self.data
 
         await self.upload_backup()
-        await self.delete_old_backups()
 
     async def upload_backup(self):
         pickle.dump(self.data, open(BACKUP_FILE, 'wb'))
