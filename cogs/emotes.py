@@ -213,12 +213,18 @@ class Emotes(commands.Cog):
         emojis = re.findall(REAL_EMOJI_PATTERN, msg.content)
         emojis += [r.emoji for r in msg.reactions if isinstance(r.emoji, discord.PartialEmoji)]
         
+        new_emotes = False
+
         for e in emojis:
             partial = await utils.to_partial_emoji(context, e) if isinstance(e, str) else e
             known = self.get_known_emoji(partial.name)
             if not known:
                 id = utils.shorten(e)
                 self.external_emojis[partial.name] = str(e)
+                new_emotes = True
+        
+        if new_emotes:
+            self.Persist.request_backup()
 
     @emote.command()
     @commands.is_owner()

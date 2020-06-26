@@ -15,7 +15,7 @@ class Persist(commands.Cog):
         self.data = {}
         self.last_saved = {}
         self.loaded = False
-        self.data_changed = False
+        self.backup_requested = False
     
     @commands.Cog.listener()
     async def on_ready(self):
@@ -41,10 +41,15 @@ class Persist(commands.Cog):
     def set(self, key, value):
         self.data[key] = value
     
+    def request_backup(self):
+        self.backup_requested = True
+    
     @tasks.loop(seconds=10)
     async def backup_loop(self):
-        if self.data == self.last_saved: return
-        self.last_saved = self.data
+        same = self.data == self.last_saved
+        if same and not self.backup_requested: return
+        self.backup_requested = False
+        self.last_saved = self.data.copy()
 
         await self.upload_backup()
 
