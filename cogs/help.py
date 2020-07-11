@@ -127,7 +127,8 @@ class EmbedHelpCommand(commands.HelpCommand):
         message = reaction.message
         embed.color = message.embeds[0].color
         await message.edit(embed=embed)
-        await message.remove_reaction(reaction, user)
+        try: await message.remove_reaction(reaction, user)
+        except: pass
 
     async def send_cog_help(self, cog):
         embed = await self.get_cog_help(cog)
@@ -137,14 +138,22 @@ class EmbedHelpCommand(commands.HelpCommand):
     
     async def get_cog_help(self, cog):
         embed = self.create_embed()
+        cog_name = await self.get_cog_emoted_name(cog)
         command_helps = []
+
         for command in set(cog.walk_commands()):
             if command.hidden or owner_only(command): continue
-            command_helps += [self.get_command_help(command)]
+            text = self.get_command_help(command)
+            command_helps += [text]
+            joined = '\n\n'.join(command_helps)
+            if len(joined) > 1024:
+                joined = '\n\n'.join(command_helps[:-1])
+                embed.add_field(name=cog_name, value=joined)
+                cog_name = const.INVISIBLE
+                command_helps = [text]
         
-        command_helps = '\n\n'.join(command_helps)
-        cog_name = await self.get_cog_emoted_name(cog)
-        embed.add_field(name=cog_name, value=command_helps)
+        joined = '\n\n'.join(command_helps)
+        embed.add_field(name=cog_name, value=joined)
         return embed
 
     async def send_command_help(self, command):
@@ -173,7 +182,7 @@ class EmbedHelpCommand(commands.HelpCommand):
         signature = self.get_command_signature(command, with_args=True)
         brief = BRIEFS.get(command.qualified_name, DEFAULT_HELP)
         if brief: brief = '\n' + brief
-        return f'`{signature}`{brief}'
+        return f'`{signature}`{brief}'.format(prefix=self.clean_prefix)
 
 class Help(commands.Cog):
     def __init__(self, bot):
@@ -200,7 +209,7 @@ class Help(commands.Cog):
             if isinstance(error, ignored_errors): return
 
             msg = context.message
-            source = source = ''.join([
+            source = ''.join([
                 f'by {msg.author.mention} ({msg.author.display_name})\n',
                 f'in {msg.channel.mention} of `{msg.guild}`\n' if not isinstance(msg.channel, discord.DMChannel) else '',
                 f'[Jump]({msg.jump_url})'

@@ -4,10 +4,8 @@ import const
 import env
 
 from discord.ext import commands
-from .core.dank import plstrivia
 from .core.dank.unscramble import unscramble
 
-TRIVIA_QUESTION = 'trivia question'
 DANK_MEMER = 'Dank Memer'
 
 RETYPE = 'Type'
@@ -24,8 +22,6 @@ COLOR_WORD_PATTERN = ':(\w+):.* `([\w-]+)`'
 INVISIBLE_TRAP = '﻿'
 COLOR_WORD_FORMAT = ':{color}_square: `{word}` = `{color}`'
 
-TRIVIA_OPTIONS = ' 🇦🇧🇨🇩'
-TRIVIA_LETTERS = ' ABCD'
 EVENT_ENCOUNTERED = 'EVENT TIME'
 UNSCRAMBLE_ERROR = ':warning: Could not unscramble word'
 
@@ -43,48 +39,22 @@ class DankHelper(commands.Cog):
         in_dm = isinstance(msg.channel, discord.DMChannel)
         if not_dank_memer_or_self or in_dm: return
 
-        is_trivia_question = self.is_trivia(msg)
         is_minigame = any(word in msg.content for word in GAMES_TO_HELP)
         is_event = EVENT_ENCOUNTERED in msg.content
 
         help = None
-        if is_trivia_question:
-            help = self.send_answer
-        elif is_minigame:
+        if is_minigame:
             help = self.send_minigame_assist
         elif is_event:
             help = self.ping_players
 
         if help:
             await help(msg)
-    
-    def is_trivia(self, msg):
-        is_embed = msg.embeds and msg.embeds[0].author and TRIVIA_QUESTION in msg.embeds[0].author.name
-        is_event_trivia = msg.content.count('\n') == msg.content.count(') ') == 4
-        return is_embed or is_event_trivia
 
     async def ping_players(self, msg):
         if msg.guild.id != RETADABAR_ID: return
         player_role = discord.utils.get(msg.guild.roles, name=GAMBLING_ADDICT)
         await msg.channel.send(f'{player_role.mention} This is a **NOT** test!')
-    
-    async def send_answer(self, msg):
-        await msg.channel.trigger_typing()
-        trivia = plstrivia.read(msg.content or msg.embeds[0].description)
-        answer = plstrivia.try_answer(trivia)
-        if answer:
-            no = trivia.answers.index(answer)
-            letter = TRIVIA_LETTERS[no]
-            response = f'The answer is **{letter}**) *{answer}*'
-            emoji = TRIVIA_OPTIONS[no]
-            await msg.add_reaction(emoji)
-        else:
-            response = 'I dunno man ' + const.SHRUG
-            content = 'New Trivia:'
-            embed = msg.embeds[0]
-            embed.add_field(name='Jump', value=f'[URL]({msg.jump_url})')
-            await self.bot.owner.send(content, embed=embed)
-        await msg.channel.send(response)
     
     async def send_minigame_assist(self, msg):
         content = msg.content.replace(INVISIBLE_TRAP, '')
