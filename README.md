@@ -1,2 +1,2 @@
 # Jenna
-//Discord bot
+//Discord bot 
